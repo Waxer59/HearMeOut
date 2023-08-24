@@ -4,18 +4,29 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "eslint": "^8.47.0",
+    "husky": "^8.0.3",
     "prettier": "^3.0.2",
-    "tsconfig": "*",
     "turbo": "latest"
   },
   "name": "HearMeOut",
   "packageManager": "yarn@1.22.19",
   "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+    "apps/*"
+  ],
+  "lint-staged": {
+    "frontend/*.{ts,tsx,js,jsx}": [
+      "eslint --fix"
+    ],
+    "backend/*.ts": [
+      "eslint --fix"
+    ],
+    "*.{ts,tsx,js,jsx,html,css,md}": [
+      "prettier --write"
+    ]
+  }
 }
