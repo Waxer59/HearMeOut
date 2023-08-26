@@ -9,7 +9,7 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'prettier'
   ],
-  ignorePatterns: ['vite.config.ts', 'netlify/'],
+  ignorePatterns: ['vite.config.ts', 'netlify/', '/*', '!/src'],
   parserOptions: {
     parser: '@typescript-eslint/parser',
     ecmaVersion: 'latest',
@@ -38,4 +38,4 @@ module.exports = {
       version: 'detect'
     }
   }
-}
+};
