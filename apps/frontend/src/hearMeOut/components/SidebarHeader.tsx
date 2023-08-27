@@ -1,11 +1,13 @@
-import { IconButton, Text, TextField, Tooltip } from '@radix-ui/themes';
+import { Heading, IconButton, TextField, Tooltip } from '@radix-ui/themes';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
 export const SidebarHeader = () => {
   return (
     <header className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <Text weight="bold">Channels</Text>
+        <Heading as="h3" weight="bold" className="text-lg">
+          Channels
+        </Heading>
         <Tooltip content="Create channel">
           <IconButton className="bg-primary" radius="large">
             <IconPlus size={24} />

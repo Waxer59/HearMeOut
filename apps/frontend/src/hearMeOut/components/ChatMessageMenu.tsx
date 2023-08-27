@@ -11,6 +11,7 @@ export const ChatMessageMenu = ({ type, ...props }: Props) => {
       <MenuType.Item className="cursor-pointer">
         Reply <IconArrowBackUp size={18} />
       </MenuType.Item>
+      <MenuType.Separator />
       <MenuType.Item
         color="red"
         className="flex items-center gap-2 cursor-pointer">

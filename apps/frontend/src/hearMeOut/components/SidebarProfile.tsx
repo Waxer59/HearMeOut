@@ -1,5 +1,5 @@
-import { Avatar, Button, Text, Tooltip } from '@radix-ui/themes';
-import { IconSettings } from '@tabler/icons-react';
+import { Avatar, Button, DropdownMenu, Text, Tooltip } from '@radix-ui/themes';
+import { IconLogout, IconSettings, IconUserCircle } from '@tabler/icons-react';
 
 export const SidebarProfile = () => {
   return (
@@ -11,9 +11,26 @@ export const SidebarProfile = () => {
         Test
       </Text>
       <Tooltip content="Settings">
-        <Button variant="ghost" className="transition">
-          <IconSettings size={24} className="opacity-70" />
-        </Button>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            <Button variant="ghost" className="transition">
+              <IconSettings size={24} className="opacity-70" />
+            </Button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content>
+            <DropdownMenu.Item className="cursor-pointer">
+              <IconUserCircle />
+              Profile
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item
+              color="red"
+              className="flex items-center gap-2 cursor-pointer">
+              <IconLogout />
+              Logout
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       </Tooltip>
     </div>
   );

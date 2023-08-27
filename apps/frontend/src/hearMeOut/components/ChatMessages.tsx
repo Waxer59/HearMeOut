@@ -3,7 +3,7 @@ import { ChatMessage } from './';
 export const ChatMessages = () => {
   return (
     <div className="px-20 flex-1 pt-10 flex flex-col gap-6 overflow-auto">
-      {Array.from({ length: 35 }, (_, i) => (
+      {Array.from({ length: 5 }, (_, i) => (
         <ChatMessage
           avatar=""
           name="Sergio"

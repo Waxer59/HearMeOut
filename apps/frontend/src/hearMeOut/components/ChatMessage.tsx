@@ -43,7 +43,7 @@ export const ChatMessage = ({ content, date, name, avatar }: Props) => {
                   </DropdownMenu.Trigger>
                 </div>
               </div>
-              <p className="max-w-4xl pb-2">{content}</p>
+              <p className="pr-16 pb-2 break-all">{content}</p>
             </div>
           </div>
         </ContextMenu.Trigger>
