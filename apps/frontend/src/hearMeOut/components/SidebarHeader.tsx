@@ -1,8 +1,11 @@
 import {
+  Avatar,
   Button,
   Dialog,
   Heading,
   IconButton,
+  Select,
+  Text,
   TextField,
   Tooltip
 } from '@radix-ui/themes';
@@ -17,6 +20,8 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { useState } from 'react';
+
+const USERS = ['SERGIO', 'JOSE', 'JUAN', 'JUAN PABLO'];
 
 enum DialogSelectionEnum {
   ADD_CONTACT = 'ADD_CONTACT',
@@ -62,7 +67,7 @@ export const SidebarHeader = () => {
           </Tooltip>
 
           <Dialog.Content>
-            <div className="flex items-center justify-between w-full mb-6">
+            <div className="flex items-center justify-between w-full mb-6 max-w-[532px]">
               {dialogSelection !== DialogSelectionEnum.NONE && (
                 <Button onClick={onResetDialog} variant="ghost">
                   <IconChevronLeft />
@@ -78,8 +83,10 @@ export const SidebarHeader = () => {
                   ? 'Join group'
                   : 'Create channel'}
               </Dialog.Title>
-              <Dialog.Close color="red" className="cursor-pointer">
-                <IconX />
+              <Dialog.Close className="cursor-pointer">
+                <Button variant="ghost" color="red" className="transition">
+                  <IconX />
+                </Button>
               </Dialog.Close>
             </div>
             {dialogSelection === DialogSelectionEnum.NONE && (
@@ -122,9 +129,51 @@ export const SidebarHeader = () => {
               </TextField.Root>
             )}
             {dialogSelection === DialogSelectionEnum.CREATE_GROUP && (
-              <TextField.Root size="3" variant="soft" color="gray">
-                <TextField.Input placeholder="Group name" />
-              </TextField.Root>
+              <div className="flex flex-col gap-8">
+                <TextField.Root size="3" variant="soft" color="gray">
+                  <TextField.Input placeholder="Group name" />
+                </TextField.Root>
+                <div className="w-full flex flex-col gap-3">
+                  <Heading as="h3" size="3">
+                    Add users to group
+                  </Heading>
+                  <Select.Root>
+                    <Select.Trigger placeholder="Contacts" />
+                    <Select.Content color="blue">
+                      {USERS.map((el, idx) => (
+                        <Select.Item value={el} key={idx}>
+                          {el}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+                <div className="w-full flex flex-col gap-3">
+                  <Heading as="h3" size="3">
+                    Selected contacts
+                  </Heading>
+                  <Text weight="light">
+                    Select a minimum of two people to create a group...
+                  </Text>
+                  <div className="flex flex-wrap gap-4 pl-2">
+                    <Tooltip content="Click to remove">
+                      <Button
+                        variant="ghost"
+                        className="flex gap-2 transition"
+                        radius="medium">
+                        <Avatar fallback="J" />
+                        <Text weight="bold" className="uppercase">
+                          Juan
+                        </Text>
+                      </Button>
+                    </Tooltip>
+                  </div>
+                </div>
+                <Button color="blue" size="3">
+                  Create
+                  <IconSend />
+                </Button>
+              </div>
             )}
             {dialogSelection === DialogSelectionEnum.JOIN_GROUP && (
               <div className="flex items-center gap-2">

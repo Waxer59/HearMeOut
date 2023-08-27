@@ -25,19 +25,13 @@ export const SignIn = () => {
       </Button>
       <Form.Root className="flex flex-col gap-6">
         <Form.Field name="user" className="flex flex-col gap-2">
+          <Form.Label>Username</Form.Label>
           <Form.Control asChild>
             <TextFieldInput placeholder="Jhon Doe" required />
           </Form.Control>
         </Form.Field>
         <Form.Field name="password" className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <Form.Label>Password</Form.Label>
-            <Form.Message
-              match="valueMissing"
-              className="text-[13px] text-red-400 opacity-[0.8]">
-              Please enter a password
-            </Form.Message>
-          </div>
+          <Form.Label>Password</Form.Label>
           <Form.Control asChild>
             <TextFieldInput
               placeholder="MyPaSsWoRd1"

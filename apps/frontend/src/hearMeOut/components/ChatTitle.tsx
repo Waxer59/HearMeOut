@@ -1,4 +1,4 @@
-import { Button, Heading } from '@radix-ui/themes';
+import { Button, Heading, Tooltip } from '@radix-ui/themes';
 import { IconUsersGroup } from '@tabler/icons-react';
 
 export const ChatTitle = () => {
@@ -7,9 +7,11 @@ export const ChatTitle = () => {
       <Heading as="h2" weight="bold" className="text-lg text-start w-full">
         Front-end developers
       </Heading>
-      <Button variant="ghost">
-        <IconUsersGroup />
-      </Button>
+      <Tooltip content="Members">
+        <Button variant="ghost">
+          <IconUsersGroup />
+        </Button>
+      </Tooltip>
     </div>
   );
 };

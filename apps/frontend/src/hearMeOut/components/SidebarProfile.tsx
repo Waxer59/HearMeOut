@@ -1,5 +1,12 @@
 import { Avatar, Button, DropdownMenu, Text, Tooltip } from '@radix-ui/themes';
-import { IconLogout, IconSettings, IconUserCircle } from '@tabler/icons-react';
+import {
+  IconBrightnessDown,
+  IconBrush,
+  IconLogout,
+  IconMoon,
+  IconSettings,
+  IconUserCircle
+} from '@tabler/icons-react';
 
 export const SidebarProfile = () => {
   return (
@@ -20,15 +27,33 @@ export const SidebarProfile = () => {
           </DropdownMenu.Trigger>
         </Tooltip>
         <DropdownMenu.Content>
-          <DropdownMenu.Item className="cursor-pointer">
-            <IconUserCircle />
+          <DropdownMenu.Item className="cursor-pointer flex justify-start gap-2">
+            <IconUserCircle size={18} />
             Profile
           </DropdownMenu.Item>
+
+          <DropdownMenu.Sub>
+            <DropdownMenu.SubTrigger className="cursor-pointer">
+              <IconBrush size={18} />
+              &nbsp; Theme
+            </DropdownMenu.SubTrigger>
+            <DropdownMenu.SubContent>
+              <DropdownMenu.Item className="flex items-center gap-2 cursor-pointer">
+                <IconMoon size={18} />
+                Dark
+              </DropdownMenu.Item>
+              <DropdownMenu.Item className="flex items-center gap-2 cursor-pointer">
+                <IconBrightnessDown size={18} />
+                Light
+              </DropdownMenu.Item>
+            </DropdownMenu.SubContent>
+          </DropdownMenu.Sub>
+
           <DropdownMenu.Separator />
           <DropdownMenu.Item
             color="red"
-            className="flex items-center gap-2 cursor-pointer">
-            <IconLogout />
+            className="cursor-pointer flex justify-start gap-2">
+            <IconLogout size={18} />
             Logout
           </DropdownMenu.Item>
         </DropdownMenu.Content>

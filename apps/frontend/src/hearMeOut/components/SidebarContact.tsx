@@ -1,4 +1,4 @@
-import { Avatar, Button, ContextMenu } from '@radix-ui/themes';
+import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
 
 interface Props {
   name: string;
@@ -14,6 +14,12 @@ export const SidebarContact = ({ name }: Props) => {
           className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition">
           <Avatar fallback="G" />
           {name}
+          <Badge color="green" className="ml-auto">
+            online
+          </Badge>
+          <Badge color="gray" className="ml-auto">
+            offline
+          </Badge>
         </Button>
       </ContextMenu.Trigger>
       <ContextMenu.Content>
