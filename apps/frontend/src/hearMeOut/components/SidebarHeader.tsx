@@ -1,4 +1,4 @@
-import { IconButton, Text, TextField } from '@radix-ui/themes';
+import { IconButton, Text, TextField, Tooltip } from '@radix-ui/themes';
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
 export const SidebarHeader = () => {
@@ -6,9 +6,11 @@ export const SidebarHeader = () => {
     <header className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <Text weight="bold">Channels</Text>
-        <IconButton className="bg-primary" radius="large">
-          <IconPlus size={24} />
-        </IconButton>
+        <Tooltip content="Create channel">
+          <IconButton className="bg-primary" radius="large">
+            <IconPlus size={24} />
+          </IconButton>
+        </Tooltip>
       </div>
       <TextField.Root size="3" variant="soft" color="gray">
         <TextField.Slot>
