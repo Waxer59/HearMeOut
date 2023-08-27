@@ -15,19 +15,16 @@ export const SignIn = () => {
       <Heading weight="regular" align="center">
         Sign in
       </Heading>
-      <Button variant="outline" radius="full" size="3" className="transition">
+      <Button
+        variant="outline"
+        color="iris"
+        radius="full"
+        size="3"
+        className="transition">
         <IconBrandGithub /> Sign in with GitHub
       </Button>
       <Form.Root className="flex flex-col gap-6">
         <Form.Field name="user" className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <Form.Label>Username</Form.Label>
-            <Form.Message
-              match="valueMissing"
-              className="text-[13px] text-red-400 opacity-[0.8]">
-              Please enter a username
-            </Form.Message>
-          </div>
           <Form.Control asChild>
             <TextFieldInput placeholder="Jhon Doe" required />
           </Form.Control>
@@ -57,7 +54,7 @@ export const SignIn = () => {
       </Form.Root>
       <Text align="center">
         Don't have an account?{' '}
-        <LinkRdx asChild>
+        <LinkRdx color="iris" asChild>
           <Link to="/sign-up">Sign up</Link>
         </LinkRdx>
       </Text>

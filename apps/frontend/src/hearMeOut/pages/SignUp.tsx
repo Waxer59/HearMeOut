@@ -15,7 +15,7 @@ export const SignUp = () => {
       <Heading weight="regular" align="center">
         Sign up
       </Heading>
-      <Button variant="outline" radius="full" size="3">
+      <Button variant="outline" color="iris" radius="full" size="3">
         <IconBrandGithub /> Sign up with GitHub
       </Button>
       <Form.Root className="flex flex-col gap-6">
@@ -57,7 +57,7 @@ export const SignUp = () => {
       </Form.Root>
       <Text align="center">
         Already have an account?{' '}
-        <LinkRdx asChild>
+        <LinkRdx color="iris" asChild>
           <Link to="/">Sign in</Link>
         </LinkRdx>
       </Text>

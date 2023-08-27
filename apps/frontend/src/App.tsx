@@ -5,7 +5,11 @@ import { BrowserRouter } from 'react-router-dom';
 function App() {
   return (
     <BrowserRouter>
-      <Theme appearance="dark" accentColor="iris" panelBackground="translucent">
+      <Theme
+        accentColor="gray"
+        grayColor="slate"
+        className="h-full"
+        hasBackground={false}>
         <AppRouter />
       </Theme>
     </BrowserRouter>
