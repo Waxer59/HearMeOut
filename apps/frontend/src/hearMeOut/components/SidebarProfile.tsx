@@ -10,28 +10,29 @@ export const SidebarProfile = () => {
         <Avatar radius="large" fallback="T" />
         Test
       </Text>
-      <Tooltip content="Settings">
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
+
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger>
+          <Tooltip content="Settings">
             <Button variant="ghost" className="transition">
               <IconSettings size={24} className="opacity-70" />
             </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content>
-            <DropdownMenu.Item className="cursor-pointer">
-              <IconUserCircle />
-              Profile
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item
-              color="red"
-              className="flex items-center gap-2 cursor-pointer">
-              <IconLogout />
-              Logout
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
-      </Tooltip>
+          </Tooltip>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content>
+          <DropdownMenu.Item className="cursor-pointer">
+            <IconUserCircle />
+            Profile
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item
+            color="red"
+            className="flex items-center gap-2 cursor-pointer">
+            <IconLogout />
+            Logout
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
     </div>
   );
 };

@@ -8,7 +8,7 @@ export const ChatMessageMenu = ({ type, ...props }: Props) => {
   const MenuType = type;
   return (
     <MenuType.Content {...props}>
-      <MenuType.Item className="cursor-pointer">
+      <MenuType.Item className="flex items-center gap-2 cursor-pointer">
         Reply <IconArrowBackUp size={18} />
       </MenuType.Item>
       <MenuType.Separator />
