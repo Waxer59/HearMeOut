@@ -12,13 +12,13 @@ export const SidebarProfile = () => {
       </Text>
 
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger>
-          <Tooltip content="Settings">
+        <Tooltip content="Settings">
+          <DropdownMenu.Trigger>
             <Button variant="ghost" className="transition">
               <IconSettings size={24} className="opacity-70" />
             </Button>
-          </Tooltip>
-        </DropdownMenu.Trigger>
+          </DropdownMenu.Trigger>
+        </Tooltip>
         <DropdownMenu.Content>
           <DropdownMenu.Item className="cursor-pointer">
             <IconUserCircle />
