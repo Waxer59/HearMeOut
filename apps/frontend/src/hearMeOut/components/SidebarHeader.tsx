@@ -115,10 +115,10 @@ export const SidebarHeader = () => {
             )}
             {dialogSelection === DialogSelectionEnum.ADD_CONTACT && (
               <TextField.Root size="3" variant="soft" color="gray">
-                <TextField.Input placeholder="Contact username" />
                 <TextField.Slot>
                   <IconSearch size={16} />
                 </TextField.Slot>
+                <TextField.Input placeholder="Contact username" />
               </TextField.Root>
             )}
             {dialogSelection === DialogSelectionEnum.CREATE_GROUP && (

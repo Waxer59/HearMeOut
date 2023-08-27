@@ -1,6 +1,6 @@
 import { IconButton, TextField, Tooltip } from '@radix-ui/themes';
 import { IconMoodSmile, IconSend } from '@tabler/icons-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { EmojiProps, InputEvent } from '../../types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -9,13 +9,23 @@ export const ChatInput = () => {
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
   const messageInputRef = useRef<HTMLInputElement | null>(null);
+  const selectionStartRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (selectionStartRef.current !== null && messageInputRef.current) {
+      messageInputRef.current.focus();
+      messageInputRef.current.setSelectionRange(
+        selectionStartRef.current,
+        selectionStartRef.current
+      );
+    }
+  }, [message]);
 
   const onEmojiPickerClick = () => {
     setIsEmojiMenuOpen(!isEmojiMenuOpen);
   };
 
   const onEmojiClick = (emojiData: EmojiProps) => {
-    console.log(emojiData);
     const inputElement = messageInputRef.current;
 
     const startPos = inputElement?.selectionStart ?? 0;
@@ -27,8 +37,8 @@ export const ChatInput = () => {
       message.substring(endPos, message.length);
 
     setMessage(newValue);
-    messageInputRef.current?.focus();
-    messageInputRef.current?.setSelectionRange(startPos, startPos);
+
+    selectionStartRef.current = startPos + emojiData.native.length;
   };
 
   const onMessageInputChange = (e: InputEvent) => {
