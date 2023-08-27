@@ -33,9 +33,9 @@ export const SidebarProfile = () => {
           </DropdownMenu.Item>
 
           <DropdownMenu.Sub>
-            <DropdownMenu.SubTrigger className="cursor-pointer">
+            <DropdownMenu.SubTrigger className="cursor-pointer flex justify-start gap-2">
               <IconBrush size={18} />
-              &nbsp; Theme
+              Theme
             </DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent>
               <DropdownMenu.Item className="flex items-center gap-2 cursor-pointer">
