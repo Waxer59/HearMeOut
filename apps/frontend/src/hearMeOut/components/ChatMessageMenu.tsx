@@ -1,4 +1,4 @@
-import { IconArrowBackUp, IconTrash } from '@tabler/icons-react';
+import { IconArrowBackUp, IconEdit, IconTrash } from '@tabler/icons-react';
 
 interface Props {
   type: any;
@@ -10,6 +10,9 @@ export const ChatMessageMenu = ({ type, ...props }: Props) => {
     <MenuType.Content {...props}>
       <MenuType.Item className="flex items-center gap-2 cursor-pointer">
         Reply <IconArrowBackUp size={18} />
+      </MenuType.Item>
+      <MenuType.Item className="flex items-center gap-2 cursor-pointer">
+        Edit <IconEdit size={18} />
       </MenuType.Item>
       <MenuType.Separator />
       <MenuType.Item

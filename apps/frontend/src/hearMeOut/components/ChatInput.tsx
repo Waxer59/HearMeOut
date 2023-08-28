@@ -43,6 +43,10 @@ export const ChatInput = () => {
 
   const onMessageInputChange = (e: InputEvent) => {
     setMessage(e.target.value);
+
+    if (messageInputRef.current) {
+      selectionStartRef.current = messageInputRef.current.selectionStart;
+    }
   };
 
   return (
