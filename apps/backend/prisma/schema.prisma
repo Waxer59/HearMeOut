@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  username           String   @unique
+  password           String
+  avatar             String?
+  logged_with_github Boolean  @default(false)
+  groups             String[] @db.ObjectId
+
+  // RELATIONAL FIELDS
+  messageFroms  Message[] @relation(name: "messageFroms")
+  messageTos    Message[] @relation(name: "messageTos")
+  groupsCreated Group[]   @relation(name: "groupsCreated")
+  grupsJoined   Group[]   @relation(name: "groupsJoined", fields: [groups], references: [id])
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  fromId    String   @db.ObjectId
+  toId      String   @db.ObjectId
+  content   String
+  viewed    Boolean  @default(false)
+  createdAt DateTime
+
+  // RELATIONAL FIELDS
+  from          User    @relation(name: "messageFroms", fields: [fromId], references: [id])
+  to            User    @relation(name: "messageTos", fields: [toId], references: [id])
+}
+
+model Group {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  icon       String
+  creatorId  String   @db.ObjectId
+  usersId    String[] @db.ObjectId
+  messagesId String[] @db.ObjectId
+
+  // RELATIONAL FIELDS
+  creator  User    @relation(name: "groupsCreated", fields: [creatorId], references: [id])
+  users    User[]  @relation(name: "groupsJoined", fields: [usersId], references: [id])
+}
+
+model Chat {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  // messagesId String[] @db.ObjectId
+
+  // RELATIONAL FIELDS
+  // messages Message[] @relation(fields: [messagesId], references: [id])
+}
