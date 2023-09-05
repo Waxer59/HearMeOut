@@ -17,12 +17,14 @@ model User {
   avatar             String?
   logged_with_github Boolean  @default(false)
   groups             String[] @db.ObjectId
+  adminGroups        String[] @db.ObjectId
 
-  // RELATIONAL FIELDS
-  messageFroms  Message[] @relation(name: "messageFroms")
-  messageTos    Message[] @relation(name: "messageTos")
-  groupsCreated Group[]   @relation(name: "groupsCreated")
-  grupsJoined   Group[]   @relation(name: "groupsJoined", fields: [groups], references: [id])
+  messageFroms Message[] @relation("messageFroms")
+  messageTos   Message[] @relation("messageTos")
+  grupsJoined  Group[]   @relation("groupsJoined", fields: [groups], references: [id])
+  groupsAdmin  Group[]   @relation("groupsAdmin", fields: [adminGroups], references: [id])
+  chatUser1    Chat[]    @relation("chatUser1")
+  chatUser2    Chat[]    @relation("chatUser2")
 }
 
 model Message {
@@ -32,29 +34,37 @@ model Message {
   content   String
   viewed    Boolean  @default(false)
   createdAt DateTime
+  replyId   String?  @db.ObjectId
 
-  // RELATIONAL FIELDS
-  from          User    @relation(name: "messageFroms", fields: [fromId], references: [id])
-  to            User    @relation(name: "messageTos", fields: [toId], references: [id])
+  from          User      @relation("messageFroms", fields: [fromId], references: [id])
+  to            User      @relation("messageTos", fields: [toId], references: [id])
+  reply         Message?  @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies       Message[] @relation("messageReply")
+  chatMessages  Chat[]
+  groupMessages Group[]
 }
 
 model Group {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   name       String
-  icon       String
+  icon       String?
   creatorId  String   @db.ObjectId
   usersId    String[] @db.ObjectId
   messagesId String[] @db.ObjectId
+  adminsId   String[] @db.ObjectId
 
-  // RELATIONAL FIELDS
-  creator  User    @relation(name: "groupsCreated", fields: [creatorId], references: [id])
-  users    User[]  @relation(name: "groupsJoined", fields: [usersId], references: [id])
+  users    User[]  @relation("groupsJoined", fields: [usersId], references: [id])
+  admins   User[]  @relation("groupsAdmin", fields: [adminsId], references: [id])
+  messages Message @relation(fields: [messagesId], references: [id])
 }
 
 model Chat {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  // messagesId String[] @db.ObjectId
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  user1Id    String   @db.ObjectId
+  user2Id    String   @db.ObjectId
+  messagesId String[] @db.ObjectId
 
-  // RELATIONAL FIELDS
-  // messages Message[] @relation(fields: [messagesId], references: [id])
+  user1    User    @relation("chatUser1", fields: [user1Id], references: [id])
+  user2    User    @relation("chatUser2", fields: [user2Id], references: [id])
+  messages Message @relation(fields: [messagesId], references: [id])
 }

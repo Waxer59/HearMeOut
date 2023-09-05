@@ -7,6 +7,8 @@ services:
     ports:
       - 27017:27017
     environment:
-      MONGODB_DATABASE: hearmeout-db
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: hearmeout-db
     volumes:
       - ./mongo:/data/db
