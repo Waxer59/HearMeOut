@@ -1,25 +1,19 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 interface HashOptions {
   raw: string;
   rounds?: number;
-  fn?: (err: Error, hash: string) => void;
 }
 
 interface CompareOptions {
   raw: string;
   hash: string;
-  fn?: (err: Error, result: boolean) => void;
 }
 
-export function generateHash({
-  raw,
-  rounds = 10,
-  fn = () => null,
-}: HashOptions) {
-  return bcrypt.hash(raw, rounds, fn);
+export function generateHash({ raw, rounds = 10 }: HashOptions): string {
+  return bcrypt.hashSync(raw, rounds);
 }
 
-export function compareHash({ raw, hash, fn }: CompareOptions) {
-  return bcrypt.compare(raw, hash, fn);
+export function compareHash({ raw, hash }: CompareOptions): boolean {
+  return bcrypt.compareSync(raw, hash);
 }

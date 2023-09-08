@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
-import { AuthService } from './auth/auth.service';
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { ChatWsModule } from './chat-ws/chat-ws.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [AuthModule, UsersModule, CommonModule, ChatWsModule],
-  controllers: [],
-  providers: [AuthService],
+  imports: [
+    ConfigModule.forRoot(),
+    AuthModule,
+    UsersModule,
+    CommonModule,
+    ChatWsModule,
+  ],
 })
 export class AppModule {}

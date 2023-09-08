@@ -2,13 +2,14 @@ version: '3'
 
 services:
   db:
+    container_name: db
     image: mongo:5
     restart: always
     ports:
       - 27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: hearmeout-db
     volumes:
       - ./mongo:/data/db
+      - ./scripts/init-rs.sh:/scripts/init-rs.sh
+    command: ["--replSet", "rs0"]
