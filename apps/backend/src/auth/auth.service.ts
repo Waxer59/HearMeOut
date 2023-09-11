@@ -1,32 +1,46 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
+import { SignInDto } from './dto/sign-in.dto';
+import { compareHash } from 'src/common/helpers/bcrypt';
+import { SignUpDto } from './dto/sign-up.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async signIn(createAuthDto: any) {
-    return 'This action adds a new auth';
+  async signIn(signInDto: SignInDto): Promise<string> {
+    const user = await this.usersService.findOneByUsername(signInDto.username);
+    const isValidPassword = compareHash({
+      raw: signInDto.password,
+      hash: user.password,
+    });
+
+    if (!isValidPassword) {
+      throw new ForbiddenException('Username or password is incorrect');
+    }
+
+    return this.jwtService.sign({ id: user.id });
   }
 
-  async signUp(createUserDto: CreateUserDto) {
-    return await this.usersService.create(createUserDto);
+  async signUp(signUpDto: SignUpDto) {
+    return await this.usersService.create(signUpDto);
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async verify(token: string): Promise<any> {
+    const decoded = this.jwtService.verify(token);
+
+    if (!decoded) {
+      throw new ForbiddenException('Invalid token');
+    }
+
+    return this.usersService.findOneByUsername(decoded.username);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: any) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async github(githubUser: any): Promise<string> {
+    return this.jwtService.sign({ id: githubUser.id });
   }
 }

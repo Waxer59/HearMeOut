@@ -2,13 +2,13 @@ import { Navigate } from 'react-router-dom';
 import { useAccountStore } from '../../store/account';
 
 interface Props {
-  children: React.ReactNode;
+  children: JSX.Element;
 }
 
-const PrivateRoutes = ({ children }: Props) => {
+const PublicRoutes = ({ children }: Props) => {
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
-  return isAuthenticated ? children : <Navigate to="/" />;
+  return isAuthenticated ? <Navigate to={'/chat'} /> : children;
 };
 
-export default PrivateRoutes;
+export default PublicRoutes;

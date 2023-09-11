@@ -7,17 +7,14 @@ import {
 } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
 import { Link } from 'react-router-dom';
-import { IconBrandGithub } from '@tabler/icons-react';
+import { AuthLayout } from '../layouts/AuthLayout';
 
 export const SignUp = () => {
   return (
-    <div className="flex flex-col gap-5 mt-48 w-[90%] max-w-[400px] mx-auto bg-secondary p-9 rounded-xl shadow-lg">
+    <AuthLayout>
       <Heading weight="regular" align="center">
         Sign up
       </Heading>
-      <Button variant="outline" color="iris" radius="full" size="3">
-        <IconBrandGithub /> Sign up with GitHub
-      </Button>
       <Form.Root className="flex flex-col gap-6">
         <Form.Field name="user" className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
@@ -61,7 +58,7 @@ export const SignUp = () => {
           <Link to="/">Sign in</Link>
         </LinkRdx>
       </Text>
-    </div>
+    </AuthLayout>
   );
 };
 

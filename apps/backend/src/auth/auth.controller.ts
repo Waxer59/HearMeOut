@@ -1,32 +1,86 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Res,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { ApiExcludeEndpoint, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { AUTH_COOKIE } from 'src/common/constants/contstants';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
+  @ApiProperty()
   @Post('sign-up')
-  async signIn(@Body() createUserDto: CreateUserDto) {
-    return await this.authService.signUp(createUserDto);
+  async signUp(@Body() signUpDto: SignUpDto) {
+    return await this.authService.signUp(signUpDto);
   }
 
+  @ApiProperty()
   @Post('sign-in')
-  async signUp() {
-    return await this.authService.findAll();
+  @UseGuards(AuthGuard('jwt'))
+  async signIn(@Body() sigInDto: SignInDto, @Res() res: Response) {
+    const token = await this.authService.signIn(sigInDto);
+
+    res.cookie(AUTH_COOKIE, token, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return res.status(HttpStatus.CREATED).send('user created');
   }
 
+  @ApiProperty()
+  @Get('sign-out')
+  async signOut(@Res() res) {
+    res.clearCookie(AUTH_COOKIE);
+
+    return res.status(HttpStatus.OK).send('user signed out');
+  }
+
+  @ApiProperty()
   @Get('github')
   @UseGuards(AuthGuard('github'))
   async githubAuth() {
     // ...
   }
 
+  @ApiExcludeEndpoint()
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  async githubAuthCallback(@Req() req) {
-    console.log(req);
-    return req.user;
+  async githubAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const token = await this.authService.github(req.user);
+
+    res.cookie(AUTH_COOKIE, token, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return res.redirect(this.configService.get('FRONTEND_URL'));
+  }
+
+  @ApiProperty()
+  @Get('/verify')
+  @UseGuards(AuthGuard('jwt'))
+  async verify(@Req() req) {
+    // TODO FILTER SENSITIVE DATA
+    const user = req.user;
+
+    return user;
   }
 }

@@ -20,6 +20,8 @@ mongo
 /coverage
 /.nyc_output
 
+.env
+
 # IDEs and editors
 /.idea
 .project

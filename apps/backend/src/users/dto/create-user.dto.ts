@@ -1,15 +1,24 @@
-import { IsString, MinLength, IsAlpha, IsOptional } from 'class-validator';
+import {
+  IsString,
+  MinLength,
+  IsOptional,
+  IsAlphanumeric,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  @IsAlpha()
+  @IsAlphanumeric()
   @MinLength(3)
   username: string;
 
   @IsString()
   @MinLength(8)
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsOptional()
-  avatar?: any;
+  avatar?: string;
+
+  @IsOptional()
+  githubId?: string;
 }

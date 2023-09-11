@@ -32,6 +32,7 @@ module.exports = {
     '@typescript-eslint/consistent-indexed-object-style': 'off',
     '@typescript-eslint/strict-boolean-expressions': 'off',
     'react-hooks/exhaustive-deps': 'off',
+    '@typescript-eslint/no-misused-promises': 'off'
   },
   settings: {
     react: {

@@ -11,20 +11,34 @@ datasource db {
 }
 
 model User {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  username           String   @unique
-  password           String?
-  avatar             String?
-  logged_with_github Boolean  @default(false)
-  groups             String[] @db.ObjectId
-  adminGroups        String[] @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  username    String   @unique
+  password    String?
+  avatar      String?
+  githubId    String?  @unique
+  groups      String[] @db.ObjectId
+  adminGroups String[] @db.ObjectId
 
-  messageFroms Message[] @relation("messageFroms")
-  messageTos   Message[] @relation("messageTos")
-  grupsJoined  Group[]   @relation("groupsJoined", fields: [groups], references: [id])
-  groupsAdmin  Group[]   @relation("groupsAdmin", fields: [adminGroups], references: [id])
-  chatUser1    Chat[]    @relation("chatUser1")
-  chatUser2    Chat[]    @relation("chatUser2")
+  messageFroms  Message[]      @relation("messageFroms")
+  messageTos    Message[]      @relation("messageTos")
+  grupsJoined   Group[]        @relation("groupsJoined", fields: [groups], references: [id])
+  groupsAdmin   Group[]        @relation("groupsAdmin", fields: [adminGroups], references: [id])
+  chatUser1     Chat[]         @relation("chatUser1")
+  chatUser2     Chat[]         @relation("chatUser2")
+  configuration Configuration?
+}
+
+enum Theme {
+  Dark
+  Light
+}
+
+model Configuration {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  theme  Theme
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Message {
