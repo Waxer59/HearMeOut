@@ -32,6 +32,7 @@ export const SignIn = () => {
 
     if (!username || !password) {
       toast.error('Please fill all the fields');
+      return;
     }
 
     const resp = await signIn({ username, password });
