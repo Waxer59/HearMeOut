@@ -16,6 +16,7 @@ import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ApiExcludeEndpoint, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { AUTH_COOKIE } from 'src/common/constants/contstants';
+import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -33,7 +34,6 @@ export class AuthController {
 
   @ApiProperty()
   @Post('sign-in')
-  @UseGuards(AuthGuard('jwt'))
   async signIn(@Body() sigInDto: SignInDto, @Res() res: Response) {
     const token = await this.authService.signIn(sigInDto);
 
@@ -42,7 +42,9 @@ export class AuthController {
       secure: true,
     });
 
-    return res.status(HttpStatus.CREATED).send('user created');
+    return res.status(HttpStatus.OK).json({
+      message: 'Signed in successfully',
+    });
   }
 
   @ApiProperty()
@@ -50,7 +52,9 @@ export class AuthController {
   async signOut(@Res() res) {
     res.clearCookie(AUTH_COOKIE);
 
-    return res.status(HttpStatus.OK).send('user signed out');
+    return res.status(HttpStatus.OK).json({
+      message: 'Signed out successfully',
+    });
   }
 
   @ApiProperty()
@@ -78,9 +82,8 @@ export class AuthController {
   @Get('/verify')
   @UseGuards(AuthGuard('jwt'))
   async verify(@Req() req) {
-    // TODO FILTER SENSITIVE DATA
     const user = req.user;
 
-    return user;
+    return excludeUserFields(user, ['password', 'githubId']);
   }
 }

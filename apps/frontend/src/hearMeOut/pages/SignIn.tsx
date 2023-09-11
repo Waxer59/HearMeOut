@@ -6,14 +6,18 @@ import {
   TextFieldInput
 } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { IconBrandGithub } from '@tabler/icons-react';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { getEnvVariables } from '../../helpers/getEnvVariables';
 import { useRef } from 'react';
+import { toast } from 'sonner';
+import { signIn } from '../../services/hearMeOutAPI';
+import { HttpStatusCodes } from '../../types/types';
 
 export const SignIn = () => {
   const form = useRef<HTMLFormElement | null>(null);
+  const navigate = useNavigate();
 
   // TODO: TYPE THIS
   const handleSignIn = async (e: any) => {
@@ -23,12 +27,21 @@ export const SignIn = () => {
 
     const formData = new FormData(form.current);
 
-    const username = formData.get('username');
-    const password = formData.get('password');
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
 
-    if (!username || !password) return;
+    if (!username || !password) {
+      toast.error('Please fill all the fields');
+    }
 
-    console.log({ username, password });
+    const resp = await signIn({ username, password });
+
+    if (resp?.statusCode === HttpStatusCodes.BAD_REQUEST) {
+      toast.error('Username or password is incorrect');
+      return;
+    }
+
+    navigate(0);
   };
 
   return (
@@ -64,8 +77,12 @@ export const SignIn = () => {
             />
           </Form.Control>
         </Form.Field>
-        <Form.Submit asChild onSubmit={handleSignIn}>
-          <Button color="iris" variant="soft" className="w-full">
+        <Form.Submit asChild>
+          <Button
+            color="iris"
+            variant="soft"
+            className="w-full"
+            onClick={handleSignIn}>
             Sign in
           </Button>
         </Form.Submit>

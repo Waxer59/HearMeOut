@@ -1,4 +1,5 @@
 import { getEnvVariables } from '../helpers/getEnvVariables';
+import { HttpStatusCodes } from '../types/types';
 
 const baseUrl = getEnvVariables().VITE_HEARMEOUT_API;
 
@@ -16,6 +17,7 @@ export async function signIn({ username, password }: ISignIn) {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-in`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -62,7 +64,7 @@ export async function verify() {
       credentials: 'include'
     });
     const data = await response.json();
-    const isVerified = response.status === 200;
+    const isVerified = response.status === HttpStatusCodes.OK;
 
     if (!isVerified) {
       return null;

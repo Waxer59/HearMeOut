@@ -7,15 +7,33 @@ import {
   IconSettings,
   IconUserCircle
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
+import { signOut } from '../../services/hearMeOutAPI';
+import { useAccountStore } from '../../store/account';
+import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 
 export const SidebarProfile = () => {
+  const { account, clearAccount } = useAccountStore((state) => state);
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+
+    navigate('/');
+    clearAccount();
+  };
+
   return (
     <div className="mt-auto pt-3 mb-4 flex items-center">
       <Text
         weight="bold"
         className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition">
-        <Avatar radius="large" fallback="T" />
-        Test
+        <Avatar
+          radius="large"
+          src={account?.avatar}
+          fallback={getFallbackAvatarName(account!.username)}
+        />
+        {account!.username}
       </Text>
 
       <DropdownMenu.Root>
@@ -52,9 +70,10 @@ export const SidebarProfile = () => {
           <DropdownMenu.Separator />
           <DropdownMenu.Item
             color="red"
-            className="cursor-pointer flex justify-start gap-2">
+            className="cursor-pointer flex justify-start gap-2"
+            onClick={handleSignOut}>
             <IconLogout size={18} />
-            Logout
+            Sign out
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
