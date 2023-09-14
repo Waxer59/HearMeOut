@@ -98,7 +98,7 @@ export class UsersService {
   }
 
   // TODO: TYPE THIS
-  async findAllByUsernameLike(username: string): Promise<any[]> {
+  async findAllByUsernameLike(username: string): Promise<User[]> {
     try {
       return await this.prisma.user.findMany({
         where: {
@@ -116,7 +116,6 @@ export class UsersService {
   }
 
   async generateUniqueUsername(username: string): Promise<string> {
-    // Lógica para generar un nombre de usuario único.
     let newUsername = username;
     let suffix = 1;
 
@@ -126,7 +125,6 @@ export class UsersService {
         break;
       }
 
-      // Agrega un sufijo numérico para hacerlo único.
       newUsername = `${username}${suffix}`;
       suffix++;
     }

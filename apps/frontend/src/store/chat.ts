@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { ChatDetails, GroupDetails } from '../types/types';
+import type { ChatDetails, GroupDetails } from './types/types';
 
 interface Sate {
   groups: GroupDetails[] | null;

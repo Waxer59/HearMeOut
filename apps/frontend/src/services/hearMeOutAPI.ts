@@ -89,3 +89,16 @@ export async function verify(): Promise<IResponseData> {
     return { data: null, status: 500 };
   }
 }
+
+export async function searchUser(name: string): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/users/search-username/${name}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}

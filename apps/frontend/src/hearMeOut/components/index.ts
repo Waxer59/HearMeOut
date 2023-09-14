@@ -9,3 +9,5 @@ export * from './SidebarProfile';
 export * from './ChatView';
 export * from './ChatTitle';
 export * from './ChatMessages';
+export * from './TypingMessage';
+export * from './SidebarAddContactOption';

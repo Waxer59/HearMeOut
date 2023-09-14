@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { EmojiProps, InputEvent } from '../../types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import { TypingMessage } from './';
 
 export const ChatInput = () => {
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
@@ -50,7 +51,7 @@ export const ChatInput = () => {
   };
 
   return (
-    <div className="px-20 pb-8 pt-8 relative">
+    <div className="px-20 pb-12 pt-8 relative flex flex-col">
       <div
         className={`absolute bottom-24 right-20 ${
           isEmojiMenuOpen ? 'block' : 'hidden'
@@ -84,6 +85,7 @@ export const ChatInput = () => {
           </Tooltip>
         </TextField.Slot>
       </TextField.Root>
+      <TypingMessage usernames={['Waxer59']} />
     </div>
   );
 };

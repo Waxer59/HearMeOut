@@ -12,6 +12,7 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
 
 @ApiTags('Users')
 @UseGuards(AuthGuard('jwt'))
@@ -36,6 +37,7 @@ export class UsersController {
   @Get('search-username/:name')
   @ApiCookieAuth('Authorization')
   async searchUsername(@Req() req, @Param('name') name: string) {
-    return await this.usersService.findAllByUsernameLike(name);
+    const users = await this.usersService.findAllByUsernameLike(name);
+    return users.map((u) => excludeUserFields(u, ['password', 'githubId']));
   }
 }

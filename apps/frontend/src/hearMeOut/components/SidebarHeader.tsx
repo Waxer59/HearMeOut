@@ -20,6 +20,7 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import { SidebarAddContactOption } from './';
 
 const USERS = ['SERGIO', 'JOSE', 'JUAN', 'JUAN PABLO'];
 
@@ -121,12 +122,7 @@ export const SidebarHeader = () => {
               </div>
             )}
             {dialogSelection === DialogSelectionEnum.ADD_CONTACT && (
-              <TextField.Root size="3" variant="soft" color="gray">
-                <TextField.Slot>
-                  <IconSearch size={16} />
-                </TextField.Slot>
-                <TextField.Input placeholder="Contact username" />
-              </TextField.Root>
+              <SidebarAddContactOption />
             )}
             {dialogSelection === DialogSelectionEnum.CREATE_GROUP && (
               <div className="flex flex-col gap-8">

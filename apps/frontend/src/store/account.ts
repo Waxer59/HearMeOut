@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AccountDetails, SettingsDetails } from '../types/types';
+import type { AccountDetails, SettingsDetails } from './types/types';
 import { devtools } from 'zustand/middleware';
 
 interface Sate {
