@@ -11,7 +11,12 @@ interface Props {
   date: Date;
 }
 
-export const ChatMessage = ({ content, date, name, avatar }: Props) => {
+export const ChatMessage: React.FC<Props> = ({
+  content,
+  date,
+  name,
+  avatar
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

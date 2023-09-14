@@ -1,9 +1,11 @@
+import { Transform } from 'class-transformer';
 import { IsString, MinLength, IsOptional, MaxLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
   @MinLength(3)
-  @MaxLength(20)
+  @MaxLength(39)
+  @Transform(({ value }) => value.toLowerCase())
   username: string;
 
   @IsString()

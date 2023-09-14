@@ -27,8 +27,9 @@ export class UsersService {
     }
 
     try {
-      const user = await this.prisma.user.create({ data: createUserDto });
-      return user;
+      return await this.prisma.user.create({
+        data: createUserDto,
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -36,13 +37,9 @@ export class UsersService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany();
-  }
-
   async findOneByUsername(username: string): Promise<User> {
     try {
-      const user = await this.prisma.user.findFirst({
+      return await this.prisma.user.findFirst({
         where: {
           username: {
             equals: username,
@@ -50,7 +47,6 @@ export class UsersService {
           },
         },
       });
-      return user;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -60,8 +56,7 @@ export class UsersService {
 
   async findOneByGithubId(githubId: string): Promise<User> {
     try {
-      const user = await this.prisma.user.findUnique({ where: { githubId } });
-      return user;
+      return await this.prisma.user.findUnique({ where: { githubId } });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -71,8 +66,7 @@ export class UsersService {
 
   async findOneById(id: string): Promise<User> {
     try {
-      const user = await this.prisma.user.findUnique({ where: { id } });
-      return user;
+      return await this.prisma.user.findUnique({ where: { id } });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -82,11 +76,10 @@ export class UsersService {
 
   async updateById(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
-      const user = await this.prisma.user.update({
+      return await this.prisma.user.update({
         where: { id },
         data: updateUserDto,
       });
-      return user;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -96,12 +89,48 @@ export class UsersService {
 
   async remove(id: string): Promise<User> {
     try {
-      const user = await this.prisma.user.delete({ where: { id } });
-      return user;
+      return await this.prisma.user.delete({ where: { id } });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
     }
+  }
+
+  // TODO: TYPE THIS
+  async findAllByUsernameLike(username: string): Promise<any[]> {
+    try {
+      return await this.prisma.user.findMany({
+        where: {
+          username: {
+            contains: username,
+            mode: 'insensitive',
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async generateUniqueUsername(username: string): Promise<string> {
+    // Lógica para generar un nombre de usuario único.
+    let newUsername = username;
+    let suffix = 1;
+
+    while (true) {
+      const existingUser = await this.findOneByUsername(newUsername);
+      if (!existingUser) {
+        break;
+      }
+
+      // Agrega un sufijo numérico para hacerlo único.
+      newUsername = `${username}${suffix}`;
+      suffix++;
+    }
+
+    return newUsername;
   }
 }

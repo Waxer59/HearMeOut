@@ -4,7 +4,7 @@ interface Props {
   type: any;
 }
 
-export const ChatMessageMenu = ({ type, ...props }: Props) => {
+export const ChatMessageMenu: React.FC<Props> = ({ type, ...props }) => {
   const MenuType = type;
   return (
     <MenuType.Content {...props}>

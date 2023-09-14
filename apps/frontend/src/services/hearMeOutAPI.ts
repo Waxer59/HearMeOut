@@ -13,7 +13,15 @@ interface ISignUp {
   password: string;
 }
 
-export async function signIn({ username, password }: ISignIn) {
+interface IResponseData {
+  data: any;
+  status: number;
+}
+
+export async function signIn({
+  username,
+  password
+}: ISignIn): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-in`, {
       method: 'POST',
@@ -24,13 +32,17 @@ export async function signIn({ username, password }: ISignIn) {
       body: JSON.stringify({ username, password })
     });
     const data = await response.json();
-    return data;
+
+    return { data, status: response.status };
   } catch (error) {
-    return null;
+    return { data: null, status: 500 };
   }
 }
 
-export async function signUp({ username, password }: ISignUp) {
+export async function signUp({
+  username,
+  password
+}: ISignUp): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-up`, {
       method: 'POST',
@@ -40,25 +52,27 @@ export async function signUp({ username, password }: ISignUp) {
       body: JSON.stringify({ username, password })
     });
     const data = await response.json();
-    return data;
+
+    return { data, status: response.status };
   } catch (error) {
-    return null;
+    return { data: null, status: 500 };
   }
 }
 
-export async function signOut() {
+export async function signOut(): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-out`, {
       credentials: 'include'
     });
     const data = await response.json();
-    return data;
+
+    return { data, status: response.status };
   } catch (error) {
-    return null;
+    return { data: null, status: 500 };
   }
 }
 
-export async function verify() {
+export async function verify(): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/verify`, {
       credentials: 'include'
@@ -67,11 +81,11 @@ export async function verify() {
     const isVerified = response.status === HttpStatusCodes.OK;
 
     if (!isVerified) {
-      return null;
+      return { data: null, status: response.status };
     }
 
-    return data;
+    return { data, status: response.status };
   } catch (error) {
-    return null;
+    return { data: null, status: 500 };
   }
 }

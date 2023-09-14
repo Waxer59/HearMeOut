@@ -10,6 +10,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// TODO: ACTIVE CHATS
+// TODO: FRIEND REQUESTS
 model User {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   username    String   @unique
@@ -18,19 +20,19 @@ model User {
   githubId    String?  @unique
   groups      String[] @db.ObjectId
   adminGroups String[] @db.ObjectId
+  chats       String[] @db.ObjectId
 
   messageFroms  Message[]      @relation("messageFroms")
   messageTos    Message[]      @relation("messageTos")
   grupsJoined   Group[]        @relation("groupsJoined", fields: [groups], references: [id])
   groupsAdmin   Group[]        @relation("groupsAdmin", fields: [adminGroups], references: [id])
-  chatUser1     Chat[]         @relation("chatUser1")
-  chatUser2     Chat[]         @relation("chatUser2")
+  chatsJoined   Chat[]         @relation(fields: [chats], references: [id])
   configuration Configuration?
 }
 
 enum Theme {
-  Dark
-  Light
+  dark
+  light
 }
 
 model Configuration {
@@ -74,11 +76,9 @@ model Group {
 
 model Chat {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  user1Id    String   @db.ObjectId
-  user2Id    String   @db.ObjectId
+  usersId    String[] @db.ObjectId
   messagesId String[] @db.ObjectId
 
-  user1    User    @relation("chatUser1", fields: [user1Id], references: [id])
-  user2    User    @relation("chatUser2", fields: [user2Id], references: [id])
+  users    User[]  @relation(fields: [usersId], references: [id])
   messages Message @relation(fields: [messagesId], references: [id])
 }

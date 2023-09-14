@@ -18,7 +18,6 @@ export const SignUp = () => {
   const form = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
 
-  // TODO: TYPE THIS
   const handleSignUp = async (e: any) => {
     if (!form.current) return;
 
@@ -40,15 +39,16 @@ export const SignUp = () => {
       return;
     }
 
-    const resp = await signUp({ username, password });
+    const { data, status } = await signUp({ username, password });
 
-    if (resp?.statusCode !== HttpStatusCodes.BAD_REQUEST) {
+    if (status === HttpStatusCodes.CREATED) {
       toast.success('Account created successfully!');
       setTimeout(() => navigate('/'), 2000);
-      return;
     } else {
-      console.log(resp);
-      toast.error(resp.message);
+      toast.error(
+        data?.message ??
+          'There was an error creating your account, please try again'
+      );
     }
 
     form.current.reset();
@@ -76,7 +76,7 @@ export const SignUp = () => {
             <Form.Message
               match={(val) => val.length > 20}
               className="text-[13px] text-red-400 opacity-[0.8]">
-              Too long (maximum 20 characters)
+              Too long (maximum 39 characters)
             </Form.Message>
           </div>
           <Form.Control asChild>

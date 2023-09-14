@@ -6,20 +6,26 @@ import PrivateRoutes from './PrivateRoutes';
 import PublicRoutes from './PublicRoutes';
 import { useEffect } from 'react';
 import { verify } from '../../services/hearMeOutAPI';
-import { useAccountStore } from '../../store/account';
+import { useAccountStore, useChatStore } from '../../store';
 
 const HearMeOutRoutes = () => {
   const setAccount = useAccountStore((state) => state.setAccount);
+  const { setChats, setGroups } = useChatStore((state) => state);
 
   useEffect(() => {
     async function handleVerify() {
-      const resp = await verify();
+      const { data } = await verify();
 
-      if (!resp) {
+      if (!data) {
         return;
       }
 
-      setAccount(resp);
+      const { chats, groups, adminGroups, ...account } = data;
+
+      setChats(chats);
+      setGroups(groups);
+
+      setAccount(account);
     }
 
     handleVerify();

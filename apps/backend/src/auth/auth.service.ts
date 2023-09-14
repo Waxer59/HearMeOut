@@ -14,6 +14,11 @@ export class AuthService {
 
   async signIn(signInDto: SignInDto): Promise<string> {
     const user = await this.usersService.findOneByUsername(signInDto.username);
+
+    if (!user.password) {
+      throw new ForbiddenException('Username or password is incorrect');
+    }
+
     const isValidPassword = compareHash({
       raw: signInDto.password,
       hash: user.password,

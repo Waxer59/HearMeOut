@@ -4,13 +4,13 @@ interface Props {
   children: React.ReactNode;
 }
 
-export function AuthLayout({ children }: Props) {
+export const AuthLayout: React.FC<Props> = ({ children }) => {
   return (
-    <>
-      <div className="flex flex-col gap-5 mt-48 w-[90%] max-w-[400px] mx-auto bg-secondary p-9 rounded-xl shadow-lg">
+    <div className="pt-48">
+      <div className="flex flex-col gap-5 w-[90%] max-w-[400px] mx-auto p-9 rounded-xl shadow-lg bg-secondary">
         {children}
       </div>
       <Toaster position="bottom-right" />
-    </>
+    </div>
   );
-}
+};

@@ -17,6 +17,7 @@ import * as Joi from 'joi';
         FRONTEND_URL: Joi.string().uri().required(),
         GITHUB_CLIENT_ID: Joi.string().required(),
         GITHUB_CLIENT_SECRET: Joi.string().required(),
+        API_URL: Joi.string().uri().required(),
         PORT: Joi.number().required(),
       }),
     }),

@@ -19,7 +19,6 @@ export const SignIn = () => {
   const form = useRef<HTMLFormElement | null>(null);
   const navigate = useNavigate();
 
-  // TODO: TYPE THIS
   const handleSignIn = async (e: any) => {
     if (!form.current) return;
 
@@ -35,9 +34,9 @@ export const SignIn = () => {
       return;
     }
 
-    const resp = await signIn({ username, password });
+    const { status } = await signIn({ username, password });
 
-    if (resp?.statusCode === HttpStatusCodes.BAD_REQUEST) {
+    if (status >= HttpStatusCodes.BAD_REQUEST) {
       toast.error('Username or password is incorrect');
       return;
     }

@@ -4,7 +4,7 @@ interface Props {
   name: string;
 }
 
-export const SidebarContact = ({ name }: Props) => {
+export const SidebarContact: React.FC<Props> = ({ name }) => {
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>

@@ -1,30 +1,34 @@
 import { create } from 'zustand';
-import type { AccountDetails } from '../types/types';
+import type { AccountDetails, SettingsDetails } from '../types/types';
+import { devtools } from 'zustand/middleware';
 
-interface AccountSate {
+interface Sate {
   account: AccountDetails | null;
-  setAccount: (a: AccountDetails) => void;
-  clearAccount: () => void;
   isAuthenticated: boolean;
-  settings: object;
-  clearSettings: () => void;
-  updateSettings: (s: object) => void;
+  settings: SettingsDetails | null;
 }
 
-export const useAccountStore = create<AccountSate>((set) => ({
-  account: null,
-  setAccount: (a) => set({ account: a, isAuthenticated: true }),
-  clearAccount: () => set({ account: null, isAuthenticated: false }),
+interface Actions {
+  setAccount: (a: AccountDetails) => void;
+  clearAccount: () => void;
+  clearSettings: () => void;
+  updateSettings: (s: SettingsDetails) => void;
+}
 
-  isAuthenticated: false,
-
-  settings: {},
-  clearSettings: () => set({ settings: {} }),
-  updateSettings: (s) =>
-    set((state) => ({
-      settings: {
-        s,
-        ...state.settings
-      }
-    }))
-}));
+export const useAccountStore = create<Sate & Actions>()(
+  devtools((set) => ({
+    account: null,
+    setAccount: (a) => set({ account: a, isAuthenticated: true }),
+    clearAccount: () => set({ account: null, isAuthenticated: false }),
+    isAuthenticated: false,
+    settings: null,
+    clearSettings: () => set({ settings: null }),
+    updateSettings: (s) =>
+      set((state) => ({
+        settings: {
+          ...s,
+          ...state.settings
+        }
+      }))
+  }))
+);

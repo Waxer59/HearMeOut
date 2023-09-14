@@ -6,11 +6,13 @@ import {
 import { ChatWsService } from './chat-ws.service';
 import { CreateChatWDto } from './dto/create-chat-w.dto';
 import { UpdateChatWDto } from './dto/update-chat-w.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 @WebSocketGateway({ path: '/chat' })
 export class ChatWsGateway {
   constructor(private readonly chatWsService: ChatWsService) {}
 
+  @ApiProperty()
   @SubscribeMessage('createChatW')
   create(@MessageBody() createChatWDto: CreateChatWDto) {
     return this.chatWsService.create(createChatWDto);

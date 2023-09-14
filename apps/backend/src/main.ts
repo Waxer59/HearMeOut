@@ -10,12 +10,21 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Hear me out API')
     .setDescription('Hear me out API')
+    .addCookieAuth(
+      'Authorization',
+      {
+        type: 'http',
+        in: 'Header',
+        scheme: 'Bearer',
+      },
+      'Authorization',
+    )
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.enableCors({
     credentials: true,
     origin: process.env.FRONTEND_URL,

@@ -5,7 +5,7 @@ interface Props {
   children: JSX.Element;
 }
 
-const PublicRoutes = ({ children }: Props) => {
+const PublicRoutes: React.FC<Props> = ({ children }) => {
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
   return isAuthenticated ? <Navigate to={'/chat'} /> : children;

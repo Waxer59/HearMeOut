@@ -1,33 +1,60 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
+import { CreateConfigurationDto } from './dto/create-configuration.dto';
 
 @Injectable()
 export class ConfigurationService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createConfigurationDto: any) {
-    return 'This action adds a new configuration';
+  async create(id: string, createConfigurationDto: CreateConfigurationDto) {
+    const userConfig = await this.findByUserId(id);
+
+    if (userConfig) {
+      return await this.update(id, createConfigurationDto);
+    }
+
+    try {
+      return await this.prismaService.configuration.create({
+        data: {
+          ...createConfigurationDto,
+          user: { connect: { id } },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
   }
 
   async update(id: string, config: UpdateConfigurationDto) {
-    const userConfig = this.findByUserId(id);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, userId, ...userConfig } = await this.findByUserId(id);
 
     if (!userConfig) {
-      return await this.create(config);
+      return await this.create(id, config as CreateConfigurationDto);
     }
 
-    return 'This action updates a #${id} configuration';
+    try {
+      return await this.prismaService.configuration.update({
+        where: { userId: id },
+        data: {
+          ...userConfig,
+          ...config,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
   }
 
   async findByUserId(id: string) {
     try {
       const configuration = await this.prismaService.configuration.findUnique({
         where: { userId: id },
-        include: {
-          user: true,
-        },
       });
       return configuration;
     } catch (error) {
