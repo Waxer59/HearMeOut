@@ -20,8 +20,8 @@ import {
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { AUTH_COOKIE } from 'src/common/constants/contstants';
 import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
+import { clearAuthCookie, setAuthCookie } from 'src/common/helpers/cookies';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,10 +43,7 @@ export class AuthController {
   async signIn(@Body() sigInDto: SignInDto, @Res() res: Response) {
     const token = await this.authService.signIn(sigInDto);
 
-    res.cookie(AUTH_COOKIE, token, {
-      httpOnly: true,
-      secure: true,
-    });
+    setAuthCookie(res, token);
 
     return res.status(HttpStatus.OK).json({
       message: 'Signed in successfully',
@@ -58,7 +55,7 @@ export class AuthController {
   @ApiCookieAuth('Authorization')
   @Get('sign-out')
   async signOut(@Res() res) {
-    res.clearCookie(AUTH_COOKIE);
+    clearAuthCookie(res);
 
     return res.status(HttpStatus.OK).json({
       message: 'Signed out successfully',
@@ -80,10 +77,7 @@ export class AuthController {
 
     const token = await this.authService.github(user);
 
-    res.cookie(AUTH_COOKIE, token, {
-      httpOnly: true,
-      secure: true,
-    });
+    setAuthCookie(res, token);
 
     return res.redirect(this.configService.get('FRONTEND_URL'));
   }

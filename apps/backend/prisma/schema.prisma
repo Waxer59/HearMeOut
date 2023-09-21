@@ -10,24 +10,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO: ACTIVE CHATS
-// TODO: FRIEND REQUESTS
+// TODO: ACTIVE CHATS, BLOCKED_USERS
 model User {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  username    String   @unique
-  password    String?
-  avatar      String?
-  githubId    String?  @unique
-  groups      String[] @db.ObjectId
-  adminGroups String[] @db.ObjectId
-  chats       String[] @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  username      String   @unique
+  password      String?
+  avatar        String?
+  githubId      String?  @unique
+  isOnline      Boolean  @default(false)
+  groupIds      String[] @db.ObjectId
+  adminGroupIds String[] @db.ObjectId
+  friendIds     String[] @db.ObjectId
 
-  messageFroms  Message[]      @relation("messageFroms")
-  messageTos    Message[]      @relation("messageTos")
-  grupsJoined   Group[]        @relation("groupsJoined", fields: [groups], references: [id])
-  groupsAdmin   Group[]        @relation("groupsAdmin", fields: [adminGroups], references: [id])
-  chatsJoined   Chat[]         @relation(fields: [chats], references: [id])
-  configuration Configuration?
+  messageFroms   Message[]       @relation("messageFroms")
+  messageTos     Message[]       @relation("messageTos")
+  grupsJoined    Group[]         @relation("groupsJoined", fields: [groupIds], references: [id])
+  adminGroups    Group[]         @relation("groupsAdmin", fields: [adminGroupIds], references: [id])
+  friendReqFroms FriendRequest[] @relation("friendReqFrom")
+  friendReqTos   FriendRequest[] @relation("friendReqTo")
+  configuration  Configuration?
+  friends        Friend[]        @relation(fields: [friendIds], references: [id])
+}
+
+model FriendRequest {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  fromId String @db.ObjectId
+  toId   String @db.ObjectId
+
+  from User @relation("friendReqFrom", fields: [fromId], references: [id])
+  to   User @relation("friendReqTo", fields: [toId], references: [id])
+}
+
+model Friend {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userIds    String[] @db.ObjectId
+  messageIds String[] @default([]) @db.ObjectId
+
+  messages Message @relation(fields: [messageIds], references: [id])
+  users    User[]  @relation(fields: [userIds], references: [id])
 }
 
 enum Theme {
@@ -56,8 +76,8 @@ model Message {
   to            User      @relation("messageTos", fields: [toId], references: [id])
   reply         Message?  @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies       Message[] @relation("messageReply")
-  chatMessages  Chat[]
   groupMessages Group[]
+  friend        Friend[]
 }
 
 model Group {
@@ -67,18 +87,9 @@ model Group {
   creatorId  String   @db.ObjectId
   usersId    String[] @db.ObjectId
   messagesId String[] @db.ObjectId
-  adminsId   String[] @db.ObjectId
+  adminIds   String[] @db.ObjectId
 
   users    User[]  @relation("groupsJoined", fields: [usersId], references: [id])
-  admins   User[]  @relation("groupsAdmin", fields: [adminsId], references: [id])
-  messages Message @relation(fields: [messagesId], references: [id])
-}
-
-model Chat {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  usersId    String[] @db.ObjectId
-  messagesId String[] @db.ObjectId
-
-  users    User[]  @relation(fields: [usersId], references: [id])
+  admins   User[]  @relation("groupsAdmin", fields: [adminIds], references: [id])
   messages Message @relation(fields: [messagesId], references: [id])
 }

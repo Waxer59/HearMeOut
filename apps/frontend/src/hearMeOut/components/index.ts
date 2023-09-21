@@ -11,3 +11,6 @@ export * from './ChatTitle';
 export * from './ChatMessages';
 export * from './TypingMessage';
 export * from './SidebarAddContactOption';
+export * from './SidebarCreateGroupOption';
+export * from './SidebarJoinGroupOption';
+export * from './SidebarOptions';

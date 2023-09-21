@@ -1,3 +1,4 @@
+import { Toaster } from 'sonner';
 import { ChatSidebar, ChatView } from '../components/';
 
 const Chat = () => {
@@ -5,6 +6,7 @@ const Chat = () => {
     <div className="flex h-full">
       <ChatSidebar />
       <ChatView />
+      <Toaster position="bottom-right" />
     </div>
   );
 };

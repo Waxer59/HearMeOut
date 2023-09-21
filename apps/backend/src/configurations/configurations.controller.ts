@@ -1,14 +1,14 @@
 import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
-import { ConfigurationService } from './configuration.service';
+import { ConfigurationsService } from './configurations.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Configuration')
 @UseGuards(AuthGuard('jwt'))
-@Controller('configuration')
-export class ConfigurationController {
-  constructor(private readonly configurationService: ConfigurationService) {}
+@Controller('configurations')
+export class ConfigurationsController {
+  constructor(private readonly configurationService: ConfigurationsService) {}
 
   @Get()
   @ApiCookieAuth('Authorization')

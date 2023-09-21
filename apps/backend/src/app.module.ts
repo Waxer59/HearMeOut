@@ -4,7 +4,10 @@ import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { ChatWsModule } from './chat-ws/chat-ws.module';
 import { ConfigModule } from '@nestjs/config';
-import { ConfigurationModule } from './configuration/configuration.module';
+import { ConfigurationsModule } from './configurations/configurations.module';
+import { FriendRequestsModule } from './friend-requests/friend-requests.module';
+import { FriendsModule } from './friends/friends.module';
+import { MessagesModule } from './messages/messages.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -25,7 +28,10 @@ import * as Joi from 'joi';
     UsersModule,
     CommonModule,
     ChatWsModule,
-    ConfigurationModule,
+    ConfigurationsModule,
+    FriendRequestsModule,
+    FriendsModule,
+    MessagesModule,
   ],
 })
 export class AppModule {}

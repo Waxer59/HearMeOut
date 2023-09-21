@@ -4,7 +4,7 @@ import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
 
 @Injectable()
-export class ConfigurationService {
+export class ConfigurationsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(id: string, createConfigurationDto: CreateConfigurationDto) {

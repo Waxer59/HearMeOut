@@ -10,19 +10,22 @@ import { useAccountStore, useChatStore } from '../../store';
 
 const HearMeOutRoutes = () => {
   const setAccount = useAccountStore((state) => state.setAccount);
-  const { setChats, setGroups } = useChatStore((state) => state);
+  const { setChats, setGroups, setActive } = useChatStore((state) => state);
 
   useEffect(() => {
     async function handleVerify() {
+      // TODO: TYPE RESP
       const { data } = await verify();
 
       if (!data) {
         return;
       }
 
-      const { chats, groups, adminGroups, ...account } = data;
+      const { groups, adminGroups, friends, ...account } = data;
 
-      setChats(chats);
+      console.log(friends?.[0]);
+      setChats(friends);
+      setActive(friends?.[0]);
       setGroups(groups);
 
       setAccount(account);

@@ -1,7 +1,7 @@
 import { getEnvVariables } from '../helpers/getEnvVariables';
 import { HttpStatusCodes } from '../types/types';
 
-const baseUrl = getEnvVariables().VITE_HEARMEOUT_API;
+const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
 
 interface ISignIn {
   username: string;
@@ -94,6 +94,47 @@ export async function searchUser(name: string): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/users/search-username/${name}`, {
       credentials: 'include'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function getFriendRequests(): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/friend-requests`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function acceptFriendRequest(id: string): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/friend-requests/accept/${id}`, {
+      credentials: 'include',
+      method: 'POST'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function denyFriendRequest(id: string): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/friend-requests/deny/${id}`, {
+      credentials: 'include',
+      method: 'DELETE'
     });
     const data = await response.json();
 

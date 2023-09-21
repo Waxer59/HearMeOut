@@ -6,7 +6,7 @@ import { ChatMessageMenu } from './';
 
 interface Props {
   name: string;
-  avatar: string;
+  avatar?: string;
   content: string;
   date: Date;
 }

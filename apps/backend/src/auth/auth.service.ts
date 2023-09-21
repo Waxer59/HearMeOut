@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { compareHash } from 'src/common/helpers/bcrypt';
@@ -15,7 +19,7 @@ export class AuthService {
   async signIn(signInDto: SignInDto): Promise<string> {
     const user = await this.usersService.findOneByUsername(signInDto.username);
 
-    if (!user.password) {
+    if (!user?.password) {
       throw new ForbiddenException('Username or password is incorrect');
     }
 
@@ -35,17 +39,29 @@ export class AuthService {
     return await this.usersService.create(signUpDto);
   }
 
-  async verify(token: string): Promise<any> {
-    const decoded = this.jwtService.verify(token);
-
-    if (!decoded) {
-      throw new ForbiddenException('Invalid token');
-    }
-
-    return this.usersService.findOneByUsername(decoded.username);
-  }
-
   async github(githubUser: any): Promise<string> {
     return this.jwtService.sign({ id: githubUser.id });
+  }
+
+  async verify(jwt: string): Promise<any> {
+    let payload;
+
+    try {
+      payload = this.jwtService.verify(jwt);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    if (!payload) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const user = await this.usersService.findOneById(payload.id);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
   }
 }

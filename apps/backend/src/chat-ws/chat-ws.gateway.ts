@@ -2,17 +2,28 @@ import {
   WebSocketGateway,
   SubscribeMessage,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { ChatWsService } from './chat-ws.service';
 import { CreateChatWDto } from './dto/create-chat-w.dto';
 import { UpdateChatWDto } from './dto/update-chat-w.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import type { Socket, Server } from 'socket.io';
+import { AUTH_COOKIE, CHAT_EVENTS } from 'src/common/constants/contstants';
+import { parseCookies } from 'src/common/helpers/cookies';
+import { AuthService } from 'src/auth/auth.service';
 
-@WebSocketGateway({ path: '/chat' })
-export class ChatWsGateway {
-  constructor(private readonly chatWsService: ChatWsService) {}
+@WebSocketGateway()
+export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    private readonly chatWsService: ChatWsService,
+    private readonly authService: AuthService,
+  ) {}
 
-  @ApiProperty()
+  @WebSocketServer()
+  server: Server;
+
   @SubscribeMessage('createChatW')
   create(@MessageBody() createChatWDto: CreateChatWDto) {
     return this.chatWsService.create(createChatWDto);
@@ -36,5 +47,29 @@ export class ChatWsGateway {
   @SubscribeMessage('removeChatW')
   remove(@MessageBody() id: number) {
     return this.chatWsService.remove(id);
+  }
+
+  handleConnection(client: Socket) {
+    client.broadcast.emit(CHAT_EVENTS.userConnect, 'asdasd');
+  }
+
+  handleDisconnect(client: Socket) {
+    // console.log(client);
+  }
+
+  afterInit(client: Socket) {
+    client.use(async (client: any, next: any) => {
+      const rawCookies = client.request.headers.cookie;
+      const parsedCookies = parseCookies(rawCookies);
+      const token = parsedCookies[AUTH_COOKIE];
+
+      try {
+        await this.authService.verify(token);
+      } catch (err) {
+        next(err);
+      }
+
+      next();
+    });
   }
 }

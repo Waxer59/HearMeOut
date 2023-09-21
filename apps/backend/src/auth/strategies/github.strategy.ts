@@ -42,7 +42,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
 
     user = await this.usersService.create({
       githubId: profile.id,
-      username: profile.username,
+      username: profile.username.toLowerCase(),
       avatar: profile.photos[0].value,
     });
 

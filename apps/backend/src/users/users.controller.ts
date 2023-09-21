@@ -20,6 +20,13 @@ import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get(':id')
+  @ApiCookieAuth('Authorization')
+  async getUser(@Param('id') id: string) {
+    const user = await this.usersService.findOneById(id);
+    return excludeUserFields(user, ['password', 'githubId']);
+  }
+
   @Patch()
   @ApiCookieAuth('Authorization')
   async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
@@ -37,7 +44,8 @@ export class UsersController {
   @Get('search-username/:name')
   @ApiCookieAuth('Authorization')
   async searchUsername(@Req() req, @Param('name') name: string) {
-    const users = await this.usersService.findAllByUsernameLike(name);
-    return users.map((u) => excludeUserFields(u, ['password', 'githubId']));
+    const { username } = req.user;
+    const users = await this.usersService.findAllByUsernameLike(username, name);
+    return users;
   }
 }

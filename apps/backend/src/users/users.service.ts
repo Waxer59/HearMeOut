@@ -66,7 +66,28 @@ export class UsersService {
 
   async findOneById(id: string): Promise<User> {
     try {
-      return await this.prisma.user.findUnique({ where: { id } });
+      return await this.prisma.user.findFirst({
+        where: { id },
+        include: {
+          friends: {
+            include: {
+              users: {
+                where: {
+                  id: {
+                    not: id,
+                  },
+                },
+                select: {
+                  id: true,
+                  username: true,
+                  avatar: true,
+                  isOnline: true,
+                },
+              },
+            },
+          },
+        },
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -97,8 +118,11 @@ export class UsersService {
     }
   }
 
-  // TODO: TYPE THIS
-  async findAllByUsernameLike(username: string): Promise<User[]> {
+  // TODO: MOVE TO FRIEND REQUESTS
+  async findAllByUsernameLike(
+    excludeUser: string,
+    username: string,
+  ): Promise<any[]> {
     try {
       return await this.prisma.user.findMany({
         where: {
@@ -106,6 +130,14 @@ export class UsersService {
             contains: username,
             mode: 'insensitive',
           },
+          NOT: {
+            username: excludeUser,
+          },
+        },
+        select: {
+          id: true,
+          username: true,
+          avatar: true,
         },
       });
     } catch (error) {

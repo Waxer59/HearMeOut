@@ -9,12 +9,9 @@
     --tertiary-color: #3c393f;
   }
 
-  * {
-    font-family: 'Noto Sans', sans-serif;
-  }
-
   body {
     background-color: var(--primary-color);
+    font-family: 'Noto Sans', sans-serif;
   }
 
   /* width */
