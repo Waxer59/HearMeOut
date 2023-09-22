@@ -22,14 +22,13 @@ model User {
   adminGroupIds String[] @db.ObjectId
   friendIds     String[] @db.ObjectId
 
-  messageFroms   Message[]       @relation("messageFroms")
-  messageTos     Message[]       @relation("messageTos")
-  grupsJoined    Group[]         @relation("groupsJoined", fields: [groupIds], references: [id])
-  adminGroups    Group[]         @relation("groupsAdmin", fields: [adminGroupIds], references: [id])
-  friendReqFroms FriendRequest[] @relation("friendReqFrom")
-  friendReqTos   FriendRequest[] @relation("friendReqTo")
-  configuration  Configuration?
-  friends        Friend[]        @relation(fields: [friendIds], references: [id])
+  messageFroms        Message[]       @relation("messageFroms")
+  messageTos          Message[]       @relation("messageTos")
+  conversationsJoined Conversation[]  @relation("conversationsJoined", fields: [groupIds], references: [id])
+  conversationsAdmin  Conversation[]  @relation("conversationsAdmin", fields: [adminGroupIds], references: [id])
+  friendReqFroms      FriendRequest[] @relation("friendReqFrom")
+  friendReqTos        FriendRequest[] @relation("friendReqTo")
+  configuration       Configuration?
 }
 
 model FriendRequest {
@@ -39,15 +38,6 @@ model FriendRequest {
 
   from User @relation("friendReqFrom", fields: [fromId], references: [id])
   to   User @relation("friendReqTo", fields: [toId], references: [id])
-}
-
-model Friend {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userIds    String[] @db.ObjectId
-  messageIds String[] @default([]) @db.ObjectId
-
-  messages Message @relation(fields: [messageIds], references: [id])
-  users    User[]  @relation(fields: [userIds], references: [id])
 }
 
 enum Theme {
@@ -72,24 +62,29 @@ model Message {
   createdAt DateTime
   replyId   String?  @db.ObjectId
 
-  from          User      @relation("messageFroms", fields: [fromId], references: [id])
-  to            User      @relation("messageTos", fields: [toId], references: [id])
-  reply         Message?  @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies       Message[] @relation("messageReply")
-  groupMessages Group[]
-  friend        Friend[]
+  from          User           @relation("messageFroms", fields: [fromId], references: [id])
+  to            User           @relation("messageTos", fields: [toId], references: [id])
+  reply         Message?       @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies       Message[]      @relation("messageReply")
+  groupMessages Conversation[]
 }
 
-model Group {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  name       String
-  icon       String?
-  creatorId  String   @db.ObjectId
-  usersId    String[] @db.ObjectId
-  messagesId String[] @db.ObjectId
-  adminIds   String[] @db.ObjectId
+enum ConversationType {
+  chat
+  group
+}
 
-  users    User[]  @relation("groupsJoined", fields: [usersId], references: [id])
-  admins   User[]  @relation("groupsAdmin", fields: [adminIds], references: [id])
+model Conversation {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  name       String?
+  type       ConversationType
+  icon       String?
+  creatorId  String?          @db.ObjectId
+  usersId    String[]         @db.ObjectId
+  messagesId String[]         @db.ObjectId
+  adminIds   String[]         @db.ObjectId
+
+  users    User[]  @relation("conversationsJoined", fields: [usersId], references: [id])
+  admins   User[]  @relation("conversationsAdmin", fields: [adminIds], references: [id])
   messages Message @relation(fields: [messagesId], references: [id])
 }

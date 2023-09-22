@@ -5,6 +5,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { ChatWsService } from './chat-ws.service';
 import { CreateChatWDto } from './dto/create-chat-w.dto';
@@ -50,26 +51,37 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(client: Socket) {
-    client.broadcast.emit(CHAT_EVENTS.userConnect, 'asdasd');
+    const id = this.getUserIdAuth(client);
+    client.broadcast.emit(CHAT_EVENTS.userConnect, id);
   }
 
   handleDisconnect(client: Socket) {
-    // console.log(client);
+    const id = this.getUserIdAuth(client);
+    client.broadcast.emit(CHAT_EVENTS.userDisconnect, id);
   }
 
   afterInit(client: Socket) {
+    // Protect route with JWT cookie auth
     client.use(async (client: any, next: any) => {
-      const rawCookies = client.request.headers.cookie;
-      const parsedCookies = parseCookies(rawCookies);
-      const token = parsedCookies[AUTH_COOKIE];
-
       try {
-        await this.authService.verify(token);
+        await this.getUserIdAuth(client);
       } catch (err) {
         next(err);
       }
 
       next();
     });
+  }
+
+  async getUserIdAuth(client: Socket) {
+    const rawCookies = client.request.headers.cookie;
+    const parsedCookies = parseCookies(rawCookies);
+    const token = parsedCookies[AUTH_COOKIE];
+
+    try {
+      await this.authService.verify(token);
+    } catch (err) {
+      throw new WsException('Unauthorized');
+    }
   }
 }
