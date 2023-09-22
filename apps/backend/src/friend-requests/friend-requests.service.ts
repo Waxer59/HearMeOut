@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { FriendRequest } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { FriendsService } from 'src/friends/friends.service';
+import { FriendsService } from 'src/conversations/friends.service';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()

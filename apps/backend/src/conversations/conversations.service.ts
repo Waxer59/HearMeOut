@@ -7,7 +7,7 @@ import { Friend } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 
 @Injectable()
-export class FriendsService {
+export class ConversationsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId1: string, userId2: string): Promise<Friend> {
