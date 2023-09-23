@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { FriendRequest } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { FriendsService } from 'src/conversations/friends.service';
+import { ConversationsService } from 'src/conversations/conversations.service';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class FriendRequestsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
-    private readonly friendsService: FriendsService,
+    private readonly conversationsService: ConversationsService,
   ) {}
 
   async create(fromId: string, toId: string): Promise<FriendRequest> {
@@ -126,7 +126,15 @@ export class FriendRequestsService {
     try {
       const { fromId, toId } = await this.findById(id);
       await this.delete(id);
-      return await this.friendsService.create(fromId, toId);
+      const chat = await this.conversationsService.createChat(fromId, toId);
+
+      const activeConversations = [fromId, toId].map((userId) => {
+        this.usersService.addActiveChat(userId, chat.id);
+      });
+
+      Promise.resolve(activeConversations);
+
+      return chat;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',

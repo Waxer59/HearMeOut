@@ -3,22 +3,23 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Friend } from '@prisma/client';
+import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
+import { CONVERSATION_TYPE } from 'src/common/types/types';
 
 @Injectable()
 export class ConversationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId1: string, userId2: string): Promise<Friend> {
-    const friend = await this.findFriend(userId1, userId2);
+  async createChat(userId1: string, userId2: string): Promise<Conversation> {
+    const friend = await this.findChat(userId1, userId2);
 
     if (friend) {
-      throw new BadRequestException('Friend already exists');
+      throw new BadRequestException('Chat already exists');
     }
 
     try {
-      return await this.prisma.friend.create({
+      return await this.prisma.conversation.create({
         data: {
           userIds: [userId1, userId2],
           users: {
@@ -31,6 +32,7 @@ export class ConversationsService {
               },
             ],
           },
+          type: CONVERSATION_TYPE.chat,
         },
       });
     } catch (error) {
@@ -40,13 +42,14 @@ export class ConversationsService {
     }
   }
 
-  async findAllFriends(userId: string): Promise<Friend[]> {
+  async findAllChats(userId: string): Promise<Conversation[]> {
     try {
-      return await this.prisma.friend.findMany({
+      return await this.prisma.conversation.findMany({
         where: {
           userIds: {
             hasEvery: [userId],
           },
+          type: CONVERSATION_TYPE.chat,
         },
       });
     } catch (error) {
@@ -56,13 +59,14 @@ export class ConversationsService {
     }
   }
 
-  async findFriend(userId1: string, userId2: string): Promise<Friend> {
+  async findChat(userId1: string, userId2: string): Promise<Conversation> {
     try {
-      return await this.prisma.friend.findFirst({
+      return await this.prisma.conversation.findFirst({
         where: {
           userIds: {
             hasEvery: [userId1, userId2],
           },
+          type: CONVERSATION_TYPE.chat,
         },
       });
     } catch (error) {
@@ -72,9 +76,23 @@ export class ConversationsService {
     }
   }
 
-  async remove(id: string): Promise<Friend> {
+  async findConversationById(id: string): Promise<Conversation> {
     try {
-      return await this.prisma.friend.delete({
+      return await this.prisma.conversation.findFirst({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async remove(id: string): Promise<Conversation> {
+    try {
+      return await this.prisma.conversation.delete({
         where: {
           id,
         },

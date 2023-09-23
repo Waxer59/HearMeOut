@@ -4,13 +4,37 @@ import { useEffect, useRef, useState } from 'react';
 import type { EmojiProps, InputEvent } from '../../types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { TypingMessage } from './';
+import { TypingIndicator } from './';
+import { useSocketChat } from '../hooks/useSocketChat';
+import { useChatStore } from '../../store';
+import { useDebounce } from 'use-debounce';
 
 export const ChatInput = () => {
+  const {
+    sendMessage,
+    connectSocketChat,
+    disconnectSocketChat,
+    sendTyping,
+    sendTypingOff
+  } = useSocketChat();
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [finalMessage] = useDebounce(message, 500);
   const messageInputRef = useRef<HTMLInputElement | null>(null);
   const selectionStartRef = useRef<number | null>(null);
+  const { usersTyping } = useChatStore((state) => state);
+
+  useEffect(() => {
+    connectSocketChat();
+
+    return () => {
+      disconnectSocketChat();
+    };
+  }, []);
+
+  useEffect(() => {
+    sendTypingOff();
+  }, [finalMessage]);
 
   useEffect(() => {
     if (selectionStartRef.current !== null && messageInputRef.current) {
@@ -44,10 +68,21 @@ export const ChatInput = () => {
 
   const onMessageInputChange = (e: InputEvent) => {
     setMessage(e.target.value);
+    sendTyping();
+
+    if (e.target.value === '') {
+      sendTypingOff();
+    }
 
     if (messageInputRef.current) {
       selectionStartRef.current = messageInputRef.current.selectionStart;
     }
+  };
+
+  const handleSendMessage = () => {
+    sendMessage(message);
+    setMessage('');
+    messageInputRef.current?.focus();
   };
 
   return (
@@ -65,12 +100,18 @@ export const ChatInput = () => {
           onChange={onMessageInputChange}
           ref={messageInputRef}
           value={message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              handleSendMessage();
+            }
+          }}
         />
         <TextField.Slot>
           <Tooltip content="Add emoji">
             <IconButton
               size="2"
               variant="ghost"
+              className="transition"
               color="indigo"
               onClick={onEmojiPickerClick}>
               <IconMoodSmile />
@@ -79,13 +120,18 @@ export const ChatInput = () => {
         </TextField.Slot>
         <TextField.Slot pr="2">
           <Tooltip content="Send message">
-            <IconButton size="2" variant="solid" color="indigo">
+            <IconButton
+              size="2"
+              variant="solid"
+              color="indigo"
+              className="transition"
+              onClick={handleSendMessage}>
               <IconSend />
             </IconButton>
           </Tooltip>
         </TextField.Slot>
       </TextField.Root>
-      <TypingMessage usernames={['Waxer59']} />
+      <TypingIndicator usersTyping={usersTyping} />
     </div>
   );
 };

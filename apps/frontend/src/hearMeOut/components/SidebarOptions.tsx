@@ -25,9 +25,17 @@ export const SidebarOptions = () => {
   const [dialogSelection, setDialogSelection] = useState<DialogSelectionEnum>(
     DialogSelectionEnum.NONE
   );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const onResetDialog = () => {
     setDialogSelection(DialogSelectionEnum.NONE);
+  };
+
+  const onOpenDialog = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!isDialogOpen) {
+      onResetDialog();
+    }
   };
 
   const onAddContactClick = () => {
@@ -41,8 +49,9 @@ export const SidebarOptions = () => {
   const onJoinGroupClick = () => {
     setDialogSelection(DialogSelectionEnum.JOIN_GROUP);
   };
+
   return (
-    <Dialog.Root onOpenChange={onResetDialog}>
+    <Dialog.Root open={isDialogOpen} onOpenChange={onOpenDialog}>
       <Tooltip content="Create channel">
         <Dialog.Trigger>
           <IconButton className="bg-primary" radius="large">
@@ -54,7 +63,10 @@ export const SidebarOptions = () => {
       <Dialog.Content>
         <div className="flex items-center justify-between w-full mb-6 max-w-[532px]">
           {dialogSelection !== DialogSelectionEnum.NONE && (
-            <Button onClick={onResetDialog} variant="ghost">
+            <Button
+              variant="ghost"
+              className="transition"
+              onClick={onResetDialog}>
               <IconChevronLeft />
             </Button>
           )}

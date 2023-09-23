@@ -45,7 +45,10 @@ export class UsersController {
   @ApiCookieAuth('Authorization')
   async searchUsername(@Req() req, @Param('name') name: string) {
     const { username } = req.user;
-    const users = await this.usersService.findAllByUsernameLike(username, name);
+    const users = await this.usersService.findAllByUsernamesLike(
+      username,
+      name,
+    );
     return users;
   }
 }

@@ -7,26 +7,31 @@ import PublicRoutes from './PublicRoutes';
 import { useEffect } from 'react';
 import { verify } from '../../services/hearMeOutAPI';
 import { useAccountStore, useChatStore } from '../../store';
+import type { VerifyResponse } from '../../types/types';
 
 const HearMeOutRoutes = () => {
   const setAccount = useAccountStore((state) => state.setAccount);
-  const { setChats, setGroups, setActive } = useChatStore((state) => state);
+  const { setConversations, setActive, setCurrentConversationId } =
+    useChatStore((state) => state);
 
+  // TODO: SYNC TABS ON LOGIN/OUT
   useEffect(() => {
     async function handleVerify() {
-      // TODO: TYPE RESP
-      const { data } = await verify();
+      const { data }: { data: VerifyResponse } = await verify();
 
       if (!data) {
         return;
       }
 
-      const { groups, adminGroups, friends, ...account } = data;
+      const { conversationsJoined, activeConversationIds, ...account } = data;
 
-      console.log(friends?.[0]);
-      setChats(friends);
-      setActive(friends?.[0]);
-      setGroups(groups);
+      setCurrentConversationId(
+        conversationsJoined.filter((el) =>
+          activeConversationIds.includes(el.id)
+        )?.[0]?.id ?? null
+      );
+      setActive(activeConversationIds);
+      setConversations(conversationsJoined);
 
       setAccount(account);
     }

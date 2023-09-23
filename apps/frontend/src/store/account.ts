@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { AccountDetails, SettingsDetails } from './types/types';
 import { devtools } from 'zustand/middleware';
 
-interface Sate {
+interface State {
   account: AccountDetails | null;
   isAuthenticated: boolean;
   settings: SettingsDetails | null;
@@ -15,7 +15,7 @@ interface Actions {
   updateSettings: (s: SettingsDetails) => void;
 }
 
-export const useAccountStore = create<Sate & Actions>()(
+export const useAccountStore = create<State & Actions>()(
   devtools((set) => ({
     account: null,
     setAccount: (a) => set({ account: a, isAuthenticated: true }),

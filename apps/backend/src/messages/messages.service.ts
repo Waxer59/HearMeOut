@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from '@prisma/client';
@@ -7,12 +7,7 @@ import { Message } from '@prisma/client';
 export class MessagesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create({
-    content,
-    fromId,
-    chatId,
-    toId,
-  }: CreateMessageDto): Promise<Message> {
+  async create({ content, fromId, toId }: CreateMessageDto): Promise<Message> {
     try {
       return await this.prisma.message.create({
         data: {
@@ -20,13 +15,37 @@ export class MessagesService {
           fromId,
           toId,
           createdAt: new Date(),
-          friend: {
-            connect: {
-              id: chatId,
+        },
+        include: {
+          from: true,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async findAllConversationMessages(chatId: string): Promise<Message[]> {
+    try {
+      return await this.prisma.message.findMany({
+        where: {
+          toId: chatId,
+        },
+        include: {
+          from: {
+            select: {
+              username: true,
+              avatar: true,
             },
           },
         },
       });
-    } catch (error) {}
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
   }
 }

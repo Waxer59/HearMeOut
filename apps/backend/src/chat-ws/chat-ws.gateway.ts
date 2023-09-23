@@ -1,87 +1,76 @@
 import {
   WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
-  WsException,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { ChatWsService } from './chat-ws.service';
-import { CreateChatWDto } from './dto/create-chat-w.dto';
-import { UpdateChatWDto } from './dto/update-chat-w.dto';
 import type { Socket, Server } from 'socket.io';
-import { AUTH_COOKIE, CHAT_EVENTS } from 'src/common/constants/contstants';
-import { parseCookies } from 'src/common/helpers/cookies';
-import { AuthService } from 'src/auth/auth.service';
+import { CHAT_EVENTS } from 'src/common/constants/constants';
+import { SendMessageDto } from './dto/send-message.dto';
+import { TypingDto } from './dto/typing.dto';
 
 @WebSocketGateway()
 export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(
-    private readonly chatWsService: ChatWsService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly chatWsService: ChatWsService) {}
 
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('createChatW')
-  create(@MessageBody() createChatWDto: CreateChatWDto) {
-    return this.chatWsService.create(createChatWDto);
+  @SubscribeMessage(CHAT_EVENTS.message)
+  async sendMessage(
+    @MessageBody() sendMessageDto: SendMessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.sendMessage(
+      userId,
+      sendMessageDto,
+      this.server,
+    );
   }
 
-  @SubscribeMessage('findAllChatWs')
-  findAll() {
-    return this.chatWsService.findAll();
+  @SubscribeMessage(CHAT_EVENTS.typing)
+  async typing(
+    @MessageBody() typingDto: TypingDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return this.chatWsService.typing(typingDto, userId, client);
   }
 
-  @SubscribeMessage('findOneChatW')
-  findOne(@MessageBody() id: number) {
-    return this.chatWsService.findOne(id);
+  @SubscribeMessage(CHAT_EVENTS.typingOff)
+  async typingOff(
+    @MessageBody() typingDto: TypingDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return this.chatWsService.typingOff(typingDto, userId, client);
   }
 
-  @SubscribeMessage('updateChatW')
-  update(@MessageBody() updateChatWDto: UpdateChatWDto) {
-    return this.chatWsService.update(updateChatWDto.id, updateChatWDto);
+  async handleConnection(client: Socket) {
+    const user = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.userOnline(client, user);
   }
 
-  @SubscribeMessage('removeChatW')
-  remove(@MessageBody() id: number) {
-    return this.chatWsService.remove(id);
+  async handleDisconnect(client: Socket) {
+    const id = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.userOffline(client, id);
   }
 
-  handleConnection(client: Socket) {
-    const id = this.getUserIdAuth(client);
-    client.broadcast.emit(CHAT_EVENTS.userConnect, id);
-  }
-
-  handleDisconnect(client: Socket) {
-    const id = this.getUserIdAuth(client);
-    client.broadcast.emit(CHAT_EVENTS.userDisconnect, id);
-  }
-
-  afterInit(client: Socket) {
+  async afterInit(client: Socket) {
     // Protect route with JWT cookie auth
     client.use(async (client: any, next: any) => {
       try {
-        await this.getUserIdAuth(client);
+        await this.chatWsService.getUserIdAuth(client);
       } catch (err) {
         next(err);
       }
 
       next();
     });
-  }
-
-  async getUserIdAuth(client: Socket) {
-    const rawCookies = client.request.headers.cookie;
-    const parsedCookies = parseCookies(rawCookies);
-    const token = parsedCookies[AUTH_COOKIE];
-
-    try {
-      await this.authService.verify(token);
-    } catch (err) {
-      throw new WsException('Unauthorized');
-    }
   }
 }

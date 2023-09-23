@@ -1,4 +1,5 @@
 import { type ChangeEvent } from 'react';
+import type { ConversationDetails } from '../store/types/types';
 
 export type InputEvent = ChangeEvent<HTMLInputElement>;
 export type ButtonEvent = ChangeEvent<HTMLButtonElement>;
@@ -30,4 +31,24 @@ export enum HttpStatusCodes {
   INTERNAL_SERVER_ERROR = 500,
   SERVICE_UNAVAILABLE = 503,
   GATEWAY_TIMEOUT = 504
+}
+
+export interface VerifyResponse {
+  id: string;
+  username: string;
+  avatar: string;
+  isOnline: boolean;
+  conversationIds: string[];
+  adminConversationIds: any[];
+  activeConversationIds: string[];
+  conversationsJoined: ConversationDetails[];
+}
+
+export enum SOCKET_CHAT_EVENTS {
+  userConnect = 'userConnect',
+  userDisconnect = 'userDisconnect',
+  friendRequest = 'friendRequest',
+  message = 'message',
+  typing = 'typing',
+  typingOff = 'typingOff'
 }

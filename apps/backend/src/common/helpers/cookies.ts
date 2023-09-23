@@ -1,4 +1,4 @@
-import { AUTH_COOKIE } from '../constants/contstants';
+import { AUTH_COOKIE } from '../constants/constants';
 import { Response } from 'express';
 
 export const setAuthCookie = (res: Response, token: string) => {

@@ -56,7 +56,7 @@ export const SignIn = () => {
         size="3"
         className="transition"
         asChild>
-        <Link to={`${getEnvVariables().VITE_HEARMEOUT_API}/auth/github`}>
+        <Link to={`${getEnvVariables().VITE_HEARMEOUT_API}/api/auth/github`}>
           <IconBrandGithub /> Sign in with GitHub
         </Link>
       </Button>

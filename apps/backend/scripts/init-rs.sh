@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 mongo --eval 'rs.initiate(
    {

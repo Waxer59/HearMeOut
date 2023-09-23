@@ -25,20 +25,25 @@ export interface MessageDetails {
   from: AccountDetails;
 }
 
-export interface ChatDetails {
+export enum ConversationTypes {
+  chat = 'chat',
+  group = 'group'
+}
+
+export interface ConversationDetails {
   id: string;
-  usersId: string[];
-  messagesId: string[];
+  name: null;
+  type: ConversationTypes;
+  icon: null;
+  creatorId: null;
+  userIds: string[];
+  messageIds: any[];
   messages: MessageDetails[];
+  adminIds: any[];
   users: AccountDetails[];
 }
 
-export interface GroupDetails {
-  id: string;
-  name: string;
-  icon: string;
-  creatorId: string;
-  usersId: string[];
-  messagesId: string[];
-  adminsId: string[];
+export interface UserTyping {
+  userId: string;
+  conversationId: string;
 }

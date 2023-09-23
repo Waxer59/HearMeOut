@@ -1,5 +1,5 @@
 import { getEnvVariables } from '../helpers/getEnvVariables';
-import { HttpStatusCodes } from '../types/types';
+import { HttpStatusCodes, type VerifyResponse } from '../types/types';
 
 const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
 
@@ -77,7 +77,7 @@ export async function verify(): Promise<IResponseData> {
     const response = await fetch(`${baseUrl}/auth/verify`, {
       credentials: 'include'
     });
-    const data = await response.json();
+    const data: VerifyResponse = await response.json();
     const isVerified = response.status === HttpStatusCodes.OK;
 
     if (!isVerified) {
@@ -94,6 +94,20 @@ export async function searchUser(name: string): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/users/search-username/${name}`, {
       credentials: 'include'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function sendFriendRequest(id: string): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/friend-requests/${id}`, {
+      credentials: 'include',
+      method: 'POST'
     });
     const data = await response.json();
 

@@ -3,18 +3,28 @@ import { IconSearch } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { DEBOUNCE_SEARCH_TIME } from '../../constants/constants';
-import { searchUser } from '../../services/hearMeOutAPI';
+import { searchUser, sendFriendRequest } from '../../services/hearMeOutAPI';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { HttpStatusCodes, type UserDetails } from '../../types/types';
+import { toast } from 'sonner';
 
 interface PropsUserBtn {
+  id: string;
   username: string;
   avatar?: string;
 }
 
-const UserBtn: React.FC<PropsUserBtn> = ({ username, avatar }) => {
+const UserBtn: React.FC<PropsUserBtn> = ({ id, username, avatar }) => {
+  const handleAddFriend = () => {
+    sendFriendRequest(id);
+    toast.success('Friend request sent!');
+  };
+
   return (
-    <Button className="flex items-center gap-3" variant="ghost">
+    <Button
+      className="flex items-center gap-3"
+      variant="ghost"
+      onClick={handleAddFriend}>
       <Avatar
         radius="large"
         fallback={getFallbackAvatarName(username)}

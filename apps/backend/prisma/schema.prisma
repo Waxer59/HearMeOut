@@ -10,22 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// TODO: ACTIVE CHATS, BLOCKED_USERS
 model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  username      String   @unique
-  password      String?
-  avatar        String?
-  githubId      String?  @unique
-  isOnline      Boolean  @default(false)
-  groupIds      String[] @db.ObjectId
-  adminGroupIds String[] @db.ObjectId
-  friendIds     String[] @db.ObjectId
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  username              String   @unique
+  password              String?
+  avatar                String?
+  githubId              String?  @unique
+  isOnline              Boolean  @default(false)
+  conversationIds       String[] @db.ObjectId
+  adminConversationIds  String[] @db.ObjectId
+  activeConversationIds String[] @db.ObjectId
 
   messageFroms        Message[]       @relation("messageFroms")
   messageTos          Message[]       @relation("messageTos")
-  conversationsJoined Conversation[]  @relation("conversationsJoined", fields: [groupIds], references: [id])
-  conversationsAdmin  Conversation[]  @relation("conversationsAdmin", fields: [adminGroupIds], references: [id])
+  conversationsJoined Conversation[]  @relation("conversationsJoined", fields: [conversationIds], references: [id])
+  conversationsAdmin  Conversation[]  @relation("conversationsAdmin", fields: [adminConversationIds], references: [id])
   friendReqFroms      FriendRequest[] @relation("friendReqFrom")
   friendReqTos        FriendRequest[] @relation("friendReqTo")
   configuration       Configuration?
@@ -53,6 +52,7 @@ model Configuration {
   user User @relation(fields: [userId], references: [id])
 }
 
+// TODO: REVISAR TO
 model Message {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   fromId    String   @db.ObjectId
@@ -62,11 +62,11 @@ model Message {
   createdAt DateTime
   replyId   String?  @db.ObjectId
 
-  from          User           @relation("messageFroms", fields: [fromId], references: [id])
-  to            User           @relation("messageTos", fields: [toId], references: [id])
-  reply         Message?       @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies       Message[]      @relation("messageReply")
-  groupMessages Conversation[]
+  from                 User           @relation("messageFroms", fields: [fromId], references: [id])
+  to                   User           @relation("messageTos", fields: [toId], references: [id])
+  reply                Message?       @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies              Message[]      @relation("messageReply")
+  conversationMessages Conversation[]
 }
 
 enum ConversationType {
@@ -80,11 +80,11 @@ model Conversation {
   type       ConversationType
   icon       String?
   creatorId  String?          @db.ObjectId
-  usersId    String[]         @db.ObjectId
-  messagesId String[]         @db.ObjectId
+  userIds    String[]         @db.ObjectId
+  messageIds String[]         @db.ObjectId
   adminIds   String[]         @db.ObjectId
 
-  users    User[]  @relation("conversationsJoined", fields: [usersId], references: [id])
+  users    User[]  @relation("conversationsJoined", fields: [userIds], references: [id])
   admins   User[]  @relation("conversationsAdmin", fields: [adminIds], references: [id])
-  messages Message @relation(fields: [messagesId], references: [id])
+  messages Message @relation(fields: [messageIds], references: [id])
 }

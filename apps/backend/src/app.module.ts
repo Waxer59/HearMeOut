@@ -6,7 +6,7 @@ import { ChatWsModule } from './chat-ws/chat-ws.module';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigurationsModule } from './configurations/configurations.module';
 import { FriendRequestsModule } from './friend-requests/friend-requests.module';
-import { FriendsModule } from './conversations/conversations.module';
+import { ConversationsModule } from './conversations/conversations.module';
 import { MessagesModule } from './messages/messages.module';
 import * as Joi from 'joi';
 
@@ -30,7 +30,7 @@ import * as Joi from 'joi';
     ChatWsModule,
     ConfigurationsModule,
     FriendRequestsModule,
-    FriendsModule,
+    ConversationsModule,
     MessagesModule,
   ],
 })

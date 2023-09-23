@@ -69,7 +69,7 @@ export class UsersService {
       return await this.prisma.user.findFirst({
         where: { id },
         include: {
-          friends: {
+          conversationsJoined: {
             include: {
               users: {
                 where: {
@@ -118,8 +118,7 @@ export class UsersService {
     }
   }
 
-  // TODO: MOVE TO FRIEND REQUESTS
-  async findAllByUsernameLike(
+  async findAllByUsernamesLike(
     excludeUser: string,
     username: string,
   ): Promise<any[]> {
@@ -162,5 +161,54 @@ export class UsersService {
     }
 
     return newUsername;
+  }
+
+  async addActiveChat(userId: string, activeConversationId: string) {
+    try {
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          activeConversationIds: {
+            push: activeConversationId,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async removeActiveChat(userId: string, activeChatId: string) {
+    try {
+      const user = await this.findOneById(userId);
+
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          activeConversationIds: user.activeConversationIds.filter(
+            (chatId) => chatId !== activeChatId,
+          ),
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async setIsOnline(userId: string, isOnline: boolean) {
+    try {
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: { isOnline },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
   }
 }
