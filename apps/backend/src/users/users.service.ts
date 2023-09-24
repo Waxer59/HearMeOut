@@ -8,10 +8,14 @@ import { PrismaService } from 'src/common/db/prisma.service';
 import { User } from '@prisma/client';
 import { generateHash } from 'src/common/helpers/bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ConversationsService } from 'src/conversations/conversations.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly conversationsService: ConversationsService,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const findUser = await this.findOneByUsername(createUserDto.username);
@@ -31,6 +35,7 @@ export class UsersService {
         data: createUserDto,
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -56,7 +61,7 @@ export class UsersService {
 
   async findOneByGithubId(githubId: string): Promise<User> {
     try {
-      return await this.prisma.user.findUnique({ where: { githubId } });
+      return await this.prisma.user.findFirst({ where: { githubId } });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -89,6 +94,7 @@ export class UsersService {
         },
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -163,7 +169,7 @@ export class UsersService {
     return newUsername;
   }
 
-  async addActiveChat(userId: string, activeConversationId: string) {
+  async addActiveConversation(userId: string, activeConversationId: string) {
     try {
       return await this.prisma.user.update({
         where: { id: userId },
@@ -180,7 +186,7 @@ export class UsersService {
     }
   }
 
-  async removeActiveChat(userId: string, activeChatId: string) {
+  async removeActiveConversation(userId: string, activeConversationId: string) {
     try {
       const user = await this.findOneById(userId);
 
@@ -188,8 +194,40 @@ export class UsersService {
         where: { id: userId },
         data: {
           activeConversationIds: user.activeConversationIds.filter(
-            (chatId) => chatId !== activeChatId,
+            (conversationId) => conversationId !== activeConversationId,
           ),
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async setActiveConversationFirst(
+    userId: string,
+    activeConversationId: string,
+  ) {
+    const conversation =
+      await this.conversationsService.findConversationById(
+        activeConversationId,
+      );
+
+    if (!conversation) {
+      return;
+    }
+
+    const user = await this.findOneById(userId);
+    const activeConversationIds = user.activeConversationIds.filter(
+      (conversationId) => conversationId !== activeConversationId,
+    );
+    activeConversationIds.unshift(activeConversationId);
+    try {
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          activeConversationIds,
         },
       });
     } catch (error) {

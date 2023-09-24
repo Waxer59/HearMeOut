@@ -8,5 +8,6 @@ import { MessagesModule } from 'src/messages/messages.module';
 @Module({
   providers: [ChatWsGateway, ChatWsService],
   imports: [AuthModule, UsersModule, MessagesModule],
+  exports: [ChatWsGateway],
 })
 export class ChatWsModule {}

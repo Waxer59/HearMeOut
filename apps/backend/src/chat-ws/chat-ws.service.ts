@@ -3,7 +3,6 @@ import { AUTH_COOKIE, CHAT_EVENTS } from 'src/common/constants/constants';
 import { parseCookies } from 'src/common/helpers/cookies';
 import type { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { WsException } from '@nestjs/websockets';
 import { UsersService } from 'src/users/users.service';
 import { User } from '@prisma/client';
 import { MessagesService } from 'src/messages/messages.service';
@@ -22,6 +21,9 @@ export class ChatWsService {
     const { id: userId, conversationIds } = user;
 
     await this.usersService.setIsOnline(userId, true);
+
+    // Join user to conversation rooms
+    client.join(userId);
 
     conversationIds.forEach((conversationId) => {
       client.join(conversationId);
@@ -82,7 +84,7 @@ export class ChatWsService {
     try {
       return await this.authService.verify(token);
     } catch (err) {
-      throw new WsException('Unauthorized');
+      client.disconnect();
     }
   }
 }

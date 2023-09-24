@@ -3,18 +3,26 @@ import { io } from 'socket.io-client';
 import { getEnvVariables } from '../../helpers/getEnvVariables';
 import { useChatStore } from '../../store';
 import { SOCKET_CHAT_EVENTS } from '../../types/types';
-import type { MessageDetails, UserTyping } from '../../store/types/types';
+import type {
+  ConversationDetails,
+  MessageDetails,
+  UserTyping
+} from '../../store/types/types';
+import { setActiveConversationFirst } from '../../services/hearMeOutAPI';
 
 export const useSocketChat = () => {
   const {
     setSocket,
     clearSocket,
-    socket,
     setConversationIsOnline,
     addConversationMessage,
-    currentConversationId,
     addUserTyping,
-    removeUserTyping
+    removeUserTyping,
+    getActiveConversations,
+    addActiveConversation,
+    addConversation,
+    currentConversationId,
+    socket
   } = useChatStore((state) => state);
 
   const connectSocketChat = useCallback(() => {
@@ -64,7 +72,15 @@ export const useSocketChat = () => {
       setConversationIsOnline(userId, false);
     });
 
-    socket.on(SOCKET_CHAT_EVENTS.message, (message: MessageDetails) => {
+    socket.on(SOCKET_CHAT_EVENTS.message, async (message: MessageDetails) => {
+      const activeConversations = getActiveConversations();
+      const conversation = activeConversations.find(
+        (conversation) => conversation.id === message.toId
+      );
+      if (!conversation) {
+        addActiveConversation(message.toId);
+        await setActiveConversationFirst(message.toId);
+      }
       addConversationMessage(message.toId, message);
     });
 
@@ -75,6 +91,14 @@ export const useSocketChat = () => {
     socket.on(SOCKET_CHAT_EVENTS.typingOff, (userTyping: UserTyping) => {
       removeUserTyping(userTyping);
     });
+
+    socket.on(
+      SOCKET_CHAT_EVENTS.newConversation,
+      async (conversation: ConversationDetails) => {
+        addConversation(conversation);
+        addActiveConversation(conversation.id);
+      }
+    );
   }, [socket]);
 
   return {

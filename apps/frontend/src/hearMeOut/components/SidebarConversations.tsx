@@ -1,10 +1,36 @@
 import { useChatStore } from '../../store';
 import { SidebarConversation } from '.';
+import { useEffect } from 'react';
+import { getAllConversationMessages } from '../../services/hearMeOutAPI';
+import { HttpStatusCodes } from '../../types/types';
+import { toast } from 'sonner';
 
 export const SidebarContacts = () => {
-  const getActiveConversations = useChatStore(
-    (state) => state.getActiveConversations
-  );
+  const {
+    getActiveConversations,
+    setConversationMessages,
+    currentConversationId
+  } = useChatStore((state) => state);
+
+  useEffect(() => {
+    async function fetchMessages() {
+      if (!currentConversationId) {
+        return;
+      }
+
+      const { data, status } = await getAllConversationMessages(
+        currentConversationId
+      );
+
+      if (status >= HttpStatusCodes.BAD_REQUEST) {
+        toast.error('There was an error fetching messages');
+      }
+
+      setConversationMessages(currentConversationId, data);
+    }
+
+    fetchMessages();
+  }, [currentConversationId]);
 
   return (
     <div className="h-[calc(100vh-220px)] max-h-[calc(100vh-220px)] pr-3 pl-2 pt-1 -mt-1 -ml-2 -mr-4 flex flex-col gap-5 overflow-auto">

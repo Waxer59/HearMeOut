@@ -15,7 +15,7 @@ model User {
   username              String   @unique
   password              String?
   avatar                String?
-  githubId              String?  @unique
+  githubId              String?
   isOnline              Boolean  @default(false)
   conversationIds       String[] @db.ObjectId
   adminConversationIds  String[] @db.ObjectId
@@ -52,7 +52,6 @@ model Configuration {
   user User @relation(fields: [userId], references: [id])
 }
 
-// TODO: REVISAR TO
 model Message {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   fromId    String   @db.ObjectId

@@ -2,16 +2,17 @@ import {
   WebSocketGateway,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WebSocketServer,
   SubscribeMessage,
   MessageBody,
   ConnectedSocket,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { ChatWsService } from './chat-ws.service';
-import type { Socket, Server } from 'socket.io';
+import type { Server, Socket } from 'socket.io';
 import { CHAT_EVENTS } from 'src/common/constants/constants';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
+import { Conversation } from '@prisma/client';
 
 @WebSocketGateway()
 export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -59,6 +60,10 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const id = await this.chatWsService.getUserIdAuth(client);
     return await this.chatWsService.userOffline(client, id);
+  }
+
+  serverEmitNewConversation(conversation: Conversation, userId: string) {
+    this.server.to(userId).emit(CHAT_EVENTS.newConversation, conversation);
   }
 
   async afterInit(client: Socket) {

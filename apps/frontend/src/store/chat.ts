@@ -10,7 +10,7 @@ import type { Socket } from 'socket.io-client';
 
 interface State {
   conversations: ConversationDetails[];
-  activeConversations: any | null;
+  activeConversations: string[] | null;
   socket: Socket | null;
   currentConversationId: string | null;
   usersTyping: UserTyping[];
@@ -25,6 +25,8 @@ interface Actions {
   setSocket: (socket: Socket) => void;
   clearSocket: () => void;
   getActiveConversations: () => ConversationDetails[];
+  addActiveConversation: (id: string) => void;
+  removeActiveConversation: (conversationId: string) => void;
   setConversationIsOnline: (userId: string, isOnline: boolean) => void;
   setCurrentConversationId: (conversation: string) => void;
   clearCurrentConversationId: () => void;
@@ -59,8 +61,8 @@ export const useChatStore = create<State & Actions>()(
     setSocket: (socket) => set({ socket }),
     clearSocket: () => set({ socket: null }),
     getActiveConversations: () =>
-      get().conversations.filter((el) =>
-        get().activeConversations.includes(el.id)
+      get().conversations.filter(
+        (el) => get().activeConversations?.includes(el.id)
       ),
     setConversationIsOnline: (userId, isOnline) =>
       set((state) => ({
@@ -133,6 +135,18 @@ export const useChatStore = create<State & Actions>()(
             )
           : []
       })),
-    clearUserTyping: () => set({ usersTyping: [] })
+    clearUserTyping: () => set({ usersTyping: [] }),
+    removeActiveConversation: (conversationId) =>
+      set((state) => ({
+        activeConversations: state.activeConversations
+          ? state.activeConversations.filter((el) => el !== conversationId)
+          : []
+      })),
+    addActiveConversation: (id) =>
+      set((state) => ({
+        activeConversations: state.activeConversations
+          ? [...state.activeConversations, id]
+          : [id]
+      }))
   }))
 );

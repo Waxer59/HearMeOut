@@ -1,6 +1,7 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { useChatStore } from '../../store';
+import { closeActiveConversation } from '../../services/hearMeOutAPI';
 
 interface Props {
   id: string;
@@ -15,14 +16,20 @@ export const SidebarConversation: React.FC<Props> = ({
   avatarUrl,
   isOnline
 }) => {
-  const { setCurrentConversationId, conversations } = useChatStore(
-    (state) => state
-  );
+  const { setCurrentConversationId, removeActiveConversation, conversations } =
+    useChatStore((state) => state);
 
   const handleConversationClick = async () => {
     const currentConversation = conversations.find((el) => el.id === id)!;
     setCurrentConversationId(currentConversation.id);
   };
+
+  const handleCloseChat = async () => {
+    await closeActiveConversation(id);
+    removeActiveConversation(id);
+  };
+
+  const handleRemoveContact = async () => {};
 
   return (
     <ContextMenu.Root>
@@ -46,13 +53,16 @@ export const SidebarConversation: React.FC<Props> = ({
         </Button>
       </ContextMenu.Trigger>
       <ContextMenu.Content>
-        <ContextMenu.Item className="cursor-pointer">
+        <ContextMenu.Item className="cursor-pointer" onClick={handleCloseChat}>
           Close chat
         </ContextMenu.Item>
 
         <ContextMenu.Separator />
 
-        <ContextMenu.Item color="red" className="cursor-pointer">
+        <ContextMenu.Item
+          color="red"
+          className="cursor-pointer"
+          onClick={handleRemoveContact}>
           Remove contact
         </ContextMenu.Item>
       </ContextMenu.Content>

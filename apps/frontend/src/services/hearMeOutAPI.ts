@@ -1,5 +1,9 @@
 import { getEnvVariables } from '../helpers/getEnvVariables';
-import { HttpStatusCodes, type VerifyResponse } from '../types/types';
+import {
+  HttpMethods,
+  HttpStatusCodes,
+  type VerifyResponse
+} from '../types/types';
 
 const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
 
@@ -24,7 +28,7 @@ export async function signIn({
 }: ISignIn): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-in`, {
-      method: 'POST',
+      method: HttpMethods.POST,
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
@@ -45,7 +49,7 @@ export async function signUp({
 }: ISignUp): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-up`, {
-      method: 'POST',
+      method: HttpMethods.POST,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -107,7 +111,7 @@ export async function sendFriendRequest(id: string): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/friend-requests/${id}`, {
       credentials: 'include',
-      method: 'POST'
+      method: HttpMethods.POST
     });
     const data = await response.json();
 
@@ -134,7 +138,7 @@ export async function acceptFriendRequest(id: string): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/friend-requests/accept/${id}`, {
       credentials: 'include',
-      method: 'POST'
+      method: HttpMethods.POST
     });
     const data = await response.json();
 
@@ -148,7 +152,60 @@ export async function denyFriendRequest(id: string): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/friend-requests/deny/${id}`, {
       credentials: 'include',
-      method: 'DELETE'
+      method: HttpMethods.DELETE
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function closeActiveConversation(
+  id: string
+): Promise<IResponseData> {
+  try {
+    const response = await fetch(
+      `${baseUrl}/users/active-conversations/${id}`,
+      {
+        credentials: 'include',
+        method: HttpMethods.DELETE
+      }
+    );
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function setActiveConversationFirst(
+  id: string
+): Promise<IResponseData> {
+  try {
+    const response = await fetch(
+      `${baseUrl}/users/active-conversations/${id}`,
+      {
+        credentials: 'include',
+        method: HttpMethods.PATCH
+      }
+    );
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function getAllConversationMessages(
+  id: string
+): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/messages/${id}`, {
+      credentials: 'include'
     });
     const data = await response.json();
 

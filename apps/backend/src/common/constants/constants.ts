@@ -7,4 +7,5 @@ export const CHAT_EVENTS = {
   message: 'message',
   typing: 'typing',
   typingOff: 'typingOff',
+  newConversation: 'newConversation',
 };

@@ -27,14 +27,28 @@ export class UsersController {
     return excludeUserFields(user, ['password', 'githubId']);
   }
 
-  @Patch()
+  @Patch('')
   @ApiCookieAuth('Authorization')
   async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     const { id } = req.user;
     return await this.usersService.updateById(id, updateUserDto);
   }
 
-  @Delete()
+  @Patch('active-conversations/:id')
+  @ApiCookieAuth('Authorization')
+  async updateActiveConversations(@Req() req, @Param('id') id: string) {
+    const { id: userId } = req.user;
+    return await this.usersService.setActiveConversationFirst(userId, id);
+  }
+
+  @Delete('active-conversations/:id')
+  @ApiCookieAuth('Authorization')
+  async removeActiveConversations(@Req() req, @Param('id') id: string) {
+    const { id: userId } = req.user;
+    return await this.usersService.removeActiveConversation(userId, id);
+  }
+
+  @Delete('')
   @ApiCookieAuth('Authorization')
   async remove(@Req() req) {
     const { id } = req.user;

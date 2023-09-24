@@ -7,7 +7,6 @@ import Picker from '@emoji-mart/react';
 import { TypingIndicator } from './';
 import { useSocketChat } from '../hooks/useSocketChat';
 import { useChatStore } from '../../store';
-import { useDebounce } from 'use-debounce';
 
 export const ChatInput = () => {
   const {
@@ -19,7 +18,6 @@ export const ChatInput = () => {
   } = useSocketChat();
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [finalMessage] = useDebounce(message, 500);
   const messageInputRef = useRef<HTMLInputElement | null>(null);
   const selectionStartRef = useRef<number | null>(null);
   const { usersTyping } = useChatStore((state) => state);
@@ -33,10 +31,6 @@ export const ChatInput = () => {
   }, []);
 
   useEffect(() => {
-    sendTypingOff();
-  }, [finalMessage]);
-
-  useEffect(() => {
     if (selectionStartRef.current !== null && messageInputRef.current) {
       messageInputRef.current.focus();
       messageInputRef.current.setSelectionRange(
@@ -44,6 +38,9 @@ export const ChatInput = () => {
         selectionStartRef.current
       );
     }
+
+    const timeoutId = setTimeout(() => sendTypingOff(), 1000);
+    return () => clearTimeout(timeoutId);
   }, [message]);
 
   const onEmojiPickerClick = () => {
@@ -55,6 +52,8 @@ export const ChatInput = () => {
 
     const startPos = inputElement?.selectionStart ?? 0;
     const endPos = inputElement?.selectionEnd ?? 0;
+
+    sendTyping();
 
     const newValue =
       message.substring(0, startPos) +
@@ -69,10 +68,6 @@ export const ChatInput = () => {
   const onMessageInputChange = (e: InputEvent) => {
     setMessage(e.target.value);
     sendTyping();
-
-    if (e.target.value === '') {
-      sendTypingOff();
-    }
 
     if (messageInputRef.current) {
       selectionStartRef.current = messageInputRef.current.selectionStart;

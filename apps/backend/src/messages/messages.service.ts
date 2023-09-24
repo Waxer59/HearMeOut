@@ -27,15 +27,18 @@ export class MessagesService {
     }
   }
 
-  async findAllConversationMessages(chatId: string): Promise<Message[]> {
+  async findAllConversationMessages(
+    conversationId: string,
+  ): Promise<Message[]> {
     try {
       return await this.prisma.message.findMany({
         where: {
-          toId: chatId,
+          toId: conversationId,
         },
         include: {
           from: {
             select: {
+              id: true,
               username: true,
               avatar: true,
             },

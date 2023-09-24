@@ -33,6 +33,14 @@ export enum HttpStatusCodes {
   GATEWAY_TIMEOUT = 504
 }
 
+export enum HttpMethods {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE'
+}
+
 export interface VerifyResponse {
   id: string;
   username: string;
@@ -50,5 +58,6 @@ export enum SOCKET_CHAT_EVENTS {
   friendRequest = 'friendRequest',
   message = 'message',
   typing = 'typing',
-  typingOff = 'typingOff'
+  typingOff = 'typingOff',
+  newConversation = 'newConversation'
 }

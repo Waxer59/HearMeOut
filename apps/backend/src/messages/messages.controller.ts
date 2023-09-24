@@ -19,11 +19,11 @@ export class MessagesController {
   @Get(':id')
   @ApiCookieAuth('Authorization')
   async getMessages(@Param('id') id: string, @Req() req) {
-    // const { conversationsIds } = req.user;
+    const { conversationIds } = req.user;
 
-    // if (!conversationsIds?.includes(id)) {
-    //   throw new NotFoundException('Conversation not found');
-    // }
+    if (!conversationIds.includes(id)) {
+      throw new NotFoundException('Conversation not found');
+    }
 
     return await this.messagesService.findAllConversationMessages(id);
   }
