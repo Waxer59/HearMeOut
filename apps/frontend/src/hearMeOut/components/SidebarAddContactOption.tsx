@@ -3,10 +3,11 @@ import { IconSearch } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { DEBOUNCE_SEARCH_TIME } from '../../constants/constants';
-import { searchUser, sendFriendRequest } from '../../services/hearMeOutAPI';
+import { searchUser } from '../../services/hearMeOutAPI';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { HttpStatusCodes, type UserDetails } from '../../types/types';
 import { toast } from 'sonner';
+import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 interface PropsUserBtn {
   id: string;
@@ -15,6 +16,8 @@ interface PropsUserBtn {
 }
 
 const UserBtn: React.FC<PropsUserBtn> = ({ id, username, avatar }) => {
+  const { sendFriendRequest } = useSocketChatEvents();
+
   const handleAddFriend = () => {
     sendFriendRequest(id);
     toast.success('Friend request sent!');

@@ -5,7 +5,7 @@ import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 import { toast } from 'sonner';
 
-export const SidebarContacts = () => {
+export const SidebarActiveConversations = () => {
   const {
     getActiveConversations,
     setConversationMessages,
@@ -33,7 +33,7 @@ export const SidebarContacts = () => {
   }, [currentConversationId]);
 
   return (
-    <div className="h-[calc(100vh-220px)] max-h-[calc(100vh-220px)] pr-3 pl-2 pt-1 -mt-1 -ml-2 -mr-4 flex flex-col gap-5 overflow-auto">
+    <div className="h-full pr-3 pl-2 pt-1 -mt-1 -ml-2 -mr-4 flex flex-col gap-5 overflow-auto">
       {getActiveConversations().map((el) => (
         <SidebarConversation
           key={el.id}

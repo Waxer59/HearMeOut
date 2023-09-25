@@ -8,6 +8,7 @@ import { User } from '@prisma/client';
 import { MessagesService } from 'src/messages/messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
+import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 
 @Injectable()
 export class ChatWsService {
@@ -15,12 +16,18 @@ export class ChatWsService {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly messageService: MessagesService,
+    private readonly friendRequestsService: FriendRequestsService,
   ) {}
 
   async userOnline(client: Socket, user: User): Promise<void> {
     const { id: userId, conversationIds } = user;
 
-    await this.usersService.setIsOnline(userId, true);
+    try {
+      await this.usersService.setIsOnline(userId, true);
+    } catch (error) {
+      client.disconnect();
+      return;
+    }
 
     // Join user to conversation rooms
     client.join(userId);
@@ -34,7 +41,12 @@ export class ChatWsService {
   async userOffline(client: Socket, user: User): Promise<void> {
     const { id: userId, conversationIds } = user;
 
-    await this.usersService.setIsOnline(userId, false);
+    try {
+      await this.usersService.setIsOnline(userId, false);
+    } catch (error) {
+      client.disconnect();
+      return;
+    }
 
     conversationIds.forEach((conversationId) => {
       client.join(conversationId);
@@ -49,11 +61,13 @@ export class ChatWsService {
     sendMessageDto: SendMessageDto,
     server: Server,
   ): Promise<void> {
-    const message = await this.messageService.create({
-      ...sendMessageDto,
-      fromId: userId,
-    });
-    server.to(sendMessageDto.toId).emit(CHAT_EVENTS.message, message);
+    try {
+      const message = await this.messageService.create({
+        ...sendMessageDto,
+        fromId: userId,
+      });
+      server.to(sendMessageDto.toId).emit(CHAT_EVENTS.message, message);
+    } catch (error) {}
   }
 
   async typing(
@@ -74,6 +88,39 @@ export class ChatWsService {
     client.broadcast
       .to(conversationId)
       .emit(CHAT_EVENTS.typingOff, { userId, conversationId });
+  }
+
+  async friendRequest(
+    fromId: string,
+    toId: string,
+    client: Socket,
+  ): Promise<void> {
+    try {
+      const request = await this.friendRequestsService.create(fromId, toId);
+      client.to(toId).emit(CHAT_EVENTS.friendRequest, request);
+    } catch (error) {}
+  }
+
+  async acceptFriendRequest(
+    friendRequestId: string,
+    userId: string,
+    client: Socket,
+  ): Promise<void> {
+    try {
+      const request =
+        await this.friendRequestsService.findById(friendRequestId);
+
+      if (request.toId !== userId) {
+        return;
+      }
+
+      const acceptedRequest =
+        await this.friendRequestsService.accept(friendRequestId);
+
+      client
+        .to(request.toId)
+        .emit(CHAT_EVENTS.acceptFriendRequest, acceptedRequest);
+    } catch (error) {}
   }
 
   async getUserIdAuth(client: Socket): Promise<User> {

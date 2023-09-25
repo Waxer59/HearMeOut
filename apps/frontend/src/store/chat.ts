@@ -147,6 +147,7 @@ export const useChatStore = create<State & Actions>()(
         activeConversations: state.activeConversations
           ? [...state.activeConversations, id]
           : [id]
-      }))
+      })),
+    friendRequests: null
   }))
 );

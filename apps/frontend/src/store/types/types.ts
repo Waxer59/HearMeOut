@@ -25,6 +25,13 @@ export interface MessageDetails {
   from: AccountDetails;
 }
 
+export interface FriendRequestDetails {
+  id: string;
+  fromId: string;
+  toId: string;
+  from: AccountDetails;
+}
+
 export enum ConversationTypes {
   chat = 'chat',
   group = 'group'

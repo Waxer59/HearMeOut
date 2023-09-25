@@ -1,5 +1,8 @@
 import { type ChangeEvent } from 'react';
-import type { ConversationDetails } from '../store/types/types';
+import type {
+  ConversationDetails,
+  FriendRequestDetails
+} from '../store/types/types';
 
 export type InputEvent = ChangeEvent<HTMLInputElement>;
 export type ButtonEvent = ChangeEvent<HTMLButtonElement>;
@@ -50,12 +53,14 @@ export interface VerifyResponse {
   adminConversationIds: any[];
   activeConversationIds: string[];
   conversationsJoined: ConversationDetails[];
+  friendReqTos: FriendRequestDetails[];
 }
 
 export enum SOCKET_CHAT_EVENTS {
   userConnect = 'userConnect',
   userDisconnect = 'userDisconnect',
   friendRequest = 'friendRequest',
+  acceptFriendRequest = 'acceptFriendRequest',
   message = 'message',
   typing = 'typing',
   typingOff = 'typingOff',

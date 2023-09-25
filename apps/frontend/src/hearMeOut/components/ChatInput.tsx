@@ -8,15 +8,11 @@ import { TypingIndicator } from './';
 import { useSocketChat } from '../hooks/useSocketChat';
 import { useChatStore } from '../../store';
 import { TYPING_TIMEOUT } from '../../constants/constants';
+import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 export const ChatInput = () => {
-  const {
-    sendMessage,
-    connectSocketChat,
-    disconnectSocketChat,
-    sendTyping,
-    sendTypingOff
-  } = useSocketChat();
+  const { connectSocketChat, disconnectSocketChat } = useSocketChat();
+  const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
   const messageInputRef = useRef<HTMLInputElement | null>(null);

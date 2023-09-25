@@ -12,7 +12,7 @@ import type { Server, Socket } from 'socket.io';
 import { CHAT_EVENTS } from 'src/common/constants/constants';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
-import { Conversation } from '@prisma/client';
+import { FriendRequestDto } from './dto/friend-request.dto';
 
 @WebSocketGateway()
 export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -40,7 +40,7 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return this.chatWsService.typing(typingDto, userId, client);
+    return await this.chatWsService.typing(typingDto, userId, client);
   }
 
   @SubscribeMessage(CHAT_EVENTS.typingOff)
@@ -49,7 +49,25 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return this.chatWsService.typingOff(typingDto, userId, client);
+    return await this.chatWsService.typingOff(typingDto, userId, client);
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.friendRequest)
+  async friendRequest(
+    @MessageBody() { toId }: FriendRequestDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.friendRequest(userId, toId, client);
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.acceptFriendRequest)
+  async acceptFriendRequest(
+    @MessageBody() id: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.acceptFriendRequest(id, userId, client);
   }
 
   async handleConnection(client: Socket) {
@@ -60,10 +78,6 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const id = await this.chatWsService.getUserIdAuth(client);
     return await this.chatWsService.userOffline(client, id);
-  }
-
-  serverEmitNewConversation(conversation: Conversation, userId: string) {
-    this.server.to(userId).emit(CHAT_EVENTS.newConversation, conversation);
   }
 
   async afterInit(client: Socket) {

@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { FriendRequest } from '@prisma/client';
-import { ChatWsGateway } from 'src/chat-ws/chat-ws.gateway';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { ConversationsService } from 'src/conversations/conversations.service';
 import { UsersService } from 'src/users/users.service';
@@ -15,7 +14,6 @@ export class FriendRequestsService {
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly conversationsService: ConversationsService,
-    private readonly chatWsGateway: ChatWsGateway,
   ) {}
 
   async create(fromId: string, toId: string): Promise<FriendRequest> {
@@ -40,6 +38,9 @@ export class FriendRequestsService {
         data: {
           fromId,
           toId,
+        },
+        include: {
+          from: true,
         },
       });
     } catch (error) {
@@ -133,8 +134,6 @@ export class FriendRequestsService {
       const activeConversations = [fromId, toId].map((userId) => {
         this.usersService.addActiveConversation(userId, chat.id);
       });
-
-      this.chatWsGateway.serverEmitNewConversation(chat, toId);
 
       Promise.resolve(activeConversations);
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { getEnvVariables } from '../../helpers/getEnvVariables';
-import { useChatStore } from '../../store';
+import { useAccountStore, useChatStore } from '../../store';
 import { SOCKET_CHAT_EVENTS } from '../../types/types';
 import type {
   ConversationDetails,
@@ -21,9 +21,9 @@ export const useSocketChat = () => {
     getActiveConversations,
     addActiveConversation,
     addConversation,
-    currentConversationId,
     socket
   } = useChatStore((state) => state);
+  const { addFriendRequest } = useAccountStore();
 
   const connectSocketChat = useCallback(() => {
     const socketTmp = io(`${getEnvVariables().VITE_HEARMEOUT_API}`, {
@@ -39,25 +39,6 @@ export const useSocketChat = () => {
     socket?.disconnect();
     clearSocket();
   }, []);
-
-  const sendMessage = (content: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.message, {
-      content,
-      toId: currentConversationId
-    });
-  };
-
-  const sendTyping = () => {
-    socket?.emit(SOCKET_CHAT_EVENTS.typing, {
-      conversationId: currentConversationId
-    });
-  };
-
-  const sendTypingOff = () => {
-    socket?.emit(SOCKET_CHAT_EVENTS.typingOff, {
-      conversationId: currentConversationId
-    });
-  };
 
   useEffect(() => {
     if (!socket) {
@@ -99,13 +80,21 @@ export const useSocketChat = () => {
         addActiveConversation(conversation.id);
       }
     );
+
+    socket.on(SOCKET_CHAT_EVENTS.friendRequest, (friendRequest: any) => {
+      addFriendRequest(friendRequest);
+    });
+
+    socket.on(
+      SOCKET_CHAT_EVENTS.acceptFriendRequest,
+      (friend: ConversationDetails) => {
+        addConversation(friend);
+      }
+    );
   }, [socket]);
 
   return {
     connectSocketChat,
-    disconnectSocketChat,
-    sendMessage,
-    sendTyping,
-    sendTypingOff
+    disconnectSocketChat
   };
 };

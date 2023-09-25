@@ -91,6 +91,30 @@ export class UsersService {
               },
             },
           },
+          friendReqFroms: {
+            include: {
+              from: {
+                select: {
+                  id: true,
+                  username: true,
+                  avatar: true,
+                  isOnline: true,
+                },
+              },
+            },
+          },
+          friendReqTos: {
+            include: {
+              from: {
+                select: {
+                  id: true,
+                  username: true,
+                  avatar: true,
+                  isOnline: true,
+                },
+              },
+            },
+          },
         },
       });
     } catch (error) {

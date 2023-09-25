@@ -1,4 +1,10 @@
-import { SidebarProfile, SidebarContacts, SidebarHeader } from './';
+import * as Tabs from '@radix-ui/react-tabs';
+import {
+  SidebarProfile,
+  SidebarActiveConversations,
+  SidebarHeader,
+  SidebarAllConversations
+} from './';
 
 export const ChatSidebar = () => {
   return (
@@ -6,7 +12,30 @@ export const ChatSidebar = () => {
       <SidebarHeader />
 
       <div className="flex flex-col gap-2">
-        <SidebarContacts />
+        <Tabs.Root
+          className="h-[calc(100vh-224px)] max-h-[calc(100vh-220px)]"
+          defaultValue="active">
+          <Tabs.List className="flex justify-between mb-4">
+            <Tabs.Trigger
+              value="active"
+              className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
+              Active chats
+              <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="all"
+              className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
+              All chats
+              <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="active" className="h-full">
+            <SidebarActiveConversations />
+          </Tabs.Content>
+          <Tabs.Content value="all" className="h-full">
+            <SidebarAllConversations />
+          </Tabs.Content>
+        </Tabs.Root>
         <SidebarProfile />
       </div>
     </div>
