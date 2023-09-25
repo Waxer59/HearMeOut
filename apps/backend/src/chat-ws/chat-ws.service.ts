@@ -126,6 +126,12 @@ export class ChatWsService {
   async getUserIdAuth(client: Socket): Promise<User> {
     const rawCookies = client.request.headers.cookie;
     const parsedCookies = parseCookies(rawCookies);
+
+    if (!parseCookies) {
+      client.disconnect();
+      return;
+    }
+
     const token = parsedCookies[AUTH_COOKIE];
 
     try {

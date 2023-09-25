@@ -38,7 +38,7 @@ export const useSocketChat = () => {
   const disconnectSocketChat = useCallback(() => {
     socket?.disconnect();
     clearSocket();
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     if (!socket) {

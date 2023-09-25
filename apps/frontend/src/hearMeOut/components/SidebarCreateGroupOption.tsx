@@ -8,10 +8,42 @@ import {
   Tooltip
 } from '@radix-ui/themes';
 import { IconSend } from '@tabler/icons-react';
-
-const USERS = ['SERGIO', 'JOSE', 'JUAN', 'JUAN PABLO'];
+import { useChatStore } from '../../store';
+import {
+  ConversationTypes,
+  type AccountDetails
+} from '../../store/types/types';
+import { useState } from 'react';
+import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
+import { toast } from 'sonner';
 
 export const SidebarCreateGroupOption = () => {
+  const { conversations } = useChatStore();
+  const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
+
+  const chatConversations = conversations.filter(
+    (el) => el.type === ConversationTypes.chat
+  );
+
+  const addUser = (user: AccountDetails) => {
+    setSelectedUsers([...selectedUsers, user]);
+  };
+
+  const removeUser = (user: AccountDetails) => {
+    const newUsers = selectedUsers.filter((el) => el.id !== user.id);
+    setSelectedUsers(newUsers);
+  };
+
+  const handleValueChange = (userId: string) => {
+    const user = chatConversations.find((el) => el.users[0].id === userId)
+      ?.users[0];
+    if (!user) {
+      toast.error('User not found');
+      return;
+    }
+    addUser(user);
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <TextField.Root size="3" variant="soft" color="gray">
@@ -21,14 +53,22 @@ export const SidebarCreateGroupOption = () => {
         <Heading as="h3" size="3">
           Add users to group
         </Heading>
-        <Select.Root>
+        <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger placeholder="Contacts" />
           <Select.Content color="blue">
-            {USERS.map((el, idx) => (
-              <Select.Item value={el} key={idx}>
-                {el}
-              </Select.Item>
-            ))}
+            {chatConversations
+              .filter(
+                (el) =>
+                  !selectedUsers.find((user) => user.id === el.users[0].id)
+              )
+              .map((el) => (
+                <Select.Item
+                  value={el.users[0].id}
+                  key={el.users[0].id}
+                  className="capitalize">
+                  {el.users[0].username}
+                </Select.Item>
+              ))}
           </Select.Content>
         </Select.Root>
       </div>
@@ -36,21 +76,31 @@ export const SidebarCreateGroupOption = () => {
         <Heading as="h3" size="3">
           Selected contacts
         </Heading>
-        <Text weight="light">
-          Select a minimum of two people to create a group...
-        </Text>
+        {selectedUsers.length <= 0 && (
+          <Text weight="light">
+            Select a minimum of two people to create a group...
+          </Text>
+        )}
         <div className="flex flex-wrap gap-4 pl-2">
-          <Tooltip content="Click to remove">
-            <Button
-              variant="ghost"
-              className="flex gap-2 transition"
-              radius="medium">
-              <Avatar fallback="J" />
-              <Text weight="bold" className="uppercase">
-                Juan
-              </Text>
-            </Button>
-          </Tooltip>
+          {selectedUsers.map((el) => (
+            <Tooltip content="Click to remove" key={el.id}>
+              <Button
+                variant="ghost"
+                className="flex gap-2 transition"
+                radius="medium"
+                onClick={() => {
+                  removeUser(el);
+                }}>
+                <Avatar
+                  fallback={getFallbackAvatarName(el.username)}
+                  src={el.avatar}
+                />
+                <Text weight="bold" className="uppercase">
+                  {el.username}
+                </Text>
+              </Button>
+            </Tooltip>
+          ))}
         </div>
       </div>
       <Button color="blue" size="3">

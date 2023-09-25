@@ -27,6 +27,7 @@ interface Actions {
   addFriendRequestOutgoing: (friendRequest: FriendRequestDetails) => void;
   removeFriendRequestOutgoing: (friendRequestId: string) => void;
   clearFriendRequestsOutgoing: () => void;
+  clearAccountState: () => void;
 }
 
 export const useAccountStore = create<State & Actions>()(
@@ -76,6 +77,14 @@ export const useAccountStore = create<State & Actions>()(
             )
           : []
       })),
-    clearFriendRequestsOutgoing: () => set({ friendRequestsOutgoing: [] })
+    clearFriendRequestsOutgoing: () => set({ friendRequestsOutgoing: [] }),
+    clearAccountState: () =>
+      set({
+        account: null,
+        isAuthenticated: false,
+        settings: null,
+        friendRequests: [],
+        friendRequestsOutgoing: []
+      })
   }))
 );

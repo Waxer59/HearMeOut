@@ -41,6 +41,7 @@ interface Actions {
   addUserTyping: (userTyping: UserTyping) => void;
   removeUserTyping: (userTyping: UserTyping) => void;
   clearUserTyping: () => void;
+  clearChatState: () => void;
 }
 
 export const useChatStore = create<State & Actions>()(
@@ -148,6 +149,14 @@ export const useChatStore = create<State & Actions>()(
           ? [...state.activeConversations, id]
           : [id]
       })),
-    friendRequests: null
+    friendRequests: null,
+    clearChatState: () =>
+      set({
+        conversations: [],
+        activeConversations: null,
+        socket: null,
+        currentConversationId: null,
+        usersTyping: []
+      })
   }))
 );

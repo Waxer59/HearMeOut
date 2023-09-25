@@ -41,7 +41,7 @@ export const SidebarProfile = () => {
   const handleSignOut = async () => {
     await signOut();
 
-    navigate('/');
+    navigate(0);
     clearAccount();
   };
 

@@ -19,6 +19,10 @@ export const ChatInput = () => {
   const { usersTyping } = useChatStore((state) => state);
 
   useEffect(() => {
+    if (!message) {
+      return;
+    }
+
     if (isTyping) {
       sendTyping();
     } else {

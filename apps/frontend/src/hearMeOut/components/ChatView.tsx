@@ -5,15 +5,11 @@ import { useChatStore } from '../../store';
 import { NotFoundIcon } from './Icons';
 
 export const ChatView = () => {
-  const { connectSocketChat, disconnectSocketChat } = useSocketChat();
+  const { connectSocketChat } = useSocketChat();
   const { currentConversationId } = useChatStore();
 
   useEffect(() => {
     connectSocketChat();
-
-    return () => {
-      disconnectSocketChat();
-    };
   }, []);
 
   return (

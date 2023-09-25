@@ -14,6 +14,10 @@ export const clearAuthCookie = (res: Response) => {
 };
 
 export const parseCookies = (raw: string) => {
+  if (!raw) {
+    return null;
+  }
+
   const cookies = raw.split(';');
   const parsedCookies: { [key: string]: string } = {};
 
