@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 import { toast } from 'sonner';
+import { VoidIcon } from './Icons';
 
 export const SidebarActiveConversations = () => {
   const {
@@ -41,8 +42,14 @@ export const SidebarActiveConversations = () => {
           name={el.users[0].username}
           avatarUrl={el.users[0].avatar}
           isOnline={el.users[0].isOnline}
+          isActive={true}
         />
       ))}
+      {getActiveConversations().length <= 0 && (
+        <div className="flex justify-center mt-24">
+          <VoidIcon className="w-52" />
+        </div>
+      )}
     </div>
   );
 };

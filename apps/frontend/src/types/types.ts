@@ -54,6 +54,7 @@ export interface VerifyResponse {
   activeConversationIds: string[];
   conversationsJoined: ConversationDetails[];
   friendReqTos: FriendRequestDetails[];
+  friendReqFroms: FriendRequestDetails[];
 }
 
 export enum SOCKET_CHAT_EVENTS {

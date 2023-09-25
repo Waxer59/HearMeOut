@@ -5,13 +5,11 @@ import type { EmojiProps, InputEvent } from '../../types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { TypingIndicator } from './';
-import { useSocketChat } from '../hooks/useSocketChat';
 import { useChatStore } from '../../store';
 import { TYPING_TIMEOUT } from '../../constants/constants';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 export const ChatInput = () => {
-  const { connectSocketChat, disconnectSocketChat } = useSocketChat();
   const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -19,14 +17,6 @@ export const ChatInput = () => {
   const selectionStartRef = useRef<number | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const { usersTyping } = useChatStore((state) => state);
-
-  useEffect(() => {
-    connectSocketChat();
-
-    return () => {
-      disconnectSocketChat();
-    };
-  }, []);
 
   useEffect(() => {
     if (isTyping) {

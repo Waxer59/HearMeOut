@@ -8,13 +8,15 @@ interface Props {
   name: string;
   avatarUrl?: string;
   isOnline: boolean;
+  isActive: boolean;
 }
 
 export const SidebarConversation: React.FC<Props> = ({
   id,
   name,
   avatarUrl,
-  isOnline
+  isOnline,
+  isActive
 }) => {
   const { setCurrentConversationId, removeActiveConversation, conversations } =
     useChatStore((state) => state);
@@ -53,11 +55,17 @@ export const SidebarConversation: React.FC<Props> = ({
         </Button>
       </ContextMenu.Trigger>
       <ContextMenu.Content>
-        <ContextMenu.Item className="cursor-pointer" onClick={handleCloseChat}>
-          Close chat
-        </ContextMenu.Item>
+        {isActive && (
+          <>
+            <ContextMenu.Item
+              className="cursor-pointer"
+              onClick={handleCloseChat}>
+              Close chat
+            </ContextMenu.Item>
 
-        <ContextMenu.Separator />
+            <ContextMenu.Separator />
+          </>
+        )}
 
         <ContextMenu.Item
           color="red"

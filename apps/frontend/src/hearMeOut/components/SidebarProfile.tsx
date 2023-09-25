@@ -14,6 +14,7 @@ import {
   IconLogout,
   IconMoon,
   IconSettings,
+  IconTrash,
   IconUserCircle,
   IconUserPlus,
   IconX
@@ -49,6 +50,8 @@ export const SidebarProfile = () => {
     removeFriendRequest(id);
     toast.success('Friend request accepted!');
   };
+
+  const handleRemoveRequest = async (id: string): Promise<void> => {};
 
   const handleDenyFriendRequest = async (id: string): Promise<void> => {
     await denyFriendRequest(id);
@@ -147,28 +150,14 @@ export const SidebarProfile = () => {
                           {from.username}
                         </span>
                       </div>
-                      <div className="flex gap-4">
-                        <Tooltip content="Accept">
-                          <IconButton
-                            variant="ghost"
-                            color="grass"
-                            onClick={async () =>
-                              await handleAcceptFriendRequest(id)
-                            }>
-                            <IconCheck size={24} />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip content="Deny">
-                          <IconButton
-                            variant="ghost"
-                            color="red"
-                            onClick={async () =>
-                              await handleDenyFriendRequest(id)
-                            }>
-                            <IconX size={24} />
-                          </IconButton>
-                        </Tooltip>
-                      </div>
+                      <Tooltip content="Remove request">
+                        <IconButton
+                          variant="ghost"
+                          color="red"
+                          onClick={async () => await handleRemoveRequest(id)}>
+                          <IconTrash size={24} />
+                        </IconButton>
+                      </Tooltip>
                     </div>
                   ))}
                 </Tabs.Content>

@@ -10,7 +10,8 @@ import { useAccountStore, useChatStore } from '../../store';
 import type { VerifyResponse } from '../../types/types';
 
 const HearMeOutRoutes = () => {
-  const { setAccount, setFriendRequests } = useAccountStore((state) => state);
+  const { setAccount, setFriendRequests, setFriendRequestsOutgoing } =
+    useAccountStore((state) => state);
   const { setConversations, setActive, setCurrentConversationId } =
     useChatStore((state) => state);
 
@@ -27,6 +28,7 @@ const HearMeOutRoutes = () => {
         conversationsJoined,
         activeConversationIds,
         friendReqTos,
+        friendReqFroms,
         ...account
       } = data;
 
@@ -37,6 +39,7 @@ const HearMeOutRoutes = () => {
       );
       setActive(activeConversationIds);
       setConversations(conversationsJoined);
+      setFriendRequestsOutgoing(friendReqFroms);
 
       setAccount(account);
       setFriendRequests(friendReqTos);

@@ -38,6 +38,7 @@ export const SidebarAllConversations = () => {
           name={el.users[0].username}
           avatarUrl={el.users[0].avatar}
           isOnline={el.users[0].isOnline}
+          isActive={false}
         />
       ))}
     </div>
