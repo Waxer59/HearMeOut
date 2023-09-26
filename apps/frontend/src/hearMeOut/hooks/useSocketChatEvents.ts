@@ -23,14 +23,18 @@ export const useSocketChatEvents = () => {
     });
   };
 
-  const sendFriendRequest = (toId: string) => {
+  const sendFriendRequest = (id: string) => {
     socket?.emit(SOCKET_CHAT_EVENTS.friendRequest, {
-      toId
+      id
     });
   };
 
-  const acceptFriendRequest = (id: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.acceptFriendRequest, id);
+  const sendAcceptFriendRequest = (id: string) => {
+    socket?.emit(SOCKET_CHAT_EVENTS.acceptFriendRequest, { id });
+  };
+
+  const sendRemoveConversation = (id: string) => {
+    socket?.emit(SOCKET_CHAT_EVENTS.removeConversation, { id });
   };
 
   return {
@@ -38,6 +42,7 @@ export const useSocketChatEvents = () => {
     sendTyping,
     sendTypingOff,
     sendFriendRequest,
-    acceptFriendRequest
+    sendAcceptFriendRequest,
+    sendRemoveConversation
   };
 };

@@ -12,7 +12,7 @@ import type { VerifyResponse } from '../../types/types';
 const HearMeOutRoutes = () => {
   const { setAccount, setFriendRequests, setFriendRequestsOutgoing } =
     useAccountStore((state) => state);
-  const { setConversations, setActive, setCurrentConversationId } =
+  const { setConversations, setActiveConversations, setCurrentConversationId } =
     useChatStore((state) => state);
 
   // TODO: SYNC TABS ON LOGIN/OUT
@@ -37,7 +37,7 @@ const HearMeOutRoutes = () => {
           activeConversationIds.includes(el.id)
         )?.[0]?.id ?? null
       );
-      setActive(activeConversationIds);
+      setActiveConversations(activeConversationIds);
       setConversations(conversationsJoined);
       setFriendRequestsOutgoing(friendReqFroms);
 

@@ -9,4 +9,5 @@ export const CHAT_EVENTS = {
   typing: 'typing',
   typingOff: 'typingOff',
   newConversation: 'newConversation',
+  removeConversation: 'removeConversation',
 };

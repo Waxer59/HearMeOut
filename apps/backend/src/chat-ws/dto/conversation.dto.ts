@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class FriendRequestDto {
+export class ConversationDto {
   @IsString()
   id: string;
 }

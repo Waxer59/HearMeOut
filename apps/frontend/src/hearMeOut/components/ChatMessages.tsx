@@ -1,6 +1,8 @@
+// import { Callout } from '@radix-ui/themes';
 import { useChatStore } from '../../store';
 import { ChatMessage } from './';
 import { useEffect, useRef } from 'react';
+// import { IconInfoCircle } from '@tabler/icons-react';
 
 export const ChatMessages = () => {
   const { currentConversationId, conversations } = useChatStore(
@@ -32,6 +34,15 @@ export const ChatMessages = () => {
             name={from.username}
           />
         ))}
+      {/* <Callout.Root color="amber">
+        <Callout.Icon>
+          <IconInfoCircle />
+        </Callout.Icon>
+        <Callout.Text>
+          The user that you are trying to send a message doesn't have you in his
+          contacts.
+        </Callout.Text>
+      </Callout.Root> */}
     </div>
   );
 };

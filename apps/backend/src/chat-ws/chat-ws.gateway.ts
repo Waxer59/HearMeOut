@@ -13,6 +13,7 @@ import { CHAT_EVENTS } from 'src/common/constants/constants';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
+import { ConversationDto } from './dto/conversation.dto';
 
 @WebSocketGateway()
 export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -54,20 +55,36 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(CHAT_EVENTS.friendRequest)
   async friendRequest(
-    @MessageBody() { toId }: FriendRequestDto,
+    @MessageBody() friendRequestDto: FriendRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return await this.chatWsService.friendRequest(userId, toId, client);
+    return await this.chatWsService.friendRequest(
+      userId,
+      friendRequestDto,
+      client,
+    );
   }
 
   @SubscribeMessage(CHAT_EVENTS.acceptFriendRequest)
   async acceptFriendRequest(
-    @MessageBody() id: string,
+    @MessageBody() friendRequestDto: FriendRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return await this.chatWsService.acceptFriendRequest(id, userId, client);
+    return await this.chatWsService.acceptFriendRequest(
+      friendRequestDto,
+      userId,
+      this.server,
+    );
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.removeConversation)
+  async removeConversation(@MessageBody() conversationDto: ConversationDto) {
+    return await this.chatWsService.removeConversation(
+      conversationDto,
+      this.server,
+    );
   }
 
   async handleConnection(client: Socket) {

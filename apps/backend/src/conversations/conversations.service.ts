@@ -34,6 +34,16 @@ export class ConversationsService {
           },
           type: CONVERSATION_TYPE.chat,
         },
+        include: {
+          users: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              isOnline: true,
+            },
+          },
+        },
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -84,6 +94,42 @@ export class ConversationsService {
         },
       });
     } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async removeUserFromConversation(
+    userId: string,
+    conversationId: string,
+  ): Promise<Conversation> {
+    const conversation = await this.findConversationById(conversationId);
+
+    if (conversation.userIds.length <= 1) {
+      try {
+        return await this.remove(conversationId);
+      } catch (error) {
+        throw new InternalServerErrorException(
+          'Something went wrong, please try again later',
+        );
+      }
+    }
+
+    try {
+      const conversation = await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          users: {
+            disconnect: [{ id: userId }],
+          },
+        },
+      });
+      return conversation;
+    } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

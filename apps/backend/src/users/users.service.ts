@@ -148,6 +148,7 @@ export class UsersService {
     }
   }
 
+  // TODO: REMOVE FRIENDS FROM THE QUERY
   async findAllByUsernamesLike(
     excludeUser: string,
     username: string,

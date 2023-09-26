@@ -21,7 +21,10 @@ export const useSocketChat = () => {
     getActiveConversations,
     addActiveConversation,
     addConversation,
-    socket
+    removeConversation,
+    socket,
+    setCurrentConversationId,
+    currentConversationId
   } = useChatStore((state) => state);
   const { addFriendRequest } = useAccountStore();
 
@@ -91,6 +94,14 @@ export const useSocketChat = () => {
         addConversation(friend);
       }
     );
+
+    socket.on(SOCKET_CHAT_EVENTS.removeConversation, (id) => {
+      if (currentConversationId === id) {
+        setCurrentConversationId(null);
+      }
+
+      removeConversation(id);
+    });
   }, [socket]);
 
   return {

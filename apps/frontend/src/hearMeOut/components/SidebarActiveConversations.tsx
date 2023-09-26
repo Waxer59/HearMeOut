@@ -43,6 +43,7 @@ export const SidebarActiveConversations = () => {
           avatarUrl={el.users[0].avatar}
           isOnline={el.users[0].isOnline}
           isActive={true}
+          type={el.type}
         />
       ))}
       {getActiveConversations().length <= 0 && (

@@ -2,6 +2,8 @@ import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { useChatStore } from '../../store';
 import { closeActiveConversation } from '../../services/hearMeOutAPI';
+import { ConversationTypes } from '../../store/types/types';
+import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 interface Props {
   id: string;
@@ -9,17 +11,30 @@ interface Props {
   avatarUrl?: string;
   isOnline: boolean;
   isActive: boolean;
+  type: ConversationTypes;
 }
+
+const REMOVE_MESSAGE = {
+  [ConversationTypes.chat]: 'Remove contact',
+  [ConversationTypes.group]: 'Remove group'
+};
 
 export const SidebarConversation: React.FC<Props> = ({
   id,
   name,
   avatarUrl,
   isOnline,
-  isActive
+  isActive,
+  type
 }) => {
-  const { setCurrentConversationId, removeActiveConversation, conversations } =
-    useChatStore((state) => state);
+  const {
+    setCurrentConversationId,
+    removeActiveConversation,
+    conversations,
+    removeConversation,
+    currentConversationId
+  } = useChatStore((state) => state);
+  const { sendRemoveConversation } = useSocketChatEvents();
 
   const handleConversationClick = async () => {
     const currentConversation = conversations.find((el) => el.id === id)!;
@@ -31,7 +46,14 @@ export const SidebarConversation: React.FC<Props> = ({
     removeActiveConversation(id);
   };
 
-  const handleRemoveContact = async () => {};
+  const handleRemoveContact = async () => {
+    if (currentConversationId === id) {
+      setCurrentConversationId(null);
+    }
+
+    sendRemoveConversation(id);
+    removeConversation(id);
+  };
 
   return (
     <ContextMenu.Root>
@@ -71,7 +93,7 @@ export const SidebarConversation: React.FC<Props> = ({
           color="red"
           className="cursor-pointer"
           onClick={handleRemoveContact}>
-          Remove contact
+          {REMOVE_MESSAGE[type]}
         </ContextMenu.Item>
       </ContextMenu.Content>
     </ContextMenu.Root>

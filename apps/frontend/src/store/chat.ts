@@ -10,7 +10,7 @@ import type { Socket } from 'socket.io-client';
 
 interface State {
   conversations: ConversationDetails[];
-  activeConversations: string[] | null;
+  activeConversations: string[];
   socket: Socket | null;
   currentConversationId: string | null;
   usersTyping: UserTyping[];
@@ -20,15 +20,16 @@ interface Actions {
   setConversations: (conversations: ConversationDetails[]) => void;
   addConversation: (conversations: ConversationDetails) => void;
   clearConversations: () => void;
-  setActive: (active: any) => void;
+  setActiveConversations: (active: any) => void;
   clearActive: () => void;
   setSocket: (socket: Socket) => void;
   clearSocket: () => void;
+  removeConversation: (id: string) => void;
   getActiveConversations: () => ConversationDetails[];
   addActiveConversation: (id: string) => void;
   removeActiveConversation: (conversationId: string) => void;
   setConversationIsOnline: (userId: string, isOnline: boolean) => void;
-  setCurrentConversationId: (conversation: string) => void;
+  setCurrentConversationId: (conversation: string | null) => void;
   clearCurrentConversationId: () => void;
   setConversationMessages: (
     conversationId: string,
@@ -55,15 +56,16 @@ export const useChatStore = create<State & Actions>()(
           : [conversations]
       })),
     clearConversations: () => set({ conversations: [] }),
-    activeConversations: null,
-    setActive: (activeConversations) => set({ activeConversations }),
-    clearActive: () => set({ activeConversations: null }),
+    activeConversations: [],
+    setActiveConversations: (activeConversations) =>
+      set({ activeConversations }),
+    clearActive: () => set({ activeConversations: [] }),
     socket: null,
     setSocket: (socket) => set({ socket }),
     clearSocket: () => set({ socket: null }),
     getActiveConversations: () =>
-      get().conversations.filter(
-        (el) => get().activeConversations?.includes(el.id)
+      get().conversations.filter((el) =>
+        get().activeConversations.includes(el.id)
       ),
     setConversationIsOnline: (userId, isOnline) =>
       set((state) => ({
@@ -153,10 +155,17 @@ export const useChatStore = create<State & Actions>()(
     clearChatState: () =>
       set({
         conversations: [],
-        activeConversations: null,
+        activeConversations: [],
         socket: null,
         currentConversationId: null,
         usersTyping: []
-      })
+      }),
+    removeConversation: (id) =>
+      set((state) => ({
+        conversations: state.conversations
+          ? state.conversations.filter((el) => el.id !== id)
+          : [],
+        activeConversations: state.activeConversations.filter((el) => el !== id)
+      }))
   }))
 );

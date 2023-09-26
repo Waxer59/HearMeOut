@@ -35,7 +35,7 @@ export const SidebarProfile = () => {
     removeFriendRequest,
     friendRequestsOutgoing
   } = useAccountStore((state) => state);
-  const { acceptFriendRequest } = useSocketChatEvents();
+  const { sendAcceptFriendRequest } = useSocketChatEvents();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -46,7 +46,7 @@ export const SidebarProfile = () => {
   };
 
   const handleAcceptFriendRequest = async (id: string): Promise<void> => {
-    acceptFriendRequest(id);
+    sendAcceptFriendRequest(id);
     removeFriendRequest(id);
     toast.success('Friend request accepted!');
   };

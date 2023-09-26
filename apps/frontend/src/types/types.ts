@@ -65,5 +65,6 @@ export enum SOCKET_CHAT_EVENTS {
   message = 'message',
   typing = 'typing',
   typingOff = 'typingOff',
-  newConversation = 'newConversation'
+  newConversation = 'newConversation',
+  removeConversation = 'removeConversation'
 }

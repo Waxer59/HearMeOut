@@ -9,6 +9,9 @@ import { MessagesService } from 'src/messages/messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
+import { ConversationsService } from 'src/conversations/conversations.service';
+import { ConversationDto } from './dto/conversation.dto';
+import { FriendRequestDto } from './dto/friend-request.dto';
 
 @Injectable()
 export class ChatWsService {
@@ -17,6 +20,7 @@ export class ChatWsService {
     private readonly usersService: UsersService,
     private readonly messageService: MessagesService,
     private readonly friendRequestsService: FriendRequestsService,
+    private readonly conversationsService: ConversationsService,
   ) {}
 
   async userOnline(client: Socket, user: User): Promise<void> {
@@ -71,55 +75,72 @@ export class ChatWsService {
   }
 
   async typing(
-    { conversationId }: TypingDto,
+    typingDto: TypingDto,
     userId: string,
     client: Socket,
   ): Promise<void> {
     client.broadcast
-      .to(conversationId)
-      .emit(CHAT_EVENTS.typing, { userId, conversationId });
+      .to(typingDto.conversationId)
+      .emit(CHAT_EVENTS.typing, { userId, ...typingDto });
   }
 
   async typingOff(
-    { conversationId }: TypingDto,
+    typingDto: TypingDto,
     userId: string,
     client: Socket,
   ): Promise<void> {
     client.broadcast
-      .to(conversationId)
-      .emit(CHAT_EVENTS.typingOff, { userId, conversationId });
+      .to(typingDto.conversationId)
+      .emit(CHAT_EVENTS.typingOff, { userId, ...typingDto });
   }
 
   async friendRequest(
     fromId: string,
-    toId: string,
+    friendRequestDto: FriendRequestDto,
     client: Socket,
   ): Promise<void> {
+    const { id } = friendRequestDto;
     try {
-      const request = await this.friendRequestsService.create(fromId, toId);
-      client.to(toId).emit(CHAT_EVENTS.friendRequest, request);
+      const request = await this.friendRequestsService.create(fromId, id);
+      client.to(id).emit(CHAT_EVENTS.friendRequest, request);
     } catch (error) {}
   }
 
   async acceptFriendRequest(
-    friendRequestId: string,
+    friendRequestDto: FriendRequestDto,
     userId: string,
-    client: Socket,
+    server: Server,
   ): Promise<void> {
+    const { id } = friendRequestDto;
+
     try {
-      const request =
-        await this.friendRequestsService.findById(friendRequestId);
+      const request = await this.friendRequestsService.findById(id);
 
       if (request.toId !== userId) {
         return;
       }
 
-      const acceptedRequest =
-        await this.friendRequestsService.accept(friendRequestId);
+      const acceptedRequest = await this.friendRequestsService.accept(id);
 
-      client
-        .to(request.toId)
-        .emit(CHAT_EVENTS.acceptFriendRequest, acceptedRequest);
+      acceptedRequest.userIds.forEach((id) => {
+        server.to(id).emit(CHAT_EVENTS.acceptFriendRequest, acceptedRequest);
+      });
+    } catch (error) {}
+  }
+
+  async removeConversation(
+    conversationDto: ConversationDto,
+    server: Server,
+  ): Promise<void> {
+    const { id: conversationId } = conversationDto;
+
+    try {
+      const conversation =
+        await this.conversationsService.remove(conversationId);
+      conversation.userIds.forEach((id) => {
+        server.to(id).emit(CHAT_EVENTS.removeConversation, conversation.id);
+      });
+      server.in(conversationId).socketsLeave(conversationId);
     } catch (error) {}
   }
 
