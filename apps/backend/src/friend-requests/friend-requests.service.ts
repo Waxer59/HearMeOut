@@ -127,11 +127,14 @@ export class FriendRequestsService {
 
   async accept(id: string) {
     try {
-      const { fromId, toId } = await this.findById(id);
+      const { fromId: userId1, toId: userId2 } = await this.findById(id);
       await this.delete(id);
-      const chat = await this.conversationsService.createChat(fromId, toId);
+      const chat = await this.conversationsService.createChat({
+        userId1,
+        userId2,
+      });
 
-      const activeConversations = [fromId, toId].map((userId) => {
+      const activeConversations = [userId1, userId2].map((userId) => {
         this.usersService.addActiveConversation(userId, chat.id);
       });
 

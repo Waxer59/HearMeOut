@@ -5,6 +5,7 @@ import { useAccountStore, useChatStore } from '../../store';
 import { SOCKET_CHAT_EVENTS } from '../../types/types';
 import type {
   ConversationDetails,
+  FriendRequestDetails,
   MessageDetails,
   UserTyping
 } from '../../store/types/types';
@@ -12,21 +13,21 @@ import { setActiveConversationFirst } from '../../services/hearMeOutAPI';
 
 export const useSocketChat = () => {
   const {
-    setSocket,
-    clearSocket,
-    setConversationIsOnline,
-    addConversationMessage,
-    addUserTyping,
-    removeUserTyping,
-    getActiveConversations,
     addActiveConversation,
     addConversation,
+    addConversationMessage,
+    addUserTyping,
+    clearSocket,
+    currentConversationId,
+    getActiveConversations,
     removeConversation,
-    socket,
+    removeUserTyping,
+    setConversationIsOnline,
     setCurrentConversationId,
-    currentConversationId
+    setSocket,
+    socket
   } = useChatStore((state) => state);
-  const { addFriendRequest } = useAccountStore();
+  const { addFriendRequest, addFriendRequestOutgoing } = useAccountStore();
 
   const connectSocketChat = useCallback(() => {
     const socketTmp = io(`${getEnvVariables().VITE_HEARMEOUT_API}`, {
@@ -102,6 +103,13 @@ export const useSocketChat = () => {
 
       removeConversation(id);
     });
+
+    socket.on(
+      SOCKET_CHAT_EVENTS.friendRequestOutgoing,
+      (friendRequest: FriendRequestDetails) => {
+        addFriendRequestOutgoing(friendRequest);
+      }
+    );
   }, [socket]);
 
   return {

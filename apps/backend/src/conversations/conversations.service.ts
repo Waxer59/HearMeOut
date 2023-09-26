@@ -6,12 +6,14 @@ import {
 import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
+import { CreateChatDto } from './dto/create-chat.dto';
 
 @Injectable()
 export class ConversationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createChat(userId1: string, userId2: string): Promise<Conversation> {
+  async createChat(createChatDto: CreateChatDto): Promise<Conversation> {
+    const { userId1, userId2 } = createChatDto;
     const friend = await this.findChat(userId1, userId2);
 
     if (friend) {
@@ -94,42 +96,6 @@ export class ConversationsService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later',
-      );
-    }
-  }
-
-  async removeUserFromConversation(
-    userId: string,
-    conversationId: string,
-  ): Promise<Conversation> {
-    const conversation = await this.findConversationById(conversationId);
-
-    if (conversation.userIds.length <= 1) {
-      try {
-        return await this.remove(conversationId);
-      } catch (error) {
-        throw new InternalServerErrorException(
-          'Something went wrong, please try again later',
-        );
-      }
-    }
-
-    try {
-      const conversation = await this.prisma.conversation.update({
-        where: {
-          id: conversationId,
-        },
-        data: {
-          users: {
-            disconnect: [{ id: userId }],
-          },
-        },
-      });
-      return conversation;
-    } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

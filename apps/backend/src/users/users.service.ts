@@ -35,7 +35,6 @@ export class UsersService {
         data: createUserDto,
       });
     } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -118,7 +117,6 @@ export class UsersService {
         },
       });
     } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -148,11 +146,12 @@ export class UsersService {
     }
   }
 
-  // TODO: REMOVE FRIENDS FROM THE QUERY
   async findAllByUsernamesLike(
-    excludeUser: string,
+    finderUserId: string,
     username: string,
   ): Promise<any[]> {
+    const chats = await this.conversationsService.findAllChats(finderUserId);
+    const chatsUserIds = [...new Set(chats.map((chat) => chat.userIds).flat())];
     try {
       return await this.prisma.user.findMany({
         where: {
@@ -161,7 +160,9 @@ export class UsersService {
             mode: 'insensitive',
           },
           NOT: {
-            username: excludeUser,
+            id: {
+              in: chatsUserIds,
+            },
           },
         },
         select: {

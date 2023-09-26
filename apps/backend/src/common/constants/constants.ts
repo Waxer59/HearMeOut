@@ -10,4 +10,5 @@ export const CHAT_EVENTS = {
   typingOff: 'typingOff',
   newConversation: 'newConversation',
   removeConversation: 'removeConversation',
+  friendRequestOutgoing: 'friendRequestOutgoing',
 };
