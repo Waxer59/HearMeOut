@@ -7,6 +7,7 @@ import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { CreateGroupDto } from './dto/create-group.dto';
 
 @Injectable()
 export class ConversationsService {
@@ -54,6 +55,28 @@ export class ConversationsService {
     }
   }
 
+  async createGroup(createGroupDto: CreateGroupDto) {
+    try {
+      return await this.prisma.conversation.create({
+        data: {
+          name: createGroupDto.name,
+          userIds: createGroupDto.userIds,
+          users: {
+            connect: createGroupDto.userIds.map((userId) => ({
+              id: userId,
+            })),
+          },
+          type: CONVERSATION_TYPE.group,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  // TODO: REMOVE OWN USERID FROM USERIDS FIELD
   async findAllChats(userId: string): Promise<Conversation[]> {
     try {
       return await this.prisma.conversation.findMany({

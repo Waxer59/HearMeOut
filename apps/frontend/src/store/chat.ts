@@ -73,10 +73,14 @@ export const useChatStore = create<State & Actions>()(
           el.userIds.includes(userId)
             ? {
                 ...el,
-                users: el.users.map((el: AccountDetails) => ({
-                  ...el,
-                  isOnline
-                }))
+                users: el.users.map((el: AccountDetails) =>
+                  el.id === userId
+                    ? {
+                        ...el,
+                        isOnline
+                      }
+                    : el
+                )
               }
             : el
         )

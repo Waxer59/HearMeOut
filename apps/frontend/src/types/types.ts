@@ -67,5 +67,6 @@ export enum SOCKET_CHAT_EVENTS {
   typingOff = 'typingOff',
   newConversation = 'newConversation',
   removeConversation = 'removeConversation',
-  friendRequestOutgoing = 'friendRequestOutgoing'
+  friendRequestOutgoing = 'friendRequestOutgoing',
+  createGroup = 'createGroup'
 }
