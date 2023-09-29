@@ -5,6 +5,7 @@ import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 import { toast } from 'sonner';
 import { VoidIcon } from './Icons';
+import { ConversationTypes } from '../../store/types/types';
 
 export const SidebarActiveConversations = () => {
   const {
@@ -36,11 +37,20 @@ export const SidebarActiveConversations = () => {
   return (
     <div className="h-full pr-3 pl-2 pt-1 -mt-1 -ml-2 -mr-4 flex flex-col gap-5 overflow-auto">
       {getActiveConversations().map((el) => (
+        // TODO: REMOVE ISACTIVE PROP
         <SidebarConversation
           key={el.id}
           id={el.id}
-          name={el.users[0].username}
-          avatarUrl={el.users[0].avatar}
+          name={
+            el.type === ConversationTypes.group
+              ? el.name!
+              : el.users[0].username
+          }
+          avatarUrl={
+            el.type === ConversationTypes.group
+              ? el.icon ?? undefined
+              : el.users[0].avatar
+          }
           isOnline={el.users[0].isOnline}
           isActive={true}
           type={el.type}

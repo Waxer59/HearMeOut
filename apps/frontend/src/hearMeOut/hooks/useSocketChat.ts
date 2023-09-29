@@ -110,6 +110,11 @@ export const useSocketChat = () => {
         addFriendRequestOutgoing(friendRequest);
       }
     );
+
+    socket.on(SOCKET_CHAT_EVENTS.createGroup, (group: ConversationDetails) => {
+      addConversation(group);
+      addActiveConversation(group.id);
+    });
   }, [socket]);
 
   return {

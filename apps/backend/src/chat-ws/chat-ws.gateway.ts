@@ -14,6 +14,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
 import { ConversationDto } from './dto/conversation.dto';
+import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 
 @WebSocketGateway()
 export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -83,6 +84,19 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async removeConversation(@MessageBody() conversationDto: ConversationDto) {
     return await this.chatWsService.removeConversation(
       conversationDto,
+      this.server,
+    );
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.createGroup)
+  async createGroup(
+    @MessageBody() createGroupDto: CreateGroupDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.createGroup(
+      createGroupDto,
+      userId,
       this.server,
     );
   }

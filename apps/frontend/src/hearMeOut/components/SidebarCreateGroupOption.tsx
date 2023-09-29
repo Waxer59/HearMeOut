@@ -16,10 +16,13 @@ import {
 import { useState } from 'react';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { toast } from 'sonner';
+import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 export const SidebarCreateGroupOption = () => {
   const { conversations } = useChatStore();
   const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
+  const [groupName, setGroupName] = useState('');
+  const { sendCreateGroup } = useSocketChatEvents();
 
   const chatConversations = conversations.filter(
     (el) => el.type === ConversationTypes.chat
@@ -27,6 +30,23 @@ export const SidebarCreateGroupOption = () => {
 
   const addUser = (user: AccountDetails) => {
     setSelectedUsers([...selectedUsers, user]);
+  };
+
+  const handleCreateGroup = () => {
+    if (selectedUsers.length < 2) {
+      toast.error('Select a minimum of two people to create a group...');
+      return;
+    }
+
+    if (!groupName) {
+      toast.error('Group name is required');
+      return;
+    }
+
+    sendCreateGroup(
+      groupName,
+      selectedUsers.map((el) => el.id)
+    );
   };
 
   const removeUser = (user: AccountDetails) => {
@@ -44,10 +64,15 @@ export const SidebarCreateGroupOption = () => {
     addUser(user);
   };
 
+  // TODO: FIX PICKER
   return (
     <div className="flex flex-col gap-8">
       <TextField.Root size="3" variant="soft" color="gray">
-        <TextField.Input placeholder="Group name" />
+        <TextField.Input
+          placeholder="Group name"
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)}
+        />
       </TextField.Root>
       <div className="w-full flex flex-col gap-3">
         <Heading as="h3" size="3">
@@ -103,7 +128,7 @@ export const SidebarCreateGroupOption = () => {
           ))}
         </div>
       </div>
-      <Button color="blue" size="3">
+      <Button color="blue" size="3" onClick={handleCreateGroup}>
         Create
         <IconSend />
       </Button>

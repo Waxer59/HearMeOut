@@ -37,12 +37,17 @@ export const useSocketChatEvents = () => {
     socket?.emit(SOCKET_CHAT_EVENTS.removeConversation, { id });
   };
 
+  const sendCreateGroup = (name: string, userIds: string[]) => {
+    socket?.emit(SOCKET_CHAT_EVENTS.createGroup, { name, userIds });
+  };
+
   return {
     sendMessage,
     sendTyping,
     sendTypingOff,
     sendFriendRequest,
     sendAcceptFriendRequest,
-    sendRemoveConversation
+    sendRemoveConversation,
+    sendCreateGroup
   };
 };

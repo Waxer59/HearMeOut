@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 import { toast } from 'sonner';
+import { ConversationTypes } from '../../store/types/types';
 
 export const SidebarAllConversations = () => {
   const { conversations, setConversationMessages, currentConversationId } =
@@ -35,8 +36,16 @@ export const SidebarAllConversations = () => {
         <SidebarConversation
           key={el.id}
           id={el.id}
-          name={el.users[0].username}
-          avatarUrl={el.users[0].avatar}
+          name={
+            el.type === ConversationTypes.group
+              ? el.name!
+              : el.users[0].username
+          }
+          avatarUrl={
+            el.type === ConversationTypes.group
+              ? el.icon ?? undefined
+              : el.users[0].avatar
+          }
           isOnline={el.users[0].isOnline}
           isActive={false}
           type={el.type}

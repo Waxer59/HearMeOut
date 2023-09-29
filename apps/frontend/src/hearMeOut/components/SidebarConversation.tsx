@@ -65,15 +65,16 @@ export const SidebarConversation: React.FC<Props> = ({
           onClick={handleConversationClick}>
           <Avatar fallback={getFallbackAvatarName(name)} src={avatarUrl} />
           {name}
-          {isOnline ? (
-            <Badge color="green" className="ml-auto">
-              online
-            </Badge>
-          ) : (
-            <Badge color="gray" className="ml-auto">
-              offline
-            </Badge>
-          )}
+          {type === ConversationTypes.chat &&
+            (isOnline ? (
+              <Badge color="green" className="ml-auto">
+                online
+              </Badge>
+            ) : (
+              <Badge color="gray" className="ml-auto">
+                offline
+              </Badge>
+            ))}
         </Button>
       </ContextMenu.Trigger>
       <ContextMenu.Content>

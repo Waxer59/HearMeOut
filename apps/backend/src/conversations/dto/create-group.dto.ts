@@ -6,6 +6,6 @@ export class CreateGroupDto {
 
   @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(1)
+  @ArrayMinSize(2)
   userIds: string[];
 }

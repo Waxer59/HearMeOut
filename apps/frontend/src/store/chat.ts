@@ -69,21 +69,17 @@ export const useChatStore = create<State & Actions>()(
       ),
     setConversationIsOnline: (userId, isOnline) =>
       set((state) => ({
-        conversations: state.conversations.map((el) =>
-          el.userIds.includes(userId)
-            ? {
-                ...el,
-                users: el.users.map((el: AccountDetails) =>
-                  el.id === userId
-                    ? {
-                        ...el,
-                        isOnline
-                      }
-                    : el
-                )
-              }
-            : el
-        )
+        conversations: state.conversations.map((el) => ({
+          ...el,
+          users: el.users.map((el: AccountDetails) =>
+            el.id === userId
+              ? {
+                  ...el,
+                  isOnline
+                }
+              : el
+          )
+        }))
       })),
     currentConversationId: null,
     setCurrentConversationId: (currentConversationId) =>

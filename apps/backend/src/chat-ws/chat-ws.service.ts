@@ -12,6 +12,7 @@ import { FriendRequestsService } from 'src/friend-requests/friend-requests.servi
 import { ConversationsService } from 'src/conversations/conversations.service';
 import { ConversationDto } from './dto/conversation.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
+import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 
 @Injectable()
 export class ChatWsService {
@@ -160,5 +161,23 @@ export class ChatWsService {
     } catch (err) {
       client.disconnect();
     }
+  }
+
+  async createGroup(
+    createGroupDto: CreateGroupDto,
+    userId: string,
+    server: Server,
+  ): Promise<void> {
+    try {
+      createGroupDto.userIds.push(userId);
+      const group = await this.conversationsService.createGroup(createGroupDto);
+
+      createGroupDto.userIds.forEach(async (el) => {
+        server.in(el).socketsJoin(group.id);
+        await this.usersService.addActiveConversation(el, group.id);
+      });
+
+      server.to(group.id).emit(CHAT_EVENTS.createGroup, group);
+    } catch (error) {}
   }
 }

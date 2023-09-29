@@ -78,6 +78,7 @@ model Conversation {
   name       String?
   type       ConversationType
   icon       String?
+  joinCode   String?
   creatorId  String?          @db.ObjectId
   userIds    String[]         @db.ObjectId
   messageIds String[]         @db.ObjectId
