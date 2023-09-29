@@ -20,6 +20,7 @@ export const ChatMessages = () => {
     }
   }, [conversation?.messages]);
 
+  // TODO: ADD DATE DIVIDER
   return (
     <div
       className="px-20 flex-1 pt-10 flex flex-col gap-6 overflow-auto"
@@ -34,15 +35,6 @@ export const ChatMessages = () => {
             name={from.username}
           />
         ))}
-      {/* <Callout.Root color="amber">
-        <Callout.Icon>
-          <IconInfoCircle />
-        </Callout.Icon>
-        <Callout.Text>
-          The user that you are trying to send a message doesn't have you in his
-          contacts.
-        </Callout.Text>
-      </Callout.Root> */}
     </div>
   );
 };

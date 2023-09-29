@@ -151,7 +151,15 @@ export class UsersService {
     username: string,
   ): Promise<any[]> {
     const chats = await this.conversationsService.findAllChats(finderUserId);
-    const chatsUserIds = [...new Set(chats.map((chat) => chat.userIds).flat())];
+    const chatsUserIds = [
+      ...new Set(
+        chats
+          .map((chat) => chat.userIds)
+          .flat()
+          .concat(finderUserId),
+      ),
+    ];
+
     try {
       return await this.prisma.user.findMany({
         where: {

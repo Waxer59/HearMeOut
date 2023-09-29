@@ -55,6 +55,7 @@ export const SidebarConversation: React.FC<Props> = ({
     removeConversation(id);
   };
 
+  // TODO: ADD ALERT WHEN REMOVING A USER
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
