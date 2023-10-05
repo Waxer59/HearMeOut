@@ -68,5 +68,6 @@ export enum SOCKET_CHAT_EVENTS {
   newConversation = 'newConversation',
   removeConversation = 'removeConversation',
   friendRequestOutgoing = 'friendRequestOutgoing',
+  removeFriendRequest = 'removeFriendRequest',
   createGroup = 'createGroup'
 }

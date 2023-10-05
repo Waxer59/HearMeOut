@@ -30,6 +30,7 @@ export interface FriendRequestDetails {
   fromId: string;
   toId: string;
   from: AccountDetails;
+  to: AccountDetails;
 }
 
 export enum ConversationTypes {

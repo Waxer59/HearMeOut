@@ -80,6 +80,19 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
+  @SubscribeMessage(CHAT_EVENTS.removeFriendRequest)
+  async removeFriendRequest(
+    @MessageBody() friendRequestDto: FriendRequestDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.removeFriendRequest(
+      friendRequestDto,
+      userId,
+      this.server,
+    );
+  }
+
   @SubscribeMessage(CHAT_EVENTS.removeConversation)
   async removeConversation(@MessageBody() conversationDto: ConversationDto) {
     return await this.chatWsService.removeConversation(

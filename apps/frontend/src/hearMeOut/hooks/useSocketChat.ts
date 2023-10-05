@@ -27,7 +27,8 @@ export const useSocketChat = () => {
     setSocket,
     socket
   } = useChatStore((state) => state);
-  const { addFriendRequest, addFriendRequestOutgoing } = useAccountStore();
+  const { addFriendRequest, addFriendRequestOutgoing, removeFriendRequest } =
+    useAccountStore();
 
   const connectSocketChat = useCallback(() => {
     const socketTmp = io(`${getEnvVariables().VITE_HEARMEOUT_API}`, {
@@ -49,11 +50,11 @@ export const useSocketChat = () => {
       return;
     }
 
-    socket.on(SOCKET_CHAT_EVENTS.userConnect, (userId) => {
+    socket.on(SOCKET_CHAT_EVENTS.userConnect, (userId: string) => {
       setConversationIsOnline(userId, true);
     });
 
-    socket.on(SOCKET_CHAT_EVENTS.userDisconnect, (userId) => {
+    socket.on(SOCKET_CHAT_EVENTS.userDisconnect, (userId: string) => {
       setConversationIsOnline(userId, false);
     });
 
@@ -92,11 +93,12 @@ export const useSocketChat = () => {
     socket.on(
       SOCKET_CHAT_EVENTS.acceptFriendRequest,
       (friend: ConversationDetails) => {
+        addActiveConversation(friend.id);
         addConversation(friend);
       }
     );
 
-    socket.on(SOCKET_CHAT_EVENTS.removeConversation, (id) => {
+    socket.on(SOCKET_CHAT_EVENTS.removeConversation, (id: string) => {
       if (currentConversationId === id) {
         setCurrentConversationId(null);
       }
@@ -114,6 +116,10 @@ export const useSocketChat = () => {
     socket.on(SOCKET_CHAT_EVENTS.createGroup, (group: ConversationDetails) => {
       addConversation(group);
       addActiveConversation(group.id);
+    });
+
+    socket.on(SOCKET_CHAT_EVENTS.removeFriendRequest, (id: string) => {
+      removeFriendRequest(id);
     });
   }, [socket]);
 

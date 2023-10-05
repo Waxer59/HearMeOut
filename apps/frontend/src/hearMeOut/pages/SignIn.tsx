@@ -78,7 +78,7 @@ export const SignIn = () => {
             />
           </Form.Control>
         </Form.Field>
-        <Form.Submit asChild>
+        <Form.Submit>
           <Button
             color="iris"
             variant="soft"
