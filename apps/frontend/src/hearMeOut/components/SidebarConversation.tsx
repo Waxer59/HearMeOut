@@ -56,6 +56,7 @@ export const SidebarConversation: React.FC<Props> = ({
   };
 
   // TODO: ADD ALERT WHEN REMOVING A USER
+  // TODO: FIX WARNING
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
