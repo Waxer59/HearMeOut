@@ -41,6 +41,7 @@ export class FriendRequestsService {
         },
         include: {
           from: true,
+          to: true,
         },
       });
     } catch (error) {

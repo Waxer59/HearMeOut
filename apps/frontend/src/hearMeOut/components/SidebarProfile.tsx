@@ -20,7 +20,7 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { denyFriendRequest, signOut } from '../../services/hearMeOutAPI';
+import { signOut } from '../../services/hearMeOutAPI';
 import { useAccountStore } from '../../store/account';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { toast } from 'sonner';
@@ -33,9 +33,11 @@ export const SidebarProfile = () => {
     clearAccount,
     friendRequests,
     removeFriendRequest,
-    friendRequestsOutgoing
+    friendRequestsOutgoing,
+    removeFriendRequestOutgoing
   } = useAccountStore((state) => state);
-  const { sendAcceptFriendRequest } = useSocketChatEvents();
+  const { sendAcceptFriendRequest, sendRemoveFriendRequest } =
+    useSocketChatEvents();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -51,10 +53,16 @@ export const SidebarProfile = () => {
     toast.success('Friend request accepted!');
   };
 
-  const handleRemoveRequest = async (id: string): Promise<void> => {};
+  // TODO: VER SI DIFERENCIAR ENTRE FRIEND REQUESTS ENTRANTES Y SALIENTES
+  const handleRemoveRequest = async (id: string): Promise<void> => {
+    console.log('HERE');
+    sendRemoveFriendRequest(id);
+    removeFriendRequestOutgoing(id);
+    toast.success('Friend request removed!');
+  };
 
   const handleDenyFriendRequest = async (id: string): Promise<void> => {
-    await denyFriendRequest(id);
+    sendRemoveFriendRequest(id);
     removeFriendRequest(id);
     toast.success('Friend request denied!');
   };
@@ -138,21 +146,22 @@ export const SidebarProfile = () => {
                   ))}
                 </Tabs.Content>
                 <Tabs.Content value="outgoing" className="h-full">
-                  {friendRequestsOutgoing?.map(({ from, id }: any) => (
+                  {friendRequestsOutgoing?.map(({ to, id }: any) => (
                     <div key={id} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar
                           radius="large"
-                          fallback={getFallbackAvatarName(from.username)}
-                          src={from.avatar}
+                          fallback={getFallbackAvatarName(to.username)}
+                          src={to.avatar}
                         />{' '}
                         <span className="font-bold uppercase">
-                          {from.username}
+                          {to.username}
                         </span>
                       </div>
                       <Tooltip content="Remove request">
                         <IconButton
                           variant="ghost"
+                          className="transition"
                           color="red"
                           onClick={async () => await handleRemoveRequest(id)}>
                           <IconTrash size={24} />

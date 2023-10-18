@@ -92,7 +92,7 @@ export class UsersService {
           },
           friendReqFroms: {
             include: {
-              from: {
+              to: {
                 select: {
                   id: true,
                   username: true,

@@ -25,39 +25,37 @@ export class ChatWsService {
   ) {}
 
   async userOnline(client: Socket, user: User): Promise<void> {
-    const { id: userId, conversationIds } = user;
-
     try {
-      await this.usersService.setIsOnline(userId, true);
+      await this.usersService.setIsOnline(user?.id, true);
     } catch (error) {
       client.disconnect();
       return;
     }
 
     // Join user to conversation rooms
-    client.join(userId);
+    client.join(user?.id);
 
-    conversationIds.forEach((conversationId) => {
+    user?.conversationIds.forEach((conversationId) => {
       client.join(conversationId);
-      client.broadcast.to(conversationId).emit(CHAT_EVENTS.userConnect, userId);
+      client.broadcast
+        .to(user?.conversationIds)
+        .emit(CHAT_EVENTS.userConnect, user?.id);
     });
   }
 
   async userOffline(client: Socket, user: User): Promise<void> {
-    const { id: userId, conversationIds } = user;
-
     try {
-      await this.usersService.setIsOnline(userId, false);
+      await this.usersService.setIsOnline(user?.id, false);
     } catch (error) {
       client.disconnect();
       return;
     }
 
-    conversationIds.forEach((conversationId) => {
+    user?.conversationIds.forEach((conversationId) => {
       client.join(conversationId);
       client.broadcast
         .to(conversationId)
-        .emit(CHAT_EVENTS.userDisconnect, userId);
+        .emit(CHAT_EVENTS.userDisconnect, user?.id);
     });
   }
 
@@ -104,6 +102,7 @@ export class ChatWsService {
     try {
       const request = await this.friendRequestsService.create(fromId, id);
       client.to(id).emit(CHAT_EVENTS.friendRequest, request);
+      client.emit(CHAT_EVENTS.friendRequestOutgoing, request);
     } catch (error) {}
   }
 
@@ -124,11 +123,35 @@ export class ChatWsService {
       const acceptedRequest = await this.friendRequestsService.accept(id);
 
       acceptedRequest.userIds.forEach((id) => {
-        server.to(id).emit(CHAT_EVENTS.acceptFriendRequest, acceptedRequest);
+        const users = acceptedRequest.users.filter((el) => el.id !== id);
+
+        server
+          .to(id)
+          .emit(CHAT_EVENTS.acceptFriendRequest, { ...acceptedRequest, users });
       });
     } catch (error) {}
   }
 
+  async removeFriendRequest(
+    friendRequestDto: FriendRequestDto,
+    userId: string,
+    server: Server,
+  ): Promise<void> {
+    const { id } = friendRequestDto;
+
+    try {
+      const request = await this.friendRequestsService.findById(id);
+
+      if (request.toId !== userId && request.fromId !== userId) {
+        return;
+      }
+
+      await this.friendRequestsService.delete(id);
+      server.to(request.toId).emit(CHAT_EVENTS.removeFriendRequest, id);
+    } catch (error) {}
+  }
+
+  // TODO: FIX REMOVE RELATION ON DELETE
   async removeConversation(
     conversationDto: ConversationDto,
     server: Server,

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { CONVERSATION_TYPE } from 'src/common/types/types';
+import { CONVERSATION_TYPE, ConversationDetails } from 'src/common/types/types';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
 
@@ -13,7 +13,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 export class ConversationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createChat(createChatDto: CreateChatDto): Promise<Conversation> {
+  async createChat(createChatDto: CreateChatDto): Promise<ConversationDetails> {
     const { userId1, userId2 } = createChatDto;
     const friend = await this.findChat(userId1, userId2);
 
@@ -22,7 +22,7 @@ export class ConversationsService {
     }
 
     try {
-      return await this.prisma.conversation.create({
+      return (await this.prisma.conversation.create({
         data: {
           userIds: [userId1, userId2],
           users: {
@@ -47,7 +47,7 @@ export class ConversationsService {
             },
           },
         },
-      });
+      })) as ConversationDetails;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',

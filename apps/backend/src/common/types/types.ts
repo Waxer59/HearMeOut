@@ -1,3 +1,4 @@
+import { Conversation, User } from '@prisma/client';
 import type { Socket } from 'socket.io';
 
 export type SocketIOMiddleware = {
@@ -7,4 +8,8 @@ export type SocketIOMiddleware = {
 export enum CONVERSATION_TYPE {
   chat = 'chat',
   group = 'group',
+}
+
+export interface ConversationDetails extends Conversation {
+  users: User[];
 }

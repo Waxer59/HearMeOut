@@ -86,5 +86,5 @@ model Conversation {
 
   users    User[]  @relation("conversationsJoined", fields: [userIds], references: [id])
   admins   User[]  @relation("conversationsAdmin", fields: [adminIds], references: [id])
-  messages Message @relation(fields: [messageIds], references: [id])
+  messages Message @relation(fields: [messageIds], references: [id], onDelete: Cascade)
 }
