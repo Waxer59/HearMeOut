@@ -64,7 +64,6 @@ export const SidebarCreateGroupOption = () => {
     addUser(user);
   };
 
-  // TODO: FIX PICKER
   return (
     <div className="flex flex-col gap-8">
       <TextField.Root size="3" variant="soft" color="gray">

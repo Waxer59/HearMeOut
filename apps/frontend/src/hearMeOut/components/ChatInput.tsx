@@ -30,6 +30,7 @@ export const ChatInput = () => {
     }
   }, [isTyping]);
 
+  // TOOD: FIX THIS
   useEffect(() => {
     if (selectionStartRef.current !== null && messageInputRef.current) {
       messageInputRef.current.focus();
