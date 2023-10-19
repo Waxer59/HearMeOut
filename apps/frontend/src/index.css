@@ -7,6 +7,7 @@
     --primary-color: #252329;
     --secondary-color: #120f13;
     --tertiary-color: #3c393f;
+    --iris-color: #7b7afeac;
   }
 
   body {
@@ -32,7 +33,6 @@
   }
 
   [type='submit'] {
-    background-color: initial;
     background-color: var(--accent-a3);
   }
 }

@@ -4,6 +4,7 @@ import { useChatStore } from '../../store';
 import { closeActiveConversation } from '../../services/hearMeOutAPI';
 import { ConversationTypes } from '../../store/types/types';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import { NotificationIndicator } from './NotificationIndicator';
 
 interface Props {
   id: string;
@@ -55,13 +56,17 @@ export const SidebarConversation: React.FC<Props> = ({
     removeConversation(id);
   };
 
+  const hasNewMessages = conversations
+    .find((conversation) => conversation.id === id)
+    ?.messages.some((message) => !message.viewed);
+
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
         <Button
           variant="ghost"
           radius="large"
-          className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition cursor-pointer"
+          className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition cursor-pointer relative"
           onClick={handleConversationClick}>
           <Avatar fallback={getFallbackAvatarName(name)} src={avatarUrl} />
           {name}
@@ -75,6 +80,7 @@ export const SidebarConversation: React.FC<Props> = ({
                 offline
               </Badge>
             ))}
+          {hasNewMessages && <NotificationIndicator />}
         </Button>
       </ContextMenu.Trigger>
       <ContextMenu.Content>

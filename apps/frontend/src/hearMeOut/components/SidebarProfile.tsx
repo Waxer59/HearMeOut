@@ -29,6 +29,7 @@ import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 import { useChatStore } from '../../store';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { LOCAL_STORAGE_ITEMS } from '../../types/types';
+import { NotificationIndicator } from './NotificationIndicator';
 
 export const SidebarProfile = () => {
   const {
@@ -89,8 +90,11 @@ export const SidebarProfile = () => {
         <Dialog.Root>
           <Tooltip content="Friend Requests">
             <Dialog.Trigger>
-              <Button variant="ghost" className="transition cursor-pointer">
+              <Button
+                variant="ghost"
+                className="transition cursor-pointer relative">
                 <IconUserPlus size={24} className="opacity-70" />
+                {friendRequests.length > 0 && <NotificationIndicator />}
               </Button>
             </Dialog.Trigger>
           </Tooltip>
