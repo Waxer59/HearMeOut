@@ -81,6 +81,7 @@ export const ChatInput = () => {
     messageInputRef.current?.focus();
   };
 
+  // TODO FIX TYPING INDICATOR
   return (
     <div className="px-20 pb-12 pt-8 relative flex flex-col">
       <div
