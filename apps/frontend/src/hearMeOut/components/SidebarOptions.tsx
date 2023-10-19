@@ -92,7 +92,7 @@ export const SidebarOptions = () => {
               variant="soft"
               color="grass"
               size="3"
-              className="w-full"
+              className="w-full cursor-pointer"
               onClick={onAddContactClick}>
               Add contact
               <IconUserPlus />
@@ -101,7 +101,7 @@ export const SidebarOptions = () => {
               variant="soft"
               size="3"
               color="blue"
-              className="w-full"
+              className="w-full cursor-pointer"
               onClick={onCreateGroupClick}>
               Create group
               <IconUsersGroup />
@@ -110,7 +110,7 @@ export const SidebarOptions = () => {
               variant="soft"
               size="3"
               color="ruby"
-              className="w-full"
+              className="w-full cursor-pointer"
               onClick={onJoinGroupClick}>
               Join group
               <IconUsers />

@@ -7,15 +7,16 @@ import PublicRoutes from './PublicRoutes';
 import { useEffect } from 'react';
 import { verify } from '../../services/hearMeOutAPI';
 import { useAccountStore, useChatStore } from '../../store';
-import type { VerifyResponse } from '../../types/types';
+import { LOCAL_STORAGE_ITEMS, type VerifyResponse } from '../../types/types';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const HearMeOutRoutes = () => {
   const { setAccount, setFriendRequests, setFriendRequestsOutgoing } =
     useAccountStore((state) => state);
   const { setConversations, setActiveConversations, setCurrentConversationId } =
     useChatStore((state) => state);
+  const { setLocalStorageItem } = useLocalStorage();
 
-  // TODO: SYNC TABS ON LOGIN/OUT
   useEffect(() => {
     async function handleVerify() {
       const { data }: { data: VerifyResponse } = await verify();
@@ -23,6 +24,8 @@ const HearMeOutRoutes = () => {
       if (!data) {
         return;
       }
+
+      setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, true);
 
       const {
         conversationsJoined,
@@ -45,7 +48,18 @@ const HearMeOutRoutes = () => {
       setFriendRequests(friendReqTos);
     }
 
+    function handleStorage(e: StorageEvent) {
+      if (e.key === LOCAL_STORAGE_ITEMS.isAuth) {
+        window.location.reload();
+      }
+    }
+
     handleVerify();
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   return (

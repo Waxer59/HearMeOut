@@ -135,9 +135,9 @@ export class FriendRequestsService {
         userId2,
       });
 
-      const activeConversations = [userId1, userId2].map((userId) => {
-        this.usersService.addActiveConversation(userId, chat.id);
-      });
+      const activeConversations = [userId1, userId2].map((userId) =>
+        this.usersService.addActiveConversation(userId, chat.id),
+      );
 
       Promise.resolve(activeConversations);
 

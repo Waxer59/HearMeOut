@@ -25,7 +25,7 @@ const UserBtn: React.FC<PropsUserBtn> = ({ id, username, avatar }) => {
 
   return (
     <Button
-      className="flex items-center gap-3"
+      className="flex items-center gap-3 cursor-pointer"
       variant="ghost"
       onClick={handleAddFriend}>
       <Avatar

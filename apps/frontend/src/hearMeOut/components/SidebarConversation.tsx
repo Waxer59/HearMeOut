@@ -55,15 +55,13 @@ export const SidebarConversation: React.FC<Props> = ({
     removeConversation(id);
   };
 
-  // TODO: ADD ALERT WHEN REMOVING A USER
-  // TODO: FIX WARNING
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
         <Button
           variant="ghost"
           radius="large"
-          className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition"
+          className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition cursor-pointer"
           onClick={handleConversationClick}>
           <Avatar fallback={getFallbackAvatarName(name)} src={avatarUrl} />
           {name}

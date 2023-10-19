@@ -109,7 +109,7 @@ export const SignUp = () => {
           <Button
             color="iris"
             variant="soft"
-            className="w-full"
+            className="w-full cursor-pointer"
             onClick={handleSignUp}>
             Sign up
           </Button>

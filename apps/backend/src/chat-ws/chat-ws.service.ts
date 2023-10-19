@@ -125,6 +125,7 @@ export class ChatWsService {
       acceptedRequest.userIds.forEach((id) => {
         const users = acceptedRequest.users.filter((el) => el.id !== id);
 
+        server.in(id).socketsJoin(acceptedRequest.id);
         server
           .to(id)
           .emit(CHAT_EVENTS.acceptFriendRequest, { ...acceptedRequest, users });

@@ -71,3 +71,7 @@ export enum SOCKET_CHAT_EVENTS {
   removeFriendRequest = 'removeFriendRequest',
   createGroup = 'createGroup'
 }
+
+export enum LOCAL_STORAGE_ITEMS {
+  isAuth = 'isAuth'
+}

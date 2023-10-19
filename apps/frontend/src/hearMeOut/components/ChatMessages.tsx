@@ -49,7 +49,7 @@ export const ChatMessages = () => {
             return acc;
           }, [])
           .map(({ date, messages }) => (
-            <div key={date}>
+            <div key={date} className="flex flex-col gap-6">
               <DateDivider date={new Date(date)} />
 
               {messages.map(({ id, content, createdAt, from }) => (

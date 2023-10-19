@@ -26,6 +26,9 @@ import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { toast } from 'sonner';
 import * as Tabs from '@radix-ui/react-tabs';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import { useChatStore } from '../../store';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { LOCAL_STORAGE_ITEMS } from '../../types/types';
 
 export const SidebarProfile = () => {
   const {
@@ -36,15 +39,19 @@ export const SidebarProfile = () => {
     friendRequestsOutgoing,
     removeFriendRequestOutgoing
   } = useAccountStore((state) => state);
+  const { clearChatState } = useChatStore((state) => state);
   const { sendAcceptFriendRequest, sendRemoveFriendRequest } =
     useSocketChatEvents();
+  const { setLocalStorageItem } = useLocalStorage();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
 
     navigate(0);
+    setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
     clearAccount();
+    clearChatState();
   };
 
   const handleAcceptFriendRequest = async (id: string): Promise<void> => {
@@ -53,7 +60,6 @@ export const SidebarProfile = () => {
     toast.success('Friend request accepted!');
   };
 
-  // TODO: VER SI DIFERENCIAR ENTRE FRIEND REQUESTS ENTRANTES Y SALIENTES
   const handleRemoveRequest = async (id: string): Promise<void> => {
     sendRemoveFriendRequest(id);
     removeFriendRequestOutgoing(id);
@@ -83,7 +89,7 @@ export const SidebarProfile = () => {
         <Dialog.Root>
           <Tooltip content="Friend Requests">
             <Dialog.Trigger>
-              <Button variant="ghost" className="transition">
+              <Button variant="ghost" className="transition cursor-pointer">
                 <IconUserPlus size={24} className="opacity-70" />
               </Button>
             </Dialog.Trigger>
@@ -124,6 +130,7 @@ export const SidebarProfile = () => {
                           <IconButton
                             variant="ghost"
                             color="grass"
+                            className="cursor-pointer"
                             onClick={async () =>
                               await handleAcceptFriendRequest(id)
                             }>
@@ -134,6 +141,7 @@ export const SidebarProfile = () => {
                           <IconButton
                             variant="ghost"
                             color="red"
+                            className="cursor-pointer"
                             onClick={async () =>
                               await handleDenyFriendRequest(id)
                             }>
@@ -160,7 +168,7 @@ export const SidebarProfile = () => {
                       <Tooltip content="Remove request">
                         <IconButton
                           variant="ghost"
-                          className="transition"
+                          className="transition cursor-pointer"
                           color="red"
                           onClick={async () => await handleRemoveRequest(id)}>
                           <IconTrash size={24} />
@@ -177,7 +185,7 @@ export const SidebarProfile = () => {
         <DropdownMenu.Root>
           <Tooltip content="Settings">
             <DropdownMenu.Trigger>
-              <Button variant="ghost" className="transition">
+              <Button variant="ghost" className="transition cursor-pointer">
                 <IconSettings size={24} className="opacity-70" />
               </Button>
             </DropdownMenu.Trigger>
