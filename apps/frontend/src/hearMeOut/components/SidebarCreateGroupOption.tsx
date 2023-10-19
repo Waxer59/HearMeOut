@@ -110,7 +110,7 @@ export const SidebarCreateGroupOption = () => {
             <Tooltip content="Click to remove" key={el.id}>
               <Button
                 variant="ghost"
-                className="flex gap-2 transition"
+                className="flex gap-2 transition cursor-pointer"
                 radius="medium"
                 onClick={() => {
                   removeUser(el);
@@ -127,7 +127,11 @@ export const SidebarCreateGroupOption = () => {
           ))}
         </div>
       </div>
-      <Button color="blue" size="3" onClick={handleCreateGroup}>
+      <Button
+        color="blue"
+        size="3"
+        className="cursor-pointer"
+        onClick={handleCreateGroup}>
         Create
         <IconSend />
       </Button>
