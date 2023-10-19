@@ -30,4 +30,9 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #6c6c6c;
   }
+
+  [type='submit'] {
+    background-color: initial;
+    background-color: var(--accent-a3);
+  }
 }

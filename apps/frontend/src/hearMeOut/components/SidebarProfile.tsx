@@ -55,7 +55,6 @@ export const SidebarProfile = () => {
 
   // TODO: VER SI DIFERENCIAR ENTRE FRIEND REQUESTS ENTRANTES Y SALIENTES
   const handleRemoveRequest = async (id: string): Promise<void> => {
-    console.log('HERE');
     sendRemoveFriendRequest(id);
     removeFriendRequestOutgoing(id);
     toast.success('Friend request removed!');
@@ -84,7 +83,7 @@ export const SidebarProfile = () => {
         <Dialog.Root>
           <Tooltip content="Friend Requests">
             <Dialog.Trigger>
-              <Button variant="ghost" className="transition cursor-pointer">
+              <Button variant="ghost" className="transition">
                 <IconUserPlus size={24} className="opacity-70" />
               </Button>
             </Dialog.Trigger>
@@ -178,7 +177,7 @@ export const SidebarProfile = () => {
         <DropdownMenu.Root>
           <Tooltip content="Settings">
             <DropdownMenu.Trigger>
-              <Button variant="ghost" className="transition cursor-pointer">
+              <Button variant="ghost" className="transition">
                 <IconSettings size={24} className="opacity-70" />
               </Button>
             </DropdownMenu.Trigger>
