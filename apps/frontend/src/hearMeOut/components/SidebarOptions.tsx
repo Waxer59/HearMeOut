@@ -65,7 +65,7 @@ export const SidebarOptions = () => {
           {dialogSelection !== DialogSelectionEnum.NONE && (
             <Button
               variant="ghost"
-              className="transition"
+              className="transition cursor-pointer"
               onClick={onResetDialog}>
               <IconChevronLeft />
             </Button>
