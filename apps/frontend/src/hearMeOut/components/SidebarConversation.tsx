@@ -58,7 +58,7 @@ export const SidebarConversation: React.FC<Props> = ({
 
   const hasNewMessages = conversations
     .find((conversation) => conversation.id === id)
-    ?.messages.some((message) => !message.viewed);
+    ?.messages?.some((message) => !message.viewed);
 
   return (
     <ContextMenu.Root>
