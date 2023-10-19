@@ -105,7 +105,7 @@ export const SignUp = () => {
             />
           </Form.Control>
         </Form.Field>
-        <Form.Submit>
+        <Form.Submit asChild>
           <Button
             color="iris"
             variant="soft"

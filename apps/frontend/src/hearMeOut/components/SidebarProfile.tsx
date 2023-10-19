@@ -84,7 +84,7 @@ export const SidebarProfile = () => {
         <Dialog.Root>
           <Tooltip content="Friend Requests">
             <Dialog.Trigger>
-              <Button variant="ghost" className="transition">
+              <Button variant="ghost" className="transition cursor-pointer">
                 <IconUserPlus size={24} className="opacity-70" />
               </Button>
             </Dialog.Trigger>
@@ -178,7 +178,7 @@ export const SidebarProfile = () => {
         <DropdownMenu.Root>
           <Tooltip content="Settings">
             <DropdownMenu.Trigger>
-              <Button variant="ghost" className="transition">
+              <Button variant="ghost" className="transition cursor-pointer">
                 <IconSettings size={24} className="opacity-70" />
               </Button>
             </DropdownMenu.Trigger>
