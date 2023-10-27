@@ -13,4 +13,5 @@ export const CHAT_EVENTS = {
   friendRequestOutgoing: 'friendRequestOutgoing',
   removeFriendRequest: 'removeFriendRequest',
   createGroup: 'createGroup',
+  openChat: 'openChat',
 };

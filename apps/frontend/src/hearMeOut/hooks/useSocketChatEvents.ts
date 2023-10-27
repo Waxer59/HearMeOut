@@ -45,6 +45,10 @@ export const useSocketChatEvents = () => {
     socket?.emit(SOCKET_CHAT_EVENTS.removeFriendRequest, { id });
   };
 
+  const sendOpenChat = (id: string) => {
+    socket?.emit(SOCKET_CHAT_EVENTS.openChat, { id });
+  };
+
   return {
     sendMessage,
     sendTyping,
@@ -53,6 +57,7 @@ export const useSocketChatEvents = () => {
     sendAcceptFriendRequest,
     sendRemoveConversation,
     sendCreateGroup,
-    sendRemoveFriendRequest
+    sendRemoveFriendRequest,
+    sendOpenChat
   };
 };

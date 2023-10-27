@@ -19,7 +19,8 @@ export interface MessageDetails {
   fromId: string;
   toId: string;
   content: string;
-  viewed: boolean;
+  viewedByAll: boolean;
+  viewedByIds: string[];
   createdAt: Date;
   replyId?: string;
   from: AccountDetails;

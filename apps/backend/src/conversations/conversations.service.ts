@@ -125,6 +125,30 @@ export class ConversationsService {
     }
   }
 
+  async markAsRead(conversationId: string, userId: string): Promise<void> {
+    try {
+      await this.prisma.message.updateMany({
+        where: {
+          toId: conversationId,
+          NOT: {
+            viewedByIds: {
+              has: userId,
+            },
+          },
+        },
+        data: {
+          viewedByIds: {
+            push: userId,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async remove(id: string): Promise<Conversation> {
     try {
       return await this.prisma.conversation.delete({

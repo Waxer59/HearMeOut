@@ -169,6 +169,12 @@ export class ChatWsService {
     } catch (error) {}
   }
 
+  async openChat(conversationDto: ConversationDto, userId: string) {
+    const { id: conversationId } = conversationDto;
+
+    return this.conversationsService.markAsRead(conversationId, userId);
+  }
+
   async getUserIdAuth(client: Socket): Promise<User> {
     const rawCookies = client.request.headers.cookie;
     const parsedCookies = parseCookies(rawCookies);

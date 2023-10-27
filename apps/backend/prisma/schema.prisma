@@ -20,6 +20,7 @@ model User {
   conversationIds       String[] @db.ObjectId
   adminConversationIds  String[] @db.ObjectId
   activeConversationIds String[] @db.ObjectId
+  viewedMessagesIds     String[] @db.ObjectId
 
   messageFroms        Message[]       @relation("messageFroms")
   messageTos          Message[]       @relation("messageTos")
@@ -27,6 +28,7 @@ model User {
   conversationsAdmin  Conversation[]  @relation("conversationsAdmin", fields: [adminConversationIds], references: [id])
   friendReqFroms      FriendRequest[] @relation("friendReqFrom")
   friendReqTos        FriendRequest[] @relation("friendReqTo")
+  viewedMessages      Message[]       @relation(fields: [viewedMessagesIds], references: [id])
   configuration       Configuration?
 }
 
@@ -53,18 +55,20 @@ model Configuration {
 }
 
 model Message {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  fromId    String   @db.ObjectId
-  toId      String   @db.ObjectId
-  content   String
-  viewed    Boolean  @default(false)
-  createdAt DateTime
-  replyId   String?  @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  fromId      String   @db.ObjectId
+  toId        String   @db.ObjectId
+  content     String
+  viewedByIds String[] @db.ObjectId @default([])
+  createdAt   DateTime
+  replyId     String?  @db.ObjectId
+  viewedByAll Boolean  @default(false)
 
   from                 User           @relation("messageFroms", fields: [fromId], references: [id])
   to                   User           @relation("messageTos", fields: [toId], references: [id])
   reply                Message?       @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies              Message[]      @relation("messageReply")
+  viewedBy             User[]         @relation(fields: [viewedByIds], references: [id])
   conversationMessages Conversation[]
 }
 

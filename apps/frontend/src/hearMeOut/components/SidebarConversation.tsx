@@ -1,10 +1,11 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
-import { useChatStore } from '../../store';
+import { useAccountStore, useChatStore } from '../../store';
 import { closeActiveConversation } from '../../services/hearMeOutAPI';
 import { ConversationTypes } from '../../store/types/types';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 import { NotificationIndicator } from './NotificationIndicator';
+import { useState } from 'react';
 
 interface Props {
   id: string;
@@ -35,11 +36,19 @@ export const SidebarConversation: React.FC<Props> = ({
     removeConversation,
     currentConversationId
   } = useChatStore((state) => state);
-  const { sendRemoveConversation } = useSocketChatEvents();
+  const { account } = useAccountStore((state) => state);
+  const { sendRemoveConversation, sendOpenChat } = useSocketChatEvents();
+  const [hasNewMessages, setHasNewMessages] = useState(
+    conversations
+      .find((conversation) => conversation.id === id)
+      ?.messages?.some((message) => !message.viewedByIds.includes(account!.id))
+  );
 
-  const handleConversationClick = async () => {
+  const handleOpenChat = async () => {
     const currentConversation = conversations.find((el) => el.id === id)!;
     setCurrentConversationId(currentConversation.id);
+    sendOpenChat(currentConversation.id);
+    setHasNewMessages(false);
   };
 
   const handleCloseChat = async () => {
@@ -56,10 +65,6 @@ export const SidebarConversation: React.FC<Props> = ({
     removeConversation(id);
   };
 
-  const hasNewMessages = conversations
-    .find((conversation) => conversation.id === id)
-    ?.messages?.some((message) => !message.viewed);
-
   return (
     <ContextMenu.Root>
       <ContextMenu.Trigger>
@@ -67,7 +72,7 @@ export const SidebarConversation: React.FC<Props> = ({
           variant="ghost"
           radius="large"
           className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition cursor-pointer relative"
-          onClick={handleConversationClick}>
+          onClick={handleOpenChat}>
           <Avatar fallback={getFallbackAvatarName(name)} src={avatarUrl} />
           {name}
           {type === ConversationTypes.chat &&
