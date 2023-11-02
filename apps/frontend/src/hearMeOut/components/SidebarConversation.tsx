@@ -12,7 +12,6 @@ interface Props {
   name: string;
   avatarUrl?: string;
   isOnline: boolean;
-  isActive: boolean;
   type: ConversationTypes;
 }
 
@@ -26,7 +25,6 @@ export const SidebarConversation: React.FC<Props> = ({
   name,
   avatarUrl,
   isOnline,
-  isActive,
   type
 }) => {
   const {
@@ -34,7 +32,8 @@ export const SidebarConversation: React.FC<Props> = ({
     removeActiveConversation,
     conversations,
     removeConversation,
-    currentConversationId
+    currentConversationId,
+    activeConversations
   } = useChatStore((state) => state);
   const { account } = useAccountStore((state) => state);
   const { sendRemoveConversation, sendOpenChat } = useSocketChatEvents();
@@ -43,6 +42,7 @@ export const SidebarConversation: React.FC<Props> = ({
       .find((conversation) => conversation.id === id)
       ?.messages?.some((message) => !message.viewedByIds.includes(account!.id))
   );
+  const isActive = activeConversations.includes(id);
 
   const handleOpenChat = async () => {
     const currentConversation = conversations.find((el) => el.id === id)!;

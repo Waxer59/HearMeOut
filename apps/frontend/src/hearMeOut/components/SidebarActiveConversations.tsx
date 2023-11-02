@@ -37,8 +37,6 @@ export const SidebarActiveConversations = () => {
   return (
     <div className="h-full pr-3 pl-2 pt-1 -mt-1 -ml-2 -mr-4 flex flex-col gap-5 overflow-auto">
       {getActiveConversations().map((el) => (
-        // TODO: REMOVE ISACTIVE PROP
-        // TODO: NOTIFY USER IF THERE'S A NEW MESSAGE
         <SidebarConversation
           key={el.id}
           id={el.id}
@@ -53,7 +51,6 @@ export const SidebarActiveConversations = () => {
               : el.users[0].avatar
           }
           isOnline={el.users[0].isOnline}
-          isActive={true}
           type={el.type}
         />
       ))}

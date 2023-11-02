@@ -7,16 +7,17 @@ import {
 } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { IconBrandGithub } from '@tabler/icons-react';
+import { IconBrandGithub, IconEye, IconEyeClosed } from '@tabler/icons-react';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { getEnvVariables } from '../../helpers/getEnvVariables';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { signIn } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 
 export const SignIn = () => {
   const form = useRef<HTMLFormElement | null>(null);
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleSignIn = async (e: any) => {
@@ -44,7 +45,10 @@ export const SignIn = () => {
     navigate(0);
   };
 
-  // TODO: PASSWORD TOGGLER
+  const handleTogglePassword = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
   return (
     <AuthLayout>
       <Heading weight="regular" align="center">
@@ -68,15 +72,21 @@ export const SignIn = () => {
             <TextFieldInput placeholder="Jhon Doe" required />
           </Form.Control>
         </Form.Field>
-        <Form.Field name="password" className="flex flex-col gap-2">
+        <Form.Field name="password" className="flex flex-col gap-2 relative">
           <Form.Label>Password</Form.Label>
           <Form.Control asChild>
             <TextFieldInput
               placeholder="MyPaSsWoRd1"
-              type="password"
+              type={isPasswordVisible ? 'text' : 'password'}
               required
             />
           </Form.Control>
+          <button
+            className="absolute right-2
+          bottom-1 cursor-pointer"
+            onClick={handleTogglePassword}>
+            {isPasswordVisible ? <IconEyeClosed /> : <IconEye />}
+          </button>
         </Form.Field>
         <Form.Submit asChild>
           <Button

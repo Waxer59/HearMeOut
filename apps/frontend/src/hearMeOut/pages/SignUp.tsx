@@ -8,14 +8,16 @@ import {
 import * as Form from '@radix-ui/react-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { signUp } from '../../services/hearMeOutAPI';
 import { validateSignUp } from '../helpers/validateSignUpForm';
 import { toast } from 'sonner';
 import { HttpStatusCodes } from '../../types/types';
+import { IconEye, IconEyeClosed } from '@tabler/icons-react';
 
 export const SignUp = () => {
   const form = useRef<HTMLFormElement>(null);
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const handleSignUp = async (e: any) => {
@@ -54,6 +56,10 @@ export const SignUp = () => {
     form.current.reset();
   };
 
+  const handleTogglePassword = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
   return (
     <AuthLayout>
       <Heading weight="regular" align="center">
@@ -83,7 +89,7 @@ export const SignUp = () => {
             <TextFieldInput placeholder="Jhon Doe" required />
           </Form.Control>
         </Form.Field>
-        <Form.Field name="password" className="flex flex-col gap-2">
+        <Form.Field name="password" className="flex flex-col gap-2 relative">
           <div className="flex justify-between items-center">
             <Form.Label>Password</Form.Label>
             <Form.Message
@@ -100,10 +106,16 @@ export const SignUp = () => {
           <Form.Control asChild>
             <TextFieldInput
               placeholder="MyPaSsWoRd1"
-              type="password"
+              type={isPasswordVisible ? 'text' : 'password'}
               required
             />
           </Form.Control>
+          <button
+            className="absolute right-2
+          bottom-1 cursor-pointer"
+            onClick={handleTogglePassword}>
+            {isPasswordVisible ? <IconEyeClosed /> : <IconEye />}
+          </button>
         </Form.Field>
         <Form.Submit asChild>
           <Button
