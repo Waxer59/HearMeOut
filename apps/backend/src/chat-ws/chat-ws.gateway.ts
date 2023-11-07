@@ -125,12 +125,12 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     const user = await this.chatWsService.getUserIdAuth(client);
-    return await this.chatWsService.userOnline(client, user);
+    return await this.chatWsService.connectUser(client, user);
   }
 
   async handleDisconnect(client: Socket) {
-    const id = await this.chatWsService.getUserIdAuth(client);
-    return await this.chatWsService.userOffline(client, id);
+    const user = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.disconnectUser(client, user);
   }
 
   async afterInit(client: Socket) {

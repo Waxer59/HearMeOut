@@ -116,7 +116,9 @@ export const SidebarProfile = () => {
                     <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
                   </Tabs.Trigger>
                 </Tabs.List>
-                <Tabs.Content value="incoming" className="h-full">
+                <Tabs.Content
+                  value="incoming"
+                  className="h-full flex flex-col gap-3">
                   {friendRequests?.map(({ from, id }: any) => (
                     <div key={id} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -156,7 +158,9 @@ export const SidebarProfile = () => {
                     </div>
                   ))}
                 </Tabs.Content>
-                <Tabs.Content value="outgoing" className="h-full">
+                <Tabs.Content
+                  value="outgoing"
+                  className="h-full flex flex-col gap-3">
                   {friendRequestsOutgoing?.map(({ to, id }: any) => (
                     <div key={id} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">

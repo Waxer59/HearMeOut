@@ -28,7 +28,7 @@ const HearMeOutRoutes = () => {
       setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, true);
 
       const {
-        conversationsJoined,
+        conversations,
         activeConversationIds,
         friendReqTos,
         friendReqFroms,
@@ -36,12 +36,11 @@ const HearMeOutRoutes = () => {
       } = data;
 
       setCurrentConversationId(
-        conversationsJoined.filter((el) =>
-          activeConversationIds.includes(el.id)
-        )?.[0]?.id ?? null
+        conversations.filter((el) => activeConversationIds.includes(el.id))?.[0]
+          ?.id ?? null
       );
       setActiveConversations(activeConversationIds);
-      setConversations(conversationsJoined);
+      setConversations(conversations);
       setFriendRequestsOutgoing(friendReqFroms);
 
       setAccount(account);

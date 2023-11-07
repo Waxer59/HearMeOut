@@ -15,3 +15,7 @@ export const CHAT_EVENTS = {
   createGroup: 'createGroup',
   openChat: 'openChat',
 };
+
+export const CACHE_PREFIXES = {
+  usersActiveChat: 'usersActiveChat:',
+};

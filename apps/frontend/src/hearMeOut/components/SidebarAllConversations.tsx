@@ -47,7 +47,6 @@ export const SidebarAllConversations = () => {
               : el.users[0].avatar
           }
           isOnline={el.users[0].isOnline}
-          isActive={false}
           type={el.type}
         />
       ))}

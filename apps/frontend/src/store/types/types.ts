@@ -24,6 +24,7 @@ export interface MessageDetails {
   createdAt: Date;
   replyId?: string;
   from: AccountDetails;
+  conversationId: string;
 }
 
 export interface FriendRequestDetails {
@@ -46,7 +47,6 @@ export interface ConversationDetails {
   icon: null;
   creatorId: null;
   userIds: string[];
-  messageIds: any[];
   messages: MessageDetails[];
   adminIds: any[];
   users: AccountDetails[];

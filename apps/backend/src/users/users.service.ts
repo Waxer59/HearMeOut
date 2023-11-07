@@ -73,7 +73,7 @@ export class UsersService {
       return await this.prisma.user.findFirst({
         where: { id },
         include: {
-          conversationsJoined: {
+          conversations: {
             include: {
               users: {
                 where: {
@@ -262,6 +262,27 @@ export class UsersService {
         where: { id: userId },
         data: {
           activeConversationIds,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async removeConversation(userId: string, conversationId: string) {
+    try {
+      const user = await this.findOneById(userId);
+      return await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          conversationIds: user.conversationIds.filter(
+            (id) => id !== conversationId,
+          ),
+          activeConversationIds: user.activeConversationIds.filter(
+            (id) => id !== conversationId,
+          ),
         },
       });
     } catch (error) {

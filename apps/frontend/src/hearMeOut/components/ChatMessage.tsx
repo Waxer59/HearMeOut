@@ -42,7 +42,7 @@ export const ChatMessage: React.FC<Props> = ({
                 </div>
                 <div className="pt-2 pr-2">
                   <DropdownMenu.Trigger>
-                    <Button size="1">
+                    <Button size="1" className="cursor-pointer">
                       <IconChevronDown size={18} />
                     </Button>
                   </DropdownMenu.Trigger>

@@ -76,7 +76,6 @@ export class ConversationsService {
     }
   }
 
-  // TODO: REMOVE OWN USERID FROM USERIDS FIELD
   async findAllChats(userId: string): Promise<Conversation[]> {
     try {
       return await this.prisma.conversation.findMany({
@@ -151,11 +150,13 @@ export class ConversationsService {
 
   async remove(id: string): Promise<Conversation> {
     try {
-      return await this.prisma.conversation.delete({
+      const deletedConversation = await this.prisma.conversation.delete({
         where: {
           id,
         },
       });
+
+      return deletedConversation;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',

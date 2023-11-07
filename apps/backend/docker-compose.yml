@@ -13,3 +13,27 @@ services:
       - ./mongo:/data/db
       - ./scripts/init-rs.sh:/scripts/init-rs.sh
     command: ["--replSet", "rs0"]
+  redis:
+    container_name: hearMeOut_redis
+    restart: always
+    image: redis
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes: 
+      - ./redis:/data
+    environment:
+      - REDIS_ARGS=--requirepass ${REDIS_PASSWORD}
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    depends_on:
+      - redis
+    environment:
+    - REDIS_HOST=redis
+    - REDIS_PORT=6379
+    - REDIS_PASSWORD=${REDIS_PASSWORD}
+    - REDIS_USERNAME=${REDIS_USERNAME}
+    ports:
+    - "8081:8081"

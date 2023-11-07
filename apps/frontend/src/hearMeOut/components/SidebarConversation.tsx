@@ -34,20 +34,20 @@ export const SidebarConversation: React.FC<Props> = ({
     removeConversation,
     currentConversationId,
     activeConversations
-  } = useChatStore((state) => state);
+  } = useChatStore((state: any) => state);
   const { account } = useAccountStore((state) => state);
-  const { sendRemoveConversation, sendOpenChat } = useSocketChatEvents();
+  const { sendRemoveConversation } = useSocketChatEvents();
   const [hasNewMessages, setHasNewMessages] = useState(
     conversations
-      .find((conversation) => conversation.id === id)
-      ?.messages?.some((message) => !message.viewedByIds.includes(account!.id))
+      .find((conversation: any) => conversation.id === id)
+      ?.messages?.some(
+        (message: any) => !message.viewedByIds.includes(account!.id)
+      )
   );
   const isActive = activeConversations.includes(id);
 
   const handleOpenChat = async () => {
-    const currentConversation = conversations.find((el) => el.id === id)!;
-    setCurrentConversationId(currentConversation.id);
-    sendOpenChat(currentConversation.id);
+    setCurrentConversationId(id);
     setHasNewMessages(false);
   };
 

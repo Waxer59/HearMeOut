@@ -52,7 +52,7 @@ export interface VerifyResponse {
   conversationIds: string[];
   adminConversationIds: any[];
   activeConversationIds: string[];
-  conversationsJoined: ConversationDetails[];
+  conversations: ConversationDetails[];
   friendReqTos: FriendRequestDetails[];
   friendReqFroms: FriendRequestDetails[];
 }

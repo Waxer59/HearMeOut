@@ -1,23 +1,11 @@
-import { useEffect } from 'react';
-import { useSocketChat } from '../hooks/useSocketChat';
 import { ChatMessages, ChatInput, ChatTitle } from './';
-import { useAccountStore, useChatStore } from '../../store';
+import { useChatStore } from '../../store';
 import { NotFoundIcon } from './Icons';
 
 export const ChatView = () => {
-  const { connectSocketChat, disconnectSocketChat } = useSocketChat();
-  const { isAuthenticated } = useAccountStore();
-  const { currentConversationId } = useChatStore();
-
-  useEffect(() => {
-    connectSocketChat();
-  }, [connectSocketChat]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      disconnectSocketChat();
-    }
-  }, [isAuthenticated, disconnectSocketChat]);
+  const currentConversationId = useChatStore(
+    (state) => state.currentConversationId
+  );
 
   return (
     <>

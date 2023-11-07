@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { AUTH_COOKIE, CHAT_EVENTS } from 'src/common/constants/constants';
+import {
+  AUTH_COOKIE,
+  CACHE_PREFIXES,
+  CHAT_EVENTS,
+} from 'src/common/constants/constants';
 import { parseCookies } from 'src/common/helpers/cookies';
 import type { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
@@ -13,6 +17,7 @@ import { ConversationsService } from 'src/conversations/conversations.service';
 import { ConversationDto } from './dto/conversation.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
 import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
+import { CachingService } from 'src/caching/caching.service';
 
 @Injectable()
 export class ChatWsService {
@@ -22,28 +27,30 @@ export class ChatWsService {
     private readonly messageService: MessagesService,
     private readonly friendRequestsService: FriendRequestsService,
     private readonly conversationsService: ConversationsService,
+    private readonly cachingService: CachingService,
   ) {}
 
-  async userOnline(client: Socket, user: User): Promise<void> {
+  async connectUser(client: Socket, user: User): Promise<void> {
     try {
       await this.usersService.setIsOnline(user?.id, true);
     } catch (error) {
-      client.disconnect();
+      this.disconnectUser(client, user);
       return;
     }
 
     // Join user to conversation rooms
     client.join(user?.id);
 
+    // Join user to conversation rooms
     user?.conversationIds.forEach((conversationId) => {
       client.join(conversationId);
-      client.broadcast
-        .to(user?.conversationIds)
-        .emit(CHAT_EVENTS.userConnect, user?.id);
     });
+
+    // Notify conversation rooms that the user is online
+    client.to(user?.conversationIds).emit(CHAT_EVENTS.userConnect, user?.id);
   }
 
-  async userOffline(client: Socket, user: User): Promise<void> {
+  async disconnectUser(client: Socket, user: User): Promise<void> {
     try {
       await this.usersService.setIsOnline(user?.id, false);
     } catch (error) {
@@ -51,12 +58,14 @@ export class ChatWsService {
       return;
     }
 
-    user?.conversationIds.forEach((conversationId) => {
-      client.join(conversationId);
-      client.broadcast
-        .to(conversationId)
-        .emit(CHAT_EVENTS.userDisconnect, user?.id);
-    });
+    await this.cachingService.deleteCacheKey(
+      CACHE_PREFIXES.usersActiveChat + user.id,
+    );
+
+    // Notify conversation rooms that the user is offline
+    client.broadcast
+      .to(user?.conversationIds)
+      .emit(CHAT_EVENTS.userDisconnect, user?.id);
   }
 
   async sendMessage(
@@ -152,7 +161,6 @@ export class ChatWsService {
     } catch (error) {}
   }
 
-  // TODO: FIX REMOVE RELATION ON DELETE
   async removeConversation(
     conversationDto: ConversationDto,
     server: Server,
@@ -160,17 +168,29 @@ export class ChatWsService {
     const { id: conversationId } = conversationDto;
 
     try {
-      const conversation =
+      const deletedConversation =
         await this.conversationsService.remove(conversationId);
-      conversation.userIds.forEach((id) => {
-        server.to(id).emit(CHAT_EVENTS.removeConversation, conversation.id);
+
+      const conversationUsers = deletedConversation.userIds.map((userId) =>
+        this.usersService.removeConversation(userId, conversationId),
+      );
+
+      await Promise.all(conversationUsers);
+
+      deletedConversation.userIds.forEach((id) => {
+        server.to(id).emit(CHAT_EVENTS.removeConversation, conversationId);
       });
+
       server.in(conversationId).socketsLeave(conversationId);
     } catch (error) {}
   }
 
   async openChat(conversationDto: ConversationDto, userId: string) {
     const { id: conversationId } = conversationDto;
+    this.cachingService.setCacheKey(
+      CACHE_PREFIXES.usersActiveChat + userId,
+      conversationId,
+    );
 
     return this.conversationsService.markAsRead(conversationId, userId);
   }

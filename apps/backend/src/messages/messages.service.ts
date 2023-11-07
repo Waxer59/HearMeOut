@@ -15,6 +15,7 @@ export class MessagesService {
           fromId,
           toId,
           createdAt: new Date(),
+          conversationId: toId,
         },
         include: {
           from: true,

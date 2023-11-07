@@ -12,24 +12,24 @@ datasource db {
 
 model User {
   id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationIds       String[] @db.ObjectId
+  adminConversationIds  String[] @db.ObjectId
+  activeConversationIds String[] @db.ObjectId
+  viewedMessagesIds     String[] @db.ObjectId
   username              String   @unique
   password              String?
   avatar                String?
   githubId              String?
   isOnline              Boolean  @default(false)
-  conversationIds       String[] @db.ObjectId
-  adminConversationIds  String[] @db.ObjectId
-  activeConversationIds String[] @db.ObjectId
-  viewedMessagesIds     String[] @db.ObjectId
 
-  messageFroms        Message[]       @relation("messageFroms")
-  messageTos          Message[]       @relation("messageTos")
-  conversationsJoined Conversation[]  @relation("conversationsJoined", fields: [conversationIds], references: [id])
-  conversationsAdmin  Conversation[]  @relation("conversationsAdmin", fields: [adminConversationIds], references: [id])
-  friendReqFroms      FriendRequest[] @relation("friendReqFrom")
-  friendReqTos        FriendRequest[] @relation("friendReqTo")
-  viewedMessages      Message[]       @relation(fields: [viewedMessagesIds], references: [id])
-  configuration       Configuration?
+  messageFroms       Message[]       @relation("messageFroms")
+  messageTos         Message[]       @relation("messageTos")
+  conversations      Conversation[]  @relation("conversations", fields: [conversationIds], references: [id])
+  adminConversations Conversation[]  @relation("adminConversations", fields: [adminConversationIds], references: [id])
+  friendReqFroms     FriendRequest[] @relation("friendReqFrom")
+  friendReqTos       FriendRequest[] @relation("friendReqTo")
+  viewedMessages     Message[]       @relation(fields: [viewedMessagesIds], references: [id])
+  configuration      Configuration?
 }
 
 model FriendRequest {
@@ -55,21 +55,22 @@ model Configuration {
 }
 
 model Message {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  fromId      String   @db.ObjectId
-  toId        String   @db.ObjectId
-  content     String
-  viewedByIds String[] @db.ObjectId @default([])
-  createdAt   DateTime
-  replyId     String?  @db.ObjectId
-  viewedByAll Boolean  @default(false)
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  fromId         String   @db.ObjectId
+  toId           String   @db.ObjectId
+  replyId        String?  @db.ObjectId
+  conversationId String   @db.ObjectId
+  viewedByIds    String[] @default([]) @db.ObjectId
+  content        String
+  createdAt      DateTime
+  viewedByAll    Boolean  @default(false)
 
-  from                 User           @relation("messageFroms", fields: [fromId], references: [id])
-  to                   User           @relation("messageTos", fields: [toId], references: [id])
-  reply                Message?       @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies              Message[]      @relation("messageReply")
-  viewedBy             User[]         @relation(fields: [viewedByIds], references: [id])
-  conversationMessages Conversation[]
+  from         User         @relation("messageFroms", fields: [fromId], references: [id])
+  to           User         @relation("messageTos", fields: [toId], references: [id])
+  reply        Message?     @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies      Message[]    @relation("messageReply")
+  viewedBy     User[]       @relation(fields: [viewedByIds], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum ConversationType {
@@ -78,17 +79,16 @@ enum ConversationType {
 }
 
 model Conversation {
-  id         String           @id @default(auto()) @map("_id") @db.ObjectId
-  name       String?
-  type       ConversationType
-  icon       String?
-  joinCode   String?
-  creatorId  String?          @db.ObjectId
-  userIds    String[]         @db.ObjectId
-  messageIds String[]         @db.ObjectId
-  adminIds   String[]         @db.ObjectId
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId String?          @db.ObjectId
+  userIds   String[]         @db.ObjectId
+  adminIds  String[]         @db.ObjectId
+  name      String?
+  type      ConversationType
+  icon      String?
+  joinCode  String?
 
-  users    User[]  @relation("conversationsJoined", fields: [userIds], references: [id])
-  admins   User[]  @relation("conversationsAdmin", fields: [adminIds], references: [id])
-  messages Message @relation(fields: [messageIds], references: [id], onDelete: Cascade)
+  users    User[]    @relation("conversations", fields: [userIds], references: [id])
+  admins   User[]    @relation("adminConversations", fields: [adminIds], references: [id])
+  messages Message[]
 }
