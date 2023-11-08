@@ -1,14 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
-import SignUp from '../pages/SignUp';
-import SignIn from '../pages/SignIn';
-import Chat from '../pages/Chat';
-import PrivateRoutes from './PrivateRoutes';
-import PublicRoutes from './PublicRoutes';
-import { useEffect } from 'react';
-import { verify } from '../../services/hearMeOutAPI';
+import { SignUp, SignIn, Chat, Profile } from '../pages';
+import { PrivateRoutes, PublicRoutes } from '../../router';
 import { useAccountStore, useChatStore } from '../../store';
 import { LOCAL_STORAGE_ITEMS, type VerifyResponse } from '../../types/types';
+import { verify } from '../../services/hearMeOutAPI';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useEffect, useState } from 'react';
+import { BounceLoader } from 'react-spinners';
 
 const HearMeOutRoutes = () => {
   const { setAccount, setFriendRequests, setFriendRequestsOutgoing } =
@@ -16,6 +14,8 @@ const HearMeOutRoutes = () => {
   const { setConversations, setActiveConversations, setCurrentConversationId } =
     useChatStore((state) => state);
   const { setLocalStorageItem } = useLocalStorage();
+  const [isLoading, setIsLoading] = useState(true);
+  const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
   useEffect(() => {
     async function handleVerify() {
@@ -45,6 +45,7 @@ const HearMeOutRoutes = () => {
 
       setAccount(account);
       setFriendRequests(friendReqTos);
+      setIsLoading(false);
     }
 
     function handleStorage(e: StorageEvent) {
@@ -53,13 +54,24 @@ const HearMeOutRoutes = () => {
       }
     }
 
-    handleVerify();
+    if (!isAuthenticated) {
+      handleVerify();
+    }
+
     window.addEventListener('storage', handleStorage);
 
     return () => {
       window.removeEventListener('storage', handleStorage);
     };
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center h-full items-center">
+        <BounceLoader color="#c5c5c5" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -79,15 +91,23 @@ const HearMeOutRoutes = () => {
           </PublicRoutes>
         }
       />
-
       <Route
-        path="/chat"
+        path="/chat/*"
         element={
           <PrivateRoutes>
-            <Chat />
+            <ChatRoutes />
           </PrivateRoutes>
         }
       />
+    </Routes>
+  );
+};
+
+const ChatRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Chat />} />
+      <Route path="/profile" element={<Profile />} />
     </Routes>
   );
 };

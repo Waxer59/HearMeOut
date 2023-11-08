@@ -5,7 +5,7 @@ import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChat } from '../hooks/useSocketChat';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
-const Chat = () => {
+export const Chat = () => {
   const { connectSocketChat, disconnectSocketChat } = useSocketChat();
   const { sendOpenChat } = useSocketChatEvents();
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
@@ -41,5 +41,3 @@ const Chat = () => {
     </>
   );
 };
-
-export default Chat;

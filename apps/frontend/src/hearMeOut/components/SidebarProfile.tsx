@@ -19,7 +19,7 @@ import {
   IconUserPlus,
   IconX
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { signOut } from '../../services/hearMeOutAPI';
 import { useAccountStore } from '../../store/account';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
@@ -199,9 +199,13 @@ export const SidebarProfile = () => {
             </DropdownMenu.Trigger>
           </Tooltip>
           <DropdownMenu.Content>
-            <DropdownMenu.Item className="cursor-pointer flex justify-start gap-2">
-              <IconUserCircle size={18} />
-              Profile
+            <DropdownMenu.Item
+              className="cursor-pointer flex justify-start gap-2"
+              asChild>
+              <Link to="/chat/profile">
+                <IconUserCircle size={18} />
+                Profile
+              </Link>
             </DropdownMenu.Item>
 
             <DropdownMenu.Sub>
