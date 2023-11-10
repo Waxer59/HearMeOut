@@ -10,13 +10,13 @@ export const ChatView = () => {
   return (
     <>
       {currentConversationId ? (
-        <div className="flex flex-col flex-1 justify-between">
+        <div className="flex flex-col flex-1 justify-between h-screen">
           <ChatTitle />
           <ChatMessages />
           <ChatInput />
         </div>
       ) : (
-        <div className="flex flex-col flex-1 justify-center items-center gap-32">
+        <div className="flex flex-col flex-1 justify-center items-center gap-32 h-screen">
           <h2 className="text-2xl font-bold">
             Looks like you don't have any conversations yet
           </h2>

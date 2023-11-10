@@ -9,16 +9,19 @@ import { User } from '@prisma/client';
 import { generateHash } from 'src/common/helpers/bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ConversationsService } from 'src/conversations/conversations.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly conversationsService: ConversationsService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const findUser = await this.findOneByUsername(createUserDto.username);
+    const isGithubAccount = Boolean(createUserDto.githubId);
 
     if (findUser) {
       throw new BadRequestException('User already exists');
@@ -32,7 +35,10 @@ export class UsersService {
 
     try {
       return await this.prisma.user.create({
-        data: createUserDto,
+        data: {
+          ...createUserDto,
+          isGithubAccount,
+        },
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -123,7 +129,16 @@ export class UsersService {
     }
   }
 
-  async updateById(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async updateById(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    avatar: Express.Multer.File,
+  ): Promise<User> {
+    if (avatar) {
+      const avatarUrl = await this.cloudinaryService.uploadImage(avatar);
+      updateUserDto.avatar = avatarUrl;
+    }
+
     try {
       return await this.prisma.user.update({
         where: { id },

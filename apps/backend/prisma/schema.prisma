@@ -20,6 +20,7 @@ model User {
   password              String?
   avatar                String?
   githubId              String?
+  isGithubAccount       Boolean  @default(false)
   isOnline              Boolean  @default(false)
 
   messageFroms       Message[]       @relation("messageFroms")

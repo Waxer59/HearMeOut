@@ -1,31 +1,24 @@
 import { getEnvVariables } from '../helpers/getEnvVariables';
 import {
+  type UpdateAccount,
+  type RequireAtLeastOne,
   HttpMethods,
   HttpStatusCodes,
-  type VerifyResponse
+  type VerifyResponse,
+  type CreateAccount,
+  type SignInDetails
 } from '../types/types';
 
 const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
-
-interface ISignIn {
-  username: string;
-  password: string;
-}
-
-interface ISignUp {
-  username: string;
-  password: string;
-}
 
 interface IResponseData {
   data: any;
   status: number;
 }
 
-export async function signIn({
-  username,
-  password
-}: ISignIn): Promise<IResponseData> {
+export async function signIn(
+  signInDetails: SignInDetails
+): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-in`, {
       method: HttpMethods.POST,
@@ -33,7 +26,7 @@ export async function signIn({
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify(signInDetails)
     });
     const data = await response.json();
 
@@ -43,17 +36,16 @@ export async function signIn({
   }
 }
 
-export async function signUp({
-  username,
-  password
-}: ISignUp): Promise<IResponseData> {
+export async function signUp(
+  createAccount: CreateAccount
+): Promise<IResponseData> {
   try {
     const response = await fetch(`${baseUrl}/auth/sign-up`, {
       method: HttpMethods.POST,
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify(createAccount)
     });
     const data = await response.json();
 
@@ -178,6 +170,44 @@ export async function getAllConversationMessages(
   try {
     const response = await fetch(`${baseUrl}/messages/${id}`, {
       credentials: 'include'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function updateUserAccount(
+  updateAccount: RequireAtLeastOne<UpdateAccount>
+): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/users`, {
+      method: HttpMethods.PATCH,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(updateAccount)
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function updateUserAvatar(avatar: File): Promise<IResponseData> {
+  try {
+    const formData = new FormData();
+    formData.append('avatar', avatar);
+
+    const response = await fetch(`${baseUrl}/users`, {
+      method: HttpMethods.PATCH,
+      credentials: 'include',
+      body: formData
     });
     const data = await response.json();
 

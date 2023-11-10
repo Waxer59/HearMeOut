@@ -48,6 +48,7 @@ export const SidebarConversation: React.FC<Props> = ({
 
   const handleOpenChat = async () => {
     setCurrentConversationId(id);
+    document.title = `${name} | HearMeOut`;
     setHasNewMessages(false);
   };
 

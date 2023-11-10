@@ -4,11 +4,11 @@ import {
   SidebarActiveConversations,
   SidebarHeader,
   SidebarAllConversations
-} from './';
+} from '.';
 import { useChatStore } from '../../store';
 import { VoidIcon } from './Icons';
 
-export const ChatSidebar = () => {
+export const ConversationsSidebar = () => {
   const { conversations } = useChatStore();
 
   return (

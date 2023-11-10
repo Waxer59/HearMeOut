@@ -16,6 +16,7 @@ interface State {
 
 interface Actions {
   setAccount: (a: AccountDetails) => void;
+  updateAccount: (a: Partial<AccountDetails>) => void;
   clearAccount: () => void;
   clearSettings: () => void;
   updateSettings: (s: SettingsDetails) => void;
@@ -85,6 +86,13 @@ export const useAccountStore = create<State & Actions>()(
         settings: null,
         friendRequests: [],
         friendRequestsOutgoing: []
-      })
+      }),
+    updateAccount: (a) =>
+      set((state) => ({
+        account: {
+          ...state.account,
+          ...(a as AccountDetails)
+        }
+      }))
   }))
 );

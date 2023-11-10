@@ -1,12 +1,28 @@
-import { type ChangeEvent } from 'react';
 import type {
+  AccountDetails,
   ConversationDetails,
   FriendRequestDetails
 } from '../store/types/types';
 
-export type InputEvent = ChangeEvent<HTMLInputElement>;
-export type ButtonEvent = ChangeEvent<HTMLButtonElement>;
-export type TextAreaEvent = ChangeEvent<HTMLTextAreaElement>;
+export type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> &
+    Partial<Pick<T, Exclude<keyof T, K>>>;
+}[keyof T];
+
+export interface SignInDetails {
+  username: string;
+  password: string;
+}
+
+export interface CreateAccount {
+  username: string;
+  password: string;
+}
+
+export interface UpdateAccount {
+  username?: string;
+  password?: string;
+}
 
 export interface EmojiProps {
   id: string;
@@ -17,10 +33,13 @@ export interface EmojiProps {
   shortcodes: string;
 }
 
-export interface UserDetails {
-  id: string;
-  username: string;
-  avatar?: string;
+export interface VerifyResponse extends AccountDetails {
+  conversationIds: string[];
+  adminConversationIds: any[];
+  activeConversationIds: string[];
+  conversations: ConversationDetails[];
+  friendReqTos: FriendRequestDetails[];
+  friendReqFroms: FriendRequestDetails[];
 }
 
 export enum HttpStatusCodes {
@@ -42,19 +61,6 @@ export enum HttpMethods {
   PUT = 'PUT',
   PATCH = 'PATCH',
   DELETE = 'DELETE'
-}
-
-export interface VerifyResponse {
-  id: string;
-  username: string;
-  avatar: string;
-  isOnline: boolean;
-  conversationIds: string[];
-  adminConversationIds: any[];
-  activeConversationIds: string[];
-  conversations: ConversationDetails[];
-  friendReqTos: FriendRequestDetails[];
-  friendReqFroms: FriendRequestDetails[];
 }
 
 export enum SOCKET_CHAT_EVENTS {

@@ -3,6 +3,7 @@ export interface AccountDetails {
   username: string;
   avatar?: string;
   isOnline: boolean;
+  isGithubAccount: boolean;
 }
 
 export enum ThemeEnum {

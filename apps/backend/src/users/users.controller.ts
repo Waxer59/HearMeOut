@@ -7,12 +7,16 @@ import {
   Req,
   Get,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from '../common/helpers/fileFilter';
 
 @ApiTags('Users')
 @UseGuards(AuthGuard('jwt'))
@@ -29,9 +33,23 @@ export class UsersController {
 
   @Patch('')
   @ApiCookieAuth('Authorization')
-  async update(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      fileFilter,
+      limits: {
+        fileSize: 1024 * 1024 * 10, // 10 MB
+      },
+    }),
+  )
+  async update(
+    @Req() req,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ) {
     const { id } = req.user;
-    return await this.usersService.updateById(id, updateUserDto);
+
+    return await this.usersService.updateById(id, updateUserDto, avatar);
   }
 
   @Patch('active-conversations/:id')

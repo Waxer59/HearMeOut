@@ -5,9 +5,10 @@ import { useDebounce } from 'use-debounce';
 import { DEBOUNCE_SEARCH_TIME } from '../../constants/constants';
 import { searchUser } from '../../services/hearMeOutAPI';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
-import { HttpStatusCodes, type UserDetails } from '../../types/types';
+import { HttpStatusCodes } from '../../types/types';
 import { toast } from 'sonner';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import type { AccountDetails } from '../../store/types/types';
 
 interface PropsUserBtn {
   id: string;
@@ -40,7 +41,7 @@ const UserBtn: React.FC<PropsUserBtn> = ({ id, username, avatar }) => {
 
 export function SidebarAddContactOption() {
   const [query, setQuery] = useState('');
-  const [usersFound, setUsersFound] = useState<UserDetails[] | null>(null);
+  const [usersFound, setUsersFound] = useState<AccountDetails[] | null>(null);
   const [value] = useDebounce(query, DEBOUNCE_SEARCH_TIME);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export function SidebarAddContactOption() {
     }
   }, [value]);
 
-  const searchUsername = async (name: string): Promise<UserDetails[]> => {
+  const searchUsername = async (name: string): Promise<AccountDetails[]> => {
     const { data, status } = await searchUser(name);
     if (status >= HttpStatusCodes.BAD_REQUEST) {
       return [];

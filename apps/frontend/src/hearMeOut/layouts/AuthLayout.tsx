@@ -7,10 +7,8 @@ interface Props {
 export const AuthLayout: React.FC<Props> = ({ children }) => {
   return (
     <>
-      <div className="pt-48">
-        <div className="flex flex-col gap-5 w-[90%] max-w-[400px] mx-auto p-9 rounded-xl shadow-lg bg-secondary">
-          {children}
-        </div>
+      <div className="mt-48 flex flex-col gap-5 w-[90%] max-w-[400px] mx-auto p-9 rounded-xl shadow-lg bg-secondary">
+        {children}
       </div>
       <Toaster position="bottom-right" />
     </>

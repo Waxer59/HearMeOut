@@ -1,7 +1,7 @@
 export * from './ChatInput';
 export * from './ChatMessage';
 export * from './ChatMessageMenu';
-export * from './ChatSidebar';
+export * from './ConversationsSidebar';
 export * from './SidebarConversation';
 export * from './SidebarActiveConversations';
 export * from './SidebarHeader';
@@ -16,3 +16,4 @@ export * from './SidebarJoinGroupOption';
 export * from './SidebarOptions';
 export * from './SidebarAllConversations';
 export * from './DateDivider';
+export * from './FurtherProfileUpdates';

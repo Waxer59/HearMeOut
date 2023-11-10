@@ -22,6 +22,7 @@ const HearMeOutRoutes = () => {
       const { data }: { data: VerifyResponse } = await verify();
 
       if (!data) {
+        setIsLoading(false);
         return;
       }
 
@@ -67,7 +68,7 @@ const HearMeOutRoutes = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center h-full items-center">
+      <div className="flex justify-center items-center h-screen">
         <BounceLoader color="#c5c5c5" />
       </div>
     );
@@ -76,7 +77,7 @@ const HearMeOutRoutes = () => {
   return (
     <Routes>
       <Route
-        path="/"
+        path="/*"
         element={
           <PublicRoutes>
             <SignIn />

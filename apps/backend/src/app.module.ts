@@ -15,6 +15,7 @@ import { FriendRequestsModule } from './friend-requests/friend-requests.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { MessagesModule } from './messages/messages.module';
 import { CachingModule } from './caching/caching.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -24,11 +25,18 @@ import * as Joi from 'joi';
         DATABASE_URL: Joi.string().required(),
         COOKIE_SECRET: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
+        PORT: Joi.number().required(),
         FRONTEND_URL: Joi.string().uri().required(),
+        API_URL: Joi.string().uri().required(),
         GITHUB_CLIENT_ID: Joi.string().required(),
         GITHUB_CLIENT_SECRET: Joi.string().required(),
-        API_URL: Joi.string().uri().required(),
-        PORT: Joi.number().required(),
+        REDIS_PORT: Joi.number().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PASSWORD: Joi.string().required(),
+        REDIS_USERNAME: Joi.string().required(),
+        CLOUDINARY_CLOUD_NAME: Joi.string().required(),
+        CLOUDINARY_API_KEY: Joi.string().required(),
+        CLOUDINARY_API_SECRET: Joi.string().required(),
       }),
     }),
     CacheModule.registerAsync<CacheModuleAsyncOptions>({
@@ -58,6 +66,7 @@ import * as Joi from 'joi';
     ConversationsModule,
     MessagesModule,
     CachingModule,
+    CloudinaryModule,
   ],
 })
 export class AppModule {}

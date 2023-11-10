@@ -1,5 +1,5 @@
 import { Toaster } from 'sonner';
-import { ChatSidebar, ChatView } from '../components/';
+import { ConversationsSidebar, ChatView } from '../components/';
 import { useEffect } from 'react';
 import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChat } from '../hooks/useSocketChat';
@@ -13,6 +13,10 @@ export const Chat = () => {
     (state) => state.currentConversationId
   );
   const socket = useChatStore((state) => state.socket);
+
+  useEffect(() => {
+    document.title = 'Chat | HearMeOut';
+  }, []);
 
   useEffect(() => {
     if (!currentConversationId) {
@@ -31,10 +35,11 @@ export const Chat = () => {
       disconnectSocketChat();
     }
   }, [isAuthenticated, disconnectSocketChat]);
+
   return (
     <>
       <div className="flex h-full">
-        <ChatSidebar />
+        <ConversationsSidebar />
         <ChatView />
       </div>
       <Toaster position="bottom-right" />

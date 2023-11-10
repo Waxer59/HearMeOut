@@ -19,3 +19,5 @@ export const CHAT_EVENTS = {
 export const CACHE_PREFIXES = {
   usersActiveChat: 'usersActiveChat:',
 };
+
+export const ACCEPTED_IMG_EXTENSIONS = ['png', 'gif', 'jpg', 'jpeg'];
