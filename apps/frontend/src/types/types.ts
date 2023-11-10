@@ -1,8 +1,13 @@
+import type { ChangeEvent } from 'react';
 import type {
   AccountDetails,
   ConversationDetails,
   FriendRequestDetails
 } from '../store/types/types';
+
+export type InputEvent = ChangeEvent<HTMLInputElement>;
+export type ButtonEvent = ChangeEvent<HTMLButtonElement>;
+export type TextAreaEvent = ChangeEvent<HTMLTextAreaElement>;
 
 export type RequireAtLeastOne<T> = {
   [K in keyof T]-?: Required<Pick<T, K>> &

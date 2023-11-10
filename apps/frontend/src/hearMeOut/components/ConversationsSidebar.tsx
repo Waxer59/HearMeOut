@@ -3,19 +3,43 @@ import {
   SidebarProfile,
   SidebarActiveConversations,
   SidebarHeader,
-  SidebarAllConversations
+  SidebarAllConversations,
+  SidebarConversation
 } from '.';
 import { useChatStore } from '../../store';
 import { VoidIcon } from './Icons';
+import { ConversationTypes } from '../../store/types/types';
 
 export const ConversationsSidebar = () => {
-  const { conversations } = useChatStore();
+  const conversations = useChatStore((state) => state.conversations);
+  const chatQueryFilter = useChatStore((state) => state.chatQueryFilter);
 
   return (
     <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
       <SidebarHeader />
       <div className="flex flex-col gap-2">
-        {conversations.length > 0 ? (
+        {chatQueryFilter &&
+          conversations
+            ?.filter((c) => c.name === chatQueryFilter)
+            ?.map((el) => (
+              <SidebarConversation
+                key={el.id}
+                id={el.id}
+                name={
+                  el.type === ConversationTypes.group
+                    ? el.name!
+                    : el.users[0].username
+                }
+                avatarUrl={
+                  el.type === ConversationTypes.group
+                    ? el.icon ?? undefined
+                    : el.users[0].avatar
+                }
+                isOnline={el.users[0].isOnline}
+                type={el.type}
+              />
+            ))}
+        {conversations.length > 0 && !chatQueryFilter ? (
           <Tabs.Root
             className="h-[calc(100vh-224px)] max-h-[calc(100vh-224px)]"
             defaultValue="active">

@@ -151,6 +151,7 @@ export class UsersService {
     }
   }
 
+  // TODO: REMOVE CLOUDINARY IMAGES
   async remove(id: string): Promise<User> {
     try {
       return await this.prisma.user.delete({ where: { id } });

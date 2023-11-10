@@ -30,6 +30,7 @@ export const SidebarAllConversations = () => {
     fetchMessages();
   }, [currentConversationId]);
 
+  // TODO: FIX CONVERSATIONS OVERFLOW
   return (
     <div className="h-full pr-3 pl-2 pt-1 -mt-1 -ml-2 -mr-4 flex flex-col gap-5 overflow-auto">
       {conversations.map((el) => (
