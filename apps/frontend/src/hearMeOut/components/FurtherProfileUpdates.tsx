@@ -6,7 +6,7 @@ import { updateUserAccount } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 import { toast } from 'sonner';
 
-export const FurtherProfileUpdates = () => {
+export const FurtherProfileUpdates: React.FC = () => {
   const form = useRef<HTMLFormElement>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 

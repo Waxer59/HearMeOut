@@ -14,6 +14,8 @@ export const CHAT_EVENTS = {
   removeFriendRequest: 'removeFriendRequest',
   createGroup: 'createGroup',
   openChat: 'openChat',
+  deleteMessage: 'deleteMessage',
+  updateMessage: 'updateMessage',
 };
 
 export const CACHE_PREFIXES = {

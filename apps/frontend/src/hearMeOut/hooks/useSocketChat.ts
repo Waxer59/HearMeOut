@@ -2,7 +2,11 @@ import { useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { getEnvVariables } from '../../helpers/getEnvVariables';
 import { useAccountStore, useChatStore } from '../../store';
-import { SOCKET_CHAT_EVENTS } from '../../types/types';
+import {
+  SOCKET_CHAT_EVENTS,
+  type DeleteMessageDetails,
+  type UpdateMessageDetails
+} from '../../types/types';
 import type {
   ConversationDetails,
   FriendRequestDetails,
@@ -20,6 +24,8 @@ export const useSocketChat = () => {
     clearSocket,
     currentConversationId,
     getActiveConversations,
+    deleteConversationMessage,
+    updateConversationMessage,
     removeConversation,
     removeUserTyping,
     setConversationIsOnline,
@@ -121,6 +127,20 @@ export const useSocketChat = () => {
     socket.on(SOCKET_CHAT_EVENTS.removeFriendRequest, (id: string) => {
       removeFriendRequest(id);
     });
+
+    socket.on(
+      SOCKET_CHAT_EVENTS.deleteMessage,
+      ({ messageId, conversationId }: DeleteMessageDetails) => {
+        deleteConversationMessage(conversationId, messageId);
+      }
+    );
+
+    socket.on(
+      SOCKET_CHAT_EVENTS.updateMessage,
+      ({ content, conversationId, messageId }: UpdateMessageDetails) => {
+        updateConversationMessage(conversationId, messageId, content);
+      }
+    );
   }, [socket]);
 
   return {

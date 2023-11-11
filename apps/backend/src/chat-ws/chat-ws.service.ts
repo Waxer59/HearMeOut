@@ -18,6 +18,8 @@ import { ConversationDto } from './dto/conversation.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
 import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 import { CachingService } from 'src/caching/caching.service';
+import { DeleteMessageDto } from './dto/delete-message.dto';
+import { UpdateMessageDto } from './dto/update-message.dto';
 
 @Injectable()
 export class ChatWsService {
@@ -228,6 +230,49 @@ export class ChatWsService {
       });
 
       server.to(group.id).emit(CHAT_EVENTS.createGroup, group);
+    } catch (error) {}
+  }
+
+  async updateMessage(
+    updateMessageDto: UpdateMessageDto,
+    userId: string,
+    server: Server,
+  ): Promise<void> {
+    const { messageId, content } = updateMessageDto;
+    try {
+      const msg = await this.messageService.findOneById(messageId);
+
+      if (msg.fromId !== userId) {
+        return;
+      }
+
+      await this.messageService.updateById(messageId, content);
+      server.to(msg.toId).emit(CHAT_EVENTS.updateMessage, {
+        messageId,
+        conversationId: msg.toId,
+        content,
+      });
+    } catch (e) {}
+  }
+
+  async deleteMessage(
+    deleteMessageDto: DeleteMessageDto,
+    userId: string,
+    server: Server,
+  ): Promise<void> {
+    const { messageId } = deleteMessageDto;
+    try {
+      const msg = await this.messageService.findOneById(messageId);
+
+      if (msg.fromId !== userId) {
+        return;
+      }
+
+      await this.messageService.deleteById(messageId);
+      server.to(msg.toId).emit(CHAT_EVENTS.deleteMessage, {
+        messageId,
+        conversationId: msg.toId,
+      });
     } catch (error) {}
   }
 }

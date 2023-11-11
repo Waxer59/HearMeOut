@@ -9,7 +9,7 @@ interface DateGroup {
   messages: MessageDetails[];
 }
 
-export const ChatMessages = () => {
+export const ChatMessages: React.FC = () => {
   const { currentConversationId, conversations } = useChatStore(
     (state) => state
   );
@@ -52,8 +52,11 @@ export const ChatMessages = () => {
             <div key={date} className="flex flex-col gap-6">
               <DateDivider date={new Date(date)} />
 
-              {messages.map(({ id, content, createdAt, from }) => (
+              {messages.map(({ id, content, createdAt, from, isEdited }) => (
                 <ChatMessage
+                  id={id}
+                  senderId={from.id}
+                  isEdited={isEdited}
                   key={id}
                   content={content}
                   date={new Date(createdAt)}

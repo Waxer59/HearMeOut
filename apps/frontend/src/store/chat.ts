@@ -26,6 +26,15 @@ interface Actions {
   setSocket: (socket: Socket) => void;
   clearSocket: () => void;
   removeConversation: (id: string) => void;
+  deleteConversationMessage: (
+    conversationId: string,
+    messageId: string
+  ) => void;
+  updateConversationMessage: (
+    conversationId: string,
+    messageId: string,
+    content: string
+  ) => void;
   getActiveConversations: () => ConversationDetails[];
   addActiveConversation: (id: string) => void;
   removeActiveConversation: (conversationId: string) => void;
@@ -171,6 +180,30 @@ export const useChatStore = create<State & Actions>()(
         activeConversations: state.activeConversations.filter((el) => el !== id)
       })),
     chatQueryFilter: null,
-    setChatQueryFilter: (query) => set({ chatQueryFilter: query })
+    setChatQueryFilter: (query) => set({ chatQueryFilter: query }),
+    deleteConversationMessage: (conversationId, messageId) =>
+      set((state) => ({
+        conversations: state.conversations.map((el) =>
+          el.id === conversationId
+            ? {
+                ...el,
+                messages: el.messages.filter((el) => el.id !== messageId)
+              }
+            : el
+        )
+      })),
+    updateConversationMessage: (conversationId, messageId, content) =>
+      set((state) => ({
+        conversations: state.conversations.map((el) =>
+          el.id === conversationId
+            ? {
+                ...el,
+                messages: el.messages.map((el) =>
+                  el.id === messageId ? { ...el, content, isEdited: true } : el
+                )
+              }
+            : el
+        )
+      }))
   }))
 );

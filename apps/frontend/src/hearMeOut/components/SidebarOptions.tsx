@@ -21,7 +21,7 @@ enum DialogSelectionEnum {
   NONE = 'NONE'
 }
 
-export const SidebarOptions = () => {
+export const SidebarOptions: React.FC = () => {
   const [dialogSelection, setDialogSelection] = useState<DialogSelectionEnum>(
     DialogSelectionEnum.NONE
   );

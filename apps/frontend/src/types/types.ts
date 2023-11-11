@@ -81,7 +81,20 @@ export enum SOCKET_CHAT_EVENTS {
   friendRequestOutgoing = 'friendRequestOutgoing',
   removeFriendRequest = 'removeFriendRequest',
   createGroup = 'createGroup',
-  openChat = 'openChat'
+  openChat = 'openChat',
+  deleteMessage = 'deleteMessage',
+  updateMessage = 'updateMessage'
+}
+
+export interface DeleteMessageDetails {
+  conversationId: string;
+  messageId: string;
+}
+
+export interface UpdateMessageDetails {
+  conversationId: string;
+  messageId: string;
+  content: string;
 }
 
 export enum LOCAL_STORAGE_ITEMS {

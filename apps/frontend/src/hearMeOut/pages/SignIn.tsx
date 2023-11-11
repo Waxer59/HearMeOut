@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { signIn } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 
-export const SignIn = () => {
+export const SignIn: React.FC = () => {
   const form = useRef<HTMLFormElement | null>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -64,7 +64,10 @@ export const SignIn = () => {
           <IconBrandGithub /> Sign in with GitHub
         </Link>
       </Button>
-      <Form.Root className="flex flex-col gap-6" ref={form}>
+      <Form.Root
+        className="flex flex-col gap-6"
+        ref={form}
+        onSubmit={handleSignIn}>
         <Form.Field name="username" className="flex flex-col gap-2">
           <Form.Label>Username</Form.Label>
           <Form.Control asChild>
@@ -81,6 +84,7 @@ export const SignIn = () => {
             />
           </Form.Control>
           <button
+            type="button"
             className="absolute right-2
           bottom-1 cursor-pointer opacity-70"
             onClick={handleTogglePassword}>
@@ -88,11 +92,7 @@ export const SignIn = () => {
           </button>
         </Form.Field>
         <Form.Submit asChild>
-          <Button
-            color="iris"
-            variant="soft"
-            className="w-full cursor-pointer"
-            onClick={handleSignIn}>
+          <Button color="iris" variant="soft" className="w-full cursor-pointer">
             Sign in
           </Button>
         </Form.Submit>

@@ -4,7 +4,7 @@ import { SidebarOptions } from '.';
 import { useChatStore } from '../../store';
 import type { InputEvent } from '../../types/types';
 
-export const SidebarHeader = () => {
+export const SidebarHeader: React.FC = () => {
   const setChatQueryFilter = useChatStore((state) => state.setChatQueryFilter);
 
   const handleInputChange = (e: InputEvent) => {

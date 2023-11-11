@@ -28,6 +28,52 @@ export class MessagesService {
     }
   }
 
+  async findOneById(id: string): Promise<Message> {
+    try {
+      return await this.prisma.message.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async updateById(messageId: string, content: string): Promise<Message> {
+    try {
+      return await this.prisma.message.update({
+        where: {
+          id: messageId,
+        },
+        data: {
+          content,
+          isEdited: true,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async deleteById(id: string): Promise<Message> {
+    try {
+      return await this.prisma.message.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async findAllConversationMessages(
     conversationId: string,
   ): Promise<Message[]> {

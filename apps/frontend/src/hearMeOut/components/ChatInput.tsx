@@ -9,7 +9,7 @@ import { useAccountStore, useChatStore } from '../../store';
 import { TYPING_TIMEOUT } from '../../constants/constants';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
-export const ChatInput = () => {
+export const ChatInput: React.FC = () => {
   const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
   const settings = useAccountStore((state) => state.settings);
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
@@ -20,7 +20,24 @@ export const ChatInput = () => {
   const { usersTyping } = useChatStore((state) => state);
 
   useEffect(() => {
+    const handleKeyDownEvent = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSendMessage();
+      }
+      if (e.key === 'Escape') {
+        setIsEmojiMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDownEvent);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDownEvent);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!message) {
+      sendTypingOff();
       return;
     }
 
@@ -31,7 +48,6 @@ export const ChatInput = () => {
     }
   }, [isTyping]);
 
-  // TOOD: FIX THIS
   useEffect(() => {
     if (selectionStartRef.current !== null && messageInputRef.current) {
       messageInputRef.current.focus();
@@ -78,11 +94,11 @@ export const ChatInput = () => {
 
   const handleSendMessage = () => {
     sendMessage(message);
+    setIsTyping(false);
     setMessage('');
     messageInputRef.current?.focus();
   };
 
-  // TODO FIX TYPING INDICATOR
   return (
     <div className="px-20 pb-12 pt-8 relative flex flex-col">
       <div

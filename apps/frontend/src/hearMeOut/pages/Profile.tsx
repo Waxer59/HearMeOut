@@ -25,7 +25,7 @@ import { getFileExtension } from '../../helpers/getFileExtension';
 import { ACCEPTED_IMG_EXTENSIONS } from '../../constants/constants';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
-export const Profile = () => {
+export const Profile: React.FC = () => {
   const account = useAccountStore((state) => state.account);
   const updateAccount = useAccountStore((state) => state.updateAccount);
   const fileInput = useRef<HTMLInputElement>(null);

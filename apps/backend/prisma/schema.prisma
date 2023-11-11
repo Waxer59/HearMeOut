@@ -66,6 +66,7 @@ model Message {
   content        String
   createdAt      DateTime
   viewedByAll    Boolean  @default(false)
+  isEdited       Boolean  @default(false)
 
   from         User         @relation("messageFroms", fields: [fromId], references: [id])
   to           User         @relation("messageTos", fields: [toId], references: [id])

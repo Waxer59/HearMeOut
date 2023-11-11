@@ -5,7 +5,7 @@ import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChat } from '../hooks/useSocketChat';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
-export const Chat = () => {
+export const Chat: React.FC = () => {
   const { connectSocketChat, disconnectSocketChat } = useSocketChat();
   const { sendOpenChat } = useSocketChatEvents();
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
@@ -38,7 +38,7 @@ export const Chat = () => {
 
   return (
     <>
-      <div className="flex h-full">
+      <div className="flex h-screen">
         <ConversationsSidebar />
         <ChatView />
       </div>

@@ -2,7 +2,7 @@ import { ChatMessages, ChatInput, ChatTitle } from './';
 import { useChatStore } from '../../store';
 import { NotFoundIcon } from './Icons';
 
-export const ChatView = () => {
+export const ChatView: React.FC = () => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );

@@ -27,6 +27,7 @@ export interface MessageDetails {
   replyId?: string;
   from: AccountDetails;
   conversationId: string;
+  isEdited: boolean;
 }
 
 export interface FriendRequestDetails {

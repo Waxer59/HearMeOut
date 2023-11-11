@@ -49,6 +49,14 @@ export const useSocketChatEvents = () => {
     socket?.emit(SOCKET_CHAT_EVENTS.openChat, { id });
   };
 
+  const sendDeleteMessage = (messageId: string) => {
+    socket?.emit(SOCKET_CHAT_EVENTS.deleteMessage, { messageId });
+  };
+
+  const sendUpdateMessage = (messageId: string, content: string) => {
+    socket?.emit(SOCKET_CHAT_EVENTS.updateMessage, { messageId, content });
+  };
+
   return {
     sendMessage,
     sendTyping,
@@ -58,6 +66,8 @@ export const useSocketChatEvents = () => {
     sendRemoveConversation,
     sendCreateGroup,
     sendRemoveFriendRequest,
-    sendOpenChat
+    sendOpenChat,
+    sendDeleteMessage,
+    sendUpdateMessage
   };
 };

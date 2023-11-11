@@ -29,7 +29,7 @@ export const TypingIndicator: React.FC<Props> = ({ usersTyping }) => {
         className={`flex gap-2 items-center text-md absolute bottom-4 transition ${
           usernames?.length ? 'block' : 'hidden'
         }`}>
-        <BeatLoader color="white" size={10} speedMultiplier={0.5} />
+        <BeatLoader color="gray" size={10} speedMultiplier={0.5} />
         {usernames.length >= 5 ? (
           <span className="font-bold">
             Everyone <span className="font-normal">is typing...</span>

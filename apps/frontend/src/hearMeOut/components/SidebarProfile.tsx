@@ -34,7 +34,7 @@ import { useEffect } from 'react';
 import { ThemeEnum } from '../../store/types/types';
 import { TabsDivider } from '.';
 
-export const SidebarProfile = () => {
+export const SidebarProfile: React.FC = () => {
   const {
     account,
     clearAccount,

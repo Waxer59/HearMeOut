@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { HttpStatusCodes } from '../../types/types';
 import { IconEye, IconEyeClosed } from '@tabler/icons-react';
 
-export const SignUp = () => {
+export const SignUp: React.FC = () => {
   const form = useRef<HTMLFormElement>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -65,7 +65,10 @@ export const SignUp = () => {
       <Heading weight="regular" align="center">
         Sign up
       </Heading>
-      <Form.Root className="flex flex-col gap-6" ref={form}>
+      <Form.Root
+        className="flex flex-col gap-6"
+        ref={form}
+        onSubmit={handleSignUp}>
         <Form.Field name="username" className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <Form.Label>Username</Form.Label>
@@ -111,6 +114,7 @@ export const SignUp = () => {
             />
           </Form.Control>
           <button
+            type="button"
             className="absolute right-2
           bottom-1 cursor-pointer opacity-70"
             onClick={handleTogglePassword}>
@@ -118,11 +122,7 @@ export const SignUp = () => {
           </button>
         </Form.Field>
         <Form.Submit asChild>
-          <Button
-            color="iris"
-            variant="soft"
-            className="w-full cursor-pointer"
-            onClick={handleSignUp}>
+          <Button color="iris" variant="soft" className="w-full cursor-pointer">
             Sign up
           </Button>
         </Form.Submit>

@@ -18,7 +18,7 @@ import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { toast } from 'sonner';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
-export const SidebarCreateGroupOption = () => {
+export const SidebarCreateGroupOption: React.FC = () => {
   const { conversations } = useChatStore();
   const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
   const [groupName, setGroupName] = useState('');
