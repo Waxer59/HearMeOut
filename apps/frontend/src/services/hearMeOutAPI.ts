@@ -1,4 +1,5 @@
 import { getEnvVariables } from '../helpers/getEnvVariables';
+import type { SettingsDetails } from '../store/types/types';
 import {
   type UpdateAccount,
   type RequireAtLeastOne,
@@ -190,6 +191,40 @@ export async function updateUserAccount(
       },
       credentials: 'include',
       body: JSON.stringify(updateAccount)
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function deleteUserAccount(): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/users`, {
+      method: HttpMethods.DELETE,
+      credentials: 'include'
+    });
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: 500 };
+  }
+}
+
+export async function updateUserSettings(
+  settings: SettingsDetails
+): Promise<IResponseData> {
+  try {
+    const response = await fetch(`${baseUrl}/configurations`, {
+      method: HttpMethods.PATCH,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(settings)
     });
     const data = await response.json();
 

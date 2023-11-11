@@ -1,15 +1,16 @@
 import { create } from 'zustand';
-import type {
-  AccountDetails,
-  FriendRequestDetails,
-  SettingsDetails
+import {
+  ThemeEnum,
+  type AccountDetails,
+  type FriendRequestDetails,
+  type SettingsDetails
 } from './types/types';
 import { devtools } from 'zustand/middleware';
 
 interface State {
   account: AccountDetails | null;
   isAuthenticated: boolean;
-  settings: SettingsDetails | null;
+  settings: SettingsDetails;
   friendRequests: FriendRequestDetails[];
   friendRequestsOutgoing: FriendRequestDetails[];
 }
@@ -20,6 +21,7 @@ interface Actions {
   clearAccount: () => void;
   clearSettings: () => void;
   updateSettings: (s: SettingsDetails) => void;
+  setSettings: (s: SettingsDetails) => void;
   setFriendRequests: (friendRequests: FriendRequestDetails[]) => void;
   addFriendRequest: (friendRequest: FriendRequestDetails) => void;
   removeFriendRequest: (friendRequestId: string) => void;
@@ -37,15 +39,23 @@ export const useAccountStore = create<State & Actions>()(
     setAccount: (a) => set({ account: a, isAuthenticated: true }),
     clearAccount: () => set({ account: null, isAuthenticated: false }),
     isAuthenticated: false,
-    settings: null,
-    clearSettings: () => set({ settings: null }),
+    settings: {
+      theme: ThemeEnum.DARK
+    },
+    clearSettings: () =>
+      set({
+        settings: {
+          theme: ThemeEnum.DARK
+        }
+      }),
     updateSettings: (s) =>
       set((state) => ({
         settings: {
-          ...s,
-          ...state.settings
+          ...state.settings,
+          ...s
         }
       })),
+    setSettings: (s) => set({ settings: s }),
     friendRequests: [],
     setFriendRequests: (friendRequests) => set({ friendRequests }),
     addFriendRequest: (friendRequest) =>
@@ -83,7 +93,9 @@ export const useAccountStore = create<State & Actions>()(
       set({
         account: null,
         isAuthenticated: false,
-        settings: null,
+        settings: {
+          theme: ThemeEnum.DARK
+        },
         friendRequests: [],
         friendRequestsOutgoing: []
       }),

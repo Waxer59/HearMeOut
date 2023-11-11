@@ -19,8 +19,8 @@ import {
   IconUserPlus,
   IconX
 } from '@tabler/icons-react';
-import { useNavigate, Link } from 'react-router-dom';
-import { signOut } from '../../services/hearMeOutAPI';
+import { Link } from 'react-router-dom';
+import { signOut, updateUserSettings } from '../../services/hearMeOutAPI';
 import { useAccountStore } from '../../store/account';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { toast } from 'sonner';
@@ -30,6 +30,9 @@ import { useChatStore } from '../../store';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { LOCAL_STORAGE_ITEMS } from '../../types/types';
 import { NotificationIndicator } from './NotificationIndicator';
+import { useEffect } from 'react';
+import { ThemeEnum } from '../../store/types/types';
+import { TabsDivider } from '.';
 
 export const SidebarProfile = () => {
   const {
@@ -38,18 +41,39 @@ export const SidebarProfile = () => {
     friendRequests,
     removeFriendRequest,
     friendRequestsOutgoing,
-    removeFriendRequestOutgoing
+    removeFriendRequestOutgoing,
+    settings,
+    updateSettings
   } = useAccountStore((state) => state);
   const { clearChatState } = useChatStore((state) => state);
   const { sendAcceptFriendRequest, sendRemoveFriendRequest } =
     useSocketChatEvents();
   const { setLocalStorageItem } = useLocalStorage();
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings.theme]);
+
+  const handleSwitchLightTheme = async () => {
+    const settings = { theme: ThemeEnum.LIGHT };
+    updateSettings(settings);
+    await updateUserSettings(settings);
+  };
+
+  const handleSwitchDarkTheme = async () => {
+    const settings = { theme: ThemeEnum.DARK };
+    updateSettings(settings);
+    await updateUserSettings(settings);
+  };
 
   const handleSignOut = async () => {
     await signOut();
 
-    navigate(0);
+    window.location.reload();
     setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
     clearAccount();
     clearChatState();
@@ -107,13 +131,13 @@ export const SidebarProfile = () => {
                     value="incoming"
                     className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
                     Incoming
-                    <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
+                    <TabsDivider />
                   </Tabs.Trigger>
                   <Tabs.Trigger
                     value="outgoing"
                     className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
                     Outgoing
-                    <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
+                    <TabsDivider />
                   </Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content
@@ -214,11 +238,15 @@ export const SidebarProfile = () => {
                 Theme
               </DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent>
-                <DropdownMenu.Item className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenu.Item
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={handleSwitchDarkTheme}>
                   <IconMoon size={18} />
                   Dark
                 </DropdownMenu.Item>
-                <DropdownMenu.Item className="flex items-center gap-2 cursor-pointer">
+                <DropdownMenu.Item
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={handleSwitchLightTheme}>
                   <IconBrightnessDown size={18} />
                   Light
                 </DropdownMenu.Item>

@@ -5,12 +5,13 @@ import type { EmojiProps, InputEvent } from '../../types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { TypingIndicator } from './';
-import { useChatStore } from '../../store';
+import { useAccountStore, useChatStore } from '../../store';
 import { TYPING_TIMEOUT } from '../../constants/constants';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 export const ChatInput = () => {
   const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
+  const settings = useAccountStore((state) => state.settings);
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [message, setMessage] = useState('');
   const messageInputRef = useRef<HTMLInputElement | null>(null);
@@ -88,7 +89,11 @@ export const ChatInput = () => {
         className={`absolute bottom-24 right-20 ${
           isEmojiMenuOpen ? 'block' : 'hidden'
         }`}>
-        <Picker data={data} onEmojiSelect={onEmojiClick} />
+        <Picker
+          data={data}
+          onEmojiSelect={onEmojiClick}
+          theme={settings.theme}
+        />
       </div>
       <TextField.Root className="py-1" variant="soft" color="gray">
         <TextField.Input

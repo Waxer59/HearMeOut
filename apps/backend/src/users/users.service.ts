@@ -79,6 +79,11 @@ export class UsersService {
       return await this.prisma.user.findFirst({
         where: { id },
         include: {
+          configuration: {
+            select: {
+              theme: true,
+            },
+          },
           conversations: {
             include: {
               users: {
@@ -135,8 +140,16 @@ export class UsersService {
     avatar: Express.Multer.File,
   ): Promise<User> {
     if (avatar) {
-      const avatarUrl = await this.cloudinaryService.uploadImage(avatar);
-      updateUserDto.avatar = avatarUrl;
+      const { secure_url, public_id } =
+        await this.cloudinaryService.uploadImage(avatar);
+      updateUserDto.avatar = secure_url;
+      updateUserDto.avatar_public_id = public_id;
+    }
+
+    if (updateUserDto.password) {
+      updateUserDto.password = generateHash({
+        raw: updateUserDto.password,
+      });
     }
 
     try {
@@ -151,10 +164,15 @@ export class UsersService {
     }
   }
 
-  // TODO: REMOVE CLOUDINARY IMAGES
   async remove(id: string): Promise<User> {
     try {
-      return await this.prisma.user.delete({ where: { id } });
+      const user = await this.prisma.user.delete({ where: { id } });
+
+      // If the image is uploaded to cloudinary, delete it
+      if (user.avatar_public_id) {
+        await this.cloudinaryService.deleteImage(user.avatar_public_id);
+      }
+      return user;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',

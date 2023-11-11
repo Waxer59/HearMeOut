@@ -4,7 +4,8 @@ import {
   SidebarActiveConversations,
   SidebarHeader,
   SidebarAllConversations,
-  SidebarConversation
+  SidebarConversation,
+  TabsDivider
 } from '.';
 import { useChatStore } from '../../store';
 import { VoidIcon } from './Icons';
@@ -48,13 +49,13 @@ export const ConversationsSidebar = () => {
                 value="active"
                 className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
                 Active chats
-                <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
+                <TabsDivider />
               </Tabs.Trigger>
               <Tabs.Trigger
                 value="all"
                 className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
                 All chats
-                <div className="h-1 w-full bg-white rounded opacity-70 group-data-[state=inactive]:hidden"></div>
+                <TabsDivider />
               </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="active" className="h-full">

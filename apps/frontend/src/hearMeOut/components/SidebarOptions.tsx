@@ -54,7 +54,7 @@ export const SidebarOptions = () => {
     <Dialog.Root open={isDialogOpen} onOpenChange={onOpenDialog}>
       <Tooltip content="Create channel">
         <Dialog.Trigger>
-          <IconButton className="bg-primary cursor-pointer" radius="large">
+          <IconButton className="bg-iris cursor-pointer" radius="large">
             <IconPlus />
           </IconButton>
         </Dialog.Trigger>

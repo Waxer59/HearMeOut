@@ -4,6 +4,7 @@ export interface AccountDetails {
   avatar?: string;
   isOnline: boolean;
   isGithubAccount: boolean;
+  configuration?: SettingsDetails;
 }
 
 export enum ThemeEnum {

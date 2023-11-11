@@ -21,9 +21,8 @@ export const SignIn = () => {
   const navigate = useNavigate();
 
   const handleSignIn = async (e: any) => {
-    if (!form.current) return;
-
     e.preventDefault();
+    if (!form.current) return;
 
     const formData = new FormData(form.current);
 

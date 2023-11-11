@@ -29,18 +29,20 @@ export class ConfigurationsService {
   }
 
   async update(id: string, config: UpdateConfigurationDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id: _id, userId, ...userConfig } = await this.findByUserId(id);
+    const userConfig = await this.findByUserId(id);
 
     if (!userConfig) {
       return await this.create(id, config as CreateConfigurationDto);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _, userId, ...currConfig } = userConfig;
+
     try {
       return await this.prismaService.configuration.update({
-        where: { userId: id },
+        where: { userId },
         data: {
-          ...userConfig,
+          ...currConfig,
           ...config,
         },
       });
@@ -51,10 +53,10 @@ export class ConfigurationsService {
     }
   }
 
-  async findByUserId(id: string) {
+  async findByUserId(userId: string) {
     try {
       const configuration = await this.prismaService.configuration.findUnique({
-        where: { userId: id },
+        where: { userId },
       });
       return configuration;
     } catch (error) {

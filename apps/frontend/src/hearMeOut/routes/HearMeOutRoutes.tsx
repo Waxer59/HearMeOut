@@ -9,8 +9,12 @@ import { useEffect, useState } from 'react';
 import { BounceLoader } from 'react-spinners';
 
 const HearMeOutRoutes = () => {
-  const { setAccount, setFriendRequests, setFriendRequestsOutgoing } =
-    useAccountStore((state) => state);
+  const {
+    setAccount,
+    setFriendRequests,
+    setFriendRequestsOutgoing,
+    setSettings
+  } = useAccountStore((state) => state);
   const { setConversations, setActiveConversations, setCurrentConversationId } =
     useChatStore((state) => state);
   const { setLocalStorageItem } = useLocalStorage();
@@ -43,6 +47,10 @@ const HearMeOutRoutes = () => {
       setActiveConversations(activeConversationIds);
       setConversations(conversations);
       setFriendRequestsOutgoing(friendReqFroms);
+
+      if (account.configuration) {
+        setSettings(account.configuration);
+      }
 
       setAccount(account);
       setFriendRequests(friendReqTos);

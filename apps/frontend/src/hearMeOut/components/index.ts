@@ -17,3 +17,4 @@ export * from './SidebarOptions';
 export * from './SidebarAllConversations';
 export * from './DateDivider';
 export * from './FurtherProfileUpdates';
+export * from './TabsDivider';

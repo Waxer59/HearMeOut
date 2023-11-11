@@ -24,8 +24,8 @@ export const ChatMessage: React.FC<Props> = ({
       <ContextMenu.Root onOpenChange={setIsMenuOpen}>
         <ContextMenu.Trigger>
           <div
-            className={`flex items-center gap-5 text-lg transition rounded pl-2 w-full hover:bg-tertiary ${
-              isMenuOpen && 'bg-tertiary'
+            className={`flex items-center gap-5 text-lg transition rounded pl-2 w-full hover:opacity-75 ${
+              isMenuOpen && 'opacity-75'
             }`}>
             <div className="self-start pt-[10px]">
               <Avatar
@@ -42,7 +42,7 @@ export const ChatMessage: React.FC<Props> = ({
                 </div>
                 <div className="pt-2 pr-2">
                   <DropdownMenu.Trigger>
-                    <Button size="1" className="cursor-pointer">
+                    <Button size="1" className="cursor-pointer bg-iris">
                       <IconChevronDown size={18} />
                     </Button>
                   </DropdownMenu.Trigger>
