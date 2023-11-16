@@ -110,7 +110,7 @@ export const ConversationsSidebar: React.FC = () => {
                             ? el.icon ?? undefined
                             : el.users[0].avatar
                         }
-                        isOnline={el.users[0].isOnline}
+                        isOnline={el?.users[0].isOnline}
                         type={el.type}
                       />
                     ))}
