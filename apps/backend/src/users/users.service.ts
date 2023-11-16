@@ -139,7 +139,13 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
     avatar: Express.Multer.File,
   ): Promise<User> {
+    const user = await this.findOneById(id);
+
     if (avatar) {
+      if (user.avatar_public_id) {
+        await this.cloudinaryService.deleteImage(user.avatar_public_id);
+      }
+
       const { secure_url, public_id } =
         await this.cloudinaryService.uploadImage(avatar);
       updateUserDto.avatar = secure_url;

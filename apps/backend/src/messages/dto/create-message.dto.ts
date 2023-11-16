@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateMessageDto {
   @IsString()
@@ -9,4 +9,8 @@ export class CreateMessageDto {
 
   @IsString()
   content: string;
+
+  @IsString()
+  @IsOptional()
+  replyId?: string;
 }

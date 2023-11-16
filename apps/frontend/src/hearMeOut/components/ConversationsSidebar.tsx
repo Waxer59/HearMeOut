@@ -28,7 +28,8 @@ export const ConversationsSidebar: React.FC = () => {
     conversations,
     setConversationMessages,
     currentConversationId,
-    getActiveConversations
+    getActiveConversations,
+    clearReplyMessage
   } = useChatStore((state) => state);
 
   useEffect(() => {
@@ -47,7 +48,8 @@ export const ConversationsSidebar: React.FC = () => {
 
       setConversationMessages(currentConversationId, data);
     }
-
+    // clear replying message while navigating between chats
+    clearReplyMessage();
     fetchMessages();
   }, [currentConversationId]);
 

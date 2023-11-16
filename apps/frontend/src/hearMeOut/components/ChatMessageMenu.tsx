@@ -1,34 +1,41 @@
 import { IconArrowBackUp, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import { useAccountStore } from '../../store';
+import { useAccountStore, useChatStore } from '../../store';
+import type { MessageDetails } from '../../store/types/types';
 
 interface Props {
-  id: string;
-  senderId: string;
+  message: MessageDetails;
   handleEditMessage: () => void;
   type: any;
 }
 
 export const ChatMessageMenu: React.FC<Props> = ({
   type,
-  id,
-  senderId,
+  message,
   handleEditMessage,
   ...props
 }) => {
+  const { id, fromId } = message;
   const MenuType = type;
   const { sendDeleteMessage } = useSocketChatEvents();
   const userId = useAccountStore((state) => state.account?.id);
+  const setReplyMessage = useChatStore((state) => state.setReplyMessage);
 
-  const isOwnMessage = userId === senderId;
+  const isOwnMessage = userId === fromId;
 
   const handleDeleteMessage = () => {
     sendDeleteMessage(id);
   };
 
+  const handleReplyMessage = () => {
+    setReplyMessage(message);
+  };
+
   return (
     <MenuType.Content {...props}>
-      <MenuType.Item className="flex items-center gap-2 cursor-pointer">
+      <MenuType.Item
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={handleReplyMessage}>
         Reply <IconArrowBackUp size={18} />
       </MenuType.Item>
       {isOwnMessage && (

@@ -7,21 +7,46 @@ import { Message } from '@prisma/client';
 export class MessagesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create({ content, fromId, toId }: CreateMessageDto): Promise<Message> {
+  async create({
+    content,
+    fromId,
+    toId,
+    replyId,
+  }: CreateMessageDto): Promise<Message> {
+    const replyMsg = replyId
+      ? {
+          reply: {
+            connect: {
+              id: replyId,
+            },
+          },
+        }
+      : {};
+
     try {
       return await this.prisma.message.create({
         data: {
           content,
-          fromId,
-          toId,
+          from: {
+            connect: { id: fromId },
+          },
+          to: {
+            connect: { id: toId },
+          },
           createdAt: new Date(),
-          conversationId: toId,
+          conversation: {
+            connect: {
+              id: toId,
+            },
+          },
+          ...replyMsg,
         },
         include: {
           from: true,
         },
       });
     } catch (error) {
+      console.error(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

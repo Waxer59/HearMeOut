@@ -25,7 +25,6 @@ model User {
   isOnline              Boolean  @default(false)
 
   messageFroms       Message[]       @relation("messageFroms")
-  messageTos         Message[]       @relation("messageTos")
   conversations      Conversation[]  @relation("conversations", fields: [conversationIds], references: [id])
   adminConversations Conversation[]  @relation("adminConversations", fields: [adminConversationIds], references: [id])
   friendReqFroms     FriendRequest[] @relation("friendReqFrom")
@@ -69,7 +68,7 @@ model Message {
   isEdited       Boolean  @default(false)
 
   from         User         @relation("messageFroms", fields: [fromId], references: [id])
-  to           User         @relation("messageTos", fields: [toId], references: [id])
+  to           Conversation @relation("messageTos", fields: [toId], references: [id])
   reply        Message?     @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies      Message[]    @relation("messageReply")
   viewedBy     User[]       @relation(fields: [viewedByIds], references: [id])
@@ -82,16 +81,18 @@ enum ConversationType {
 }
 
 model Conversation {
-  id        String           @id @default(auto()) @map("_id") @db.ObjectId
-  creatorId String?          @db.ObjectId
-  userIds   String[]         @db.ObjectId
-  adminIds  String[]         @db.ObjectId
-  name      String?
-  type      ConversationType
-  icon      String?
-  joinCode  String?
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  creatorId      String?          @db.ObjectId
+  userIds        String[]         @db.ObjectId
+  adminIds       String[]         @db.ObjectId
+  name           String?
+  type           ConversationType
+  icon           String?
+  icon_public_id String?
+  joinCode       String?
 
-  users    User[]    @relation("conversations", fields: [userIds], references: [id])
-  admins   User[]    @relation("adminConversations", fields: [adminIds], references: [id])
-  messages Message[]
+  users      User[]    @relation("conversations", fields: [userIds], references: [id])
+  admins     User[]    @relation("adminConversations", fields: [adminIds], references: [id])
+  messageTos Message[] @relation("messageTos")
+  messages   Message[]
 }

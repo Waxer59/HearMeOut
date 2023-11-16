@@ -52,16 +52,13 @@ export const ChatMessages: React.FC = () => {
             <div key={date} className="flex flex-col gap-6">
               <DateDivider date={new Date(date)} />
 
-              {messages.map(({ id, content, createdAt, from, isEdited }) => (
+              {messages.map((message) => (
                 <ChatMessage
-                  id={id}
-                  senderId={from.id}
-                  isEdited={isEdited}
-                  key={id}
-                  content={content}
-                  date={new Date(createdAt)}
-                  avatar={from.avatar}
-                  name={from.username}
+                  key={message.id}
+                  message={message}
+                  avatar={message.from.avatar}
+                  date={new Date(message.createdAt)}
+                  name={message.from.username}
                 />
               ))}
             </div>

@@ -15,11 +15,14 @@ interface State {
   currentConversationId: string | null;
   usersTyping: UserTyping[];
   chatQueryFilter: string | null;
+  replyMessage: MessageDetails | null;
 }
 
 interface Actions {
   setConversations: (conversations: ConversationDetails[]) => void;
   addConversation: (conversations: ConversationDetails) => void;
+  setReplyMessage: (replyMessage: MessageDetails | null) => void;
+  clearReplyMessage: () => void;
   clearConversations: () => void;
   setActiveConversations: (active: any) => void;
   clearActive: () => void;
@@ -170,7 +173,8 @@ export const useChatStore = create<State & Actions>()(
         socket: null,
         currentConversationId: null,
         usersTyping: [],
-        chatQueryFilter: null
+        chatQueryFilter: null,
+        replyMessage: null
       }),
     removeConversation: (id) =>
       set((state) => ({
@@ -204,6 +208,9 @@ export const useChatStore = create<State & Actions>()(
               }
             : el
         )
-      }))
+      })),
+    replyMessage: null,
+    setReplyMessage: (replyMessage) => set({ replyMessage }),
+    clearReplyMessage: () => set({ replyMessage: null })
   }))
 );

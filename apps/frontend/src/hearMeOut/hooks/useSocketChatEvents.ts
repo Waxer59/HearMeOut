@@ -4,9 +4,10 @@ import { SOCKET_CHAT_EVENTS } from '../../types/types';
 export const useSocketChatEvents = () => {
   const { currentConversationId, socket } = useChatStore((state) => state);
 
-  const sendMessage = (content: string) => {
+  const sendMessage = (content: string, replyId: string = '') => {
     socket?.emit(SOCKET_CHAT_EVENTS.message, {
       content,
+      replyId,
       toId: currentConversationId
     });
   };
