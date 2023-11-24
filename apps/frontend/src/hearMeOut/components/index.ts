@@ -16,3 +16,4 @@ export * from './SidebarOptions';
 export * from './DateDivider';
 export * from './FurtherProfileUpdates';
 export * from './TabsDivider';
+export * from './GroupSettings';

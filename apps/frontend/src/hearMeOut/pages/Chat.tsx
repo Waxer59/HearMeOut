@@ -1,5 +1,5 @@
 import { Toaster } from 'sonner';
-import { ConversationsSidebar, ChatView } from '../components/';
+import { ConversationsSidebar, ChatView, GroupSettings } from '../components/';
 import { useEffect } from 'react';
 import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChat } from '../hooks/useSocketChat';
@@ -41,6 +41,7 @@ export const Chat: React.FC = () => {
       <div className="flex h-screen">
         <ConversationsSidebar />
         <ChatView />
+        <GroupSettings />
       </div>
       <Toaster position="bottom-right" />
     </>

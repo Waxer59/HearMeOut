@@ -99,16 +99,16 @@ export const SidebarProfile: React.FC = () => {
 
   return (
     <div className="mt-auto pt-3 mb-4 flex items-center">
-      <Text
-        weight="bold"
-        className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition">
+      <div className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition">
         <Avatar
           radius="large"
           src={account?.avatar}
           fallback={getFallbackAvatarName(account!.username)}
         />
-        {account!.username}
-      </Text>
+        <Text weight="bold" className="max-w-[14ch] truncate">
+          {account!.username}
+        </Text>
+      </div>
 
       <div className="flex gap-6">
         <Dialog.Root>
