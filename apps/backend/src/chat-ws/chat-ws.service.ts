@@ -41,12 +41,7 @@ export class ChatWsService {
     }
 
     // Join user to conversation rooms
-    client.join(user?.id);
-
-    // Join user to conversation rooms
-    user?.conversationIds.forEach((conversationId) => {
-      client.join(conversationId);
-    });
+    client.join([user?.id, ...user?.conversationIds]);
 
     // Notify conversation rooms that the user is online
     client.to(user?.conversationIds).emit(CHAT_EVENTS.userConnect, user?.id);
@@ -60,6 +55,7 @@ export class ChatWsService {
       return;
     }
 
+    // Delete active chat from cache
     await this.cachingService.deleteCacheKey(
       CACHE_PREFIXES.usersActiveChat + user.id,
     );
@@ -122,23 +118,29 @@ export class ChatWsService {
     userId: string,
     server: Server,
   ): Promise<void> {
-    const { id } = friendRequestDto;
+    const { id: friendReqId } = friendRequestDto;
 
     try {
-      const request = await this.friendRequestsService.findById(id);
+      const { toId } = await this.friendRequestsService.findById(friendReqId);
 
-      if (request.toId !== userId) {
+      // Check if the user who accepts the friend request
+      // is the user who was sent the friend request
+      if (toId !== userId) {
         return;
       }
 
-      const acceptedRequest = await this.friendRequestsService.accept(id);
+      const acceptedRequest =
+        await this.friendRequestsService.accept(friendReqId);
 
-      acceptedRequest.userIds.forEach((id) => {
-        const users = acceptedRequest.users.filter((el) => el.id !== id);
+      // Join users to conversation room
+      server.in(acceptedRequest.userIds).socketsJoin(acceptedRequest.id);
 
-        server.in(id).socketsJoin(acceptedRequest.id);
+      // Notify users that the friend request was
+      // accepted and the conversation room was created
+      acceptedRequest.userIds.forEach((userId) => {
+        const users = acceptedRequest.users.filter((el) => el.id !== userId);
         server
-          .to(id)
+          .to(userId)
           .emit(CHAT_EVENTS.acceptFriendRequest, { ...acceptedRequest, users });
       });
     } catch (error) {}
@@ -154,6 +156,8 @@ export class ChatWsService {
     try {
       const request = await this.friendRequestsService.findById(id);
 
+      // Check if the user who removes the friend request
+      // is the user who was sent the friend request or who sent the friend request
       if (request.toId !== userId && request.fromId !== userId) {
         return;
       }
@@ -179,15 +183,17 @@ export class ChatWsService {
 
       await Promise.all(conversationUsers);
 
-      deletedConversation.userIds.forEach((id) => {
-        server.to(id).emit(CHAT_EVENTS.removeConversation, conversationId);
-      });
-
+      server
+        .to(deletedConversation.userIds)
+        .emit(CHAT_EVENTS.removeConversation, conversationId);
       server.in(conversationId).socketsLeave(conversationId);
     } catch (error) {}
   }
 
-  async openChat(conversationDto: ConversationDto, userId: string) {
+  async openChat(
+    conversationDto: ConversationDto,
+    userId: string,
+  ): Promise<void> {
     const { id: conversationId } = conversationDto;
     this.cachingService.setCacheKey(
       CACHE_PREFIXES.usersActiveChat + userId,
@@ -201,18 +207,13 @@ export class ChatWsService {
     const rawCookies = client.request.headers.cookie;
     const parsedCookies = parseCookies(rawCookies);
 
-    if (!parseCookies) {
-      client.disconnect();
-      return;
+    if (!parsedCookies) {
+      throw new Error('No cookies were provided');
     }
 
     const token = parsedCookies[AUTH_COOKIE];
 
-    try {
-      return await this.authService.verify(token);
-    } catch (err) {
-      client.disconnect();
-    }
+    return await this.authService.verify(token);
   }
 
   async createGroup(
@@ -222,8 +223,10 @@ export class ChatWsService {
   ): Promise<void> {
     try {
       createGroupDto.userIds.push(userId);
+      createGroupDto.creatorId = userId;
       const group = await this.conversationsService.createGroup(createGroupDto);
 
+      // Join users to conversation room & set conversation as active
       createGroupDto.userIds.forEach(async (el) => {
         server.in(el).socketsJoin(group.id);
         await this.usersService.addActiveConversation(el, group.id);

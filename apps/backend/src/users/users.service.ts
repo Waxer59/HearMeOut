@@ -243,7 +243,10 @@ export class UsersService {
     return newUsername;
   }
 
-  async addActiveConversation(userId: string, activeConversationId: string) {
+  async addActiveConversation(
+    userId: string,
+    activeConversationId: string,
+  ): Promise<User> {
     try {
       return await this.prisma.user.update({
         where: { id: userId },
@@ -260,7 +263,10 @@ export class UsersService {
     }
   }
 
-  async removeActiveConversation(userId: string, activeConversationId: string) {
+  async removeActiveConversation(
+    userId: string,
+    activeConversationId: string,
+  ): Promise<User> {
     try {
       const user = await this.findOneById(userId);
 
@@ -270,38 +276,6 @@ export class UsersService {
           activeConversationIds: user.activeConversationIds.filter(
             (conversationId) => conversationId !== activeConversationId,
           ),
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later',
-      );
-    }
-  }
-
-  async setActiveConversationFirst(
-    userId: string,
-    activeConversationId: string,
-  ) {
-    const conversation =
-      await this.conversationsService.findConversationById(
-        activeConversationId,
-      );
-
-    if (!conversation) {
-      return;
-    }
-
-    const user = await this.findOneById(userId);
-    const activeConversationIds = user.activeConversationIds.filter(
-      (conversationId) => conversationId !== activeConversationId,
-    );
-    activeConversationIds.unshift(activeConversationId);
-    try {
-      return await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          activeConversationIds,
         },
       });
     } catch (error) {

@@ -1,7 +1,7 @@
 import { AUTH_COOKIE } from '../constants/constants';
 import { Response } from 'express';
 
-export const setAuthCookie = (res: Response, token: string) => {
+export const setAuthCookie = (res: Response, token: string): void => {
   res.cookie(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: true,
@@ -9,11 +9,11 @@ export const setAuthCookie = (res: Response, token: string) => {
   });
 };
 
-export const clearAuthCookie = (res: Response) => {
+export const clearAuthCookie = (res: Response): void => {
   res.clearCookie(AUTH_COOKIE);
 };
 
-export const parseCookies = (raw: string) => {
+export const parseCookies = (raw: string): { [key: string]: string } | null => {
   if (!raw) {
     return null;
   }

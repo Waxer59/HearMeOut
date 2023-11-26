@@ -1,4 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
+import { IsNotBlank } from 'src/common/validators/isNotBlank';
 
 export class CreateMessageDto {
   @IsString()
@@ -8,6 +9,7 @@ export class CreateMessageDto {
   toId: string;
 
   @IsString()
+  @IsNotBlank('content')
   content: string;
 
   @IsString()

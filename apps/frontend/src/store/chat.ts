@@ -16,6 +16,7 @@ interface State {
   usersTyping: UserTyping[];
   chatQueryFilter: string | null;
   replyMessage: MessageDetails | null;
+  showGroupSettings: boolean;
 }
 
 interface Actions {
@@ -57,6 +58,7 @@ interface Actions {
   removeUserTyping: (userTyping: UserTyping) => void;
   clearUserTyping: () => void;
   clearChatState: () => void;
+  setShowGroupSettings: (showGroupSettings: boolean) => void;
 }
 
 export const useChatStore = create<State & Actions>()(
@@ -174,7 +176,8 @@ export const useChatStore = create<State & Actions>()(
         currentConversationId: null,
         usersTyping: [],
         chatQueryFilter: null,
-        replyMessage: null
+        replyMessage: null,
+        showGroupSettings: false
       }),
     removeConversation: (id) =>
       set((state) => ({
@@ -211,6 +214,8 @@ export const useChatStore = create<State & Actions>()(
       })),
     replyMessage: null,
     setReplyMessage: (replyMessage) => set({ replyMessage }),
-    clearReplyMessage: () => set({ replyMessage: null })
+    clearReplyMessage: () => set({ replyMessage: null }),
+    showGroupSettings: false,
+    setShowGroupSettings: (showGroupSettings) => set({ showGroupSettings })
   }))
 );

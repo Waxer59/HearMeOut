@@ -1,15 +1,18 @@
 import { Transform } from 'class-transformer';
 import { IsString, MinLength, IsOptional, MaxLength } from 'class-validator';
+import { IsNotBlank } from 'src/common/validators/isNotBlank';
 
 export class CreateUserDto {
   @IsString()
   @MinLength(3)
   @MaxLength(39)
-  @Transform(({ value }) => value.toLowerCase())
+  @IsNotBlank('username')
+  @Transform(({ value }) => value.toLowerCase().trim())
   username: string;
 
   @IsString()
   @MinLength(8)
+  @IsNotBlank('password')
   @IsOptional()
   password?: string;
 

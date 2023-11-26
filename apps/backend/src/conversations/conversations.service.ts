@@ -5,15 +5,19 @@ import {
 } from '@nestjs/common';
 import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { CONVERSATION_TYPE, ConversationDetails } from 'src/common/types/types';
+import { CONVERSATION_TYPE } from 'src/common/types/types';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ConversationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-  async createChat(createChatDto: CreateChatDto): Promise<ConversationDetails> {
+  async createChat(createChatDto: CreateChatDto): Promise<Conversation> {
     const { userId1, userId2 } = createChatDto;
     const friend = await this.findChat(userId1, userId2);
 
@@ -22,7 +26,7 @@ export class ConversationsService {
     }
 
     try {
-      return (await this.prisma.conversation.create({
+      return await this.prisma.conversation.create({
         data: {
           userIds: [userId1, userId2],
           users: {
@@ -47,7 +51,7 @@ export class ConversationsService {
             },
           },
         },
-      })) as ConversationDetails;
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -55,7 +59,91 @@ export class ConversationsService {
     }
   }
 
-  async createGroup(createGroupDto: CreateGroupDto) {
+  async kickUser(
+    userId: string,
+    conversationId: string,
+    adminId: string,
+  ): Promise<Conversation> {
+    try {
+      const { adminIds, type } =
+        await this.findConversationById(conversationId);
+
+      if (!adminIds.includes(adminId) || type !== CONVERSATION_TYPE.group) {
+        return;
+      }
+
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async removeAdmin(
+    userId: string,
+    conversationId: string,
+    adminId: string,
+  ): Promise<Conversation> {
+    try {
+      const { adminIds } = await this.findConversationById(conversationId);
+
+      if (!adminIds.includes(adminId)) {
+        return;
+      }
+
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          admins: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async makeAdmin(userId, conversationId, adminId): Promise<Conversation> {
+    try {
+      const { adminIds } = await this.findConversationById(conversationId);
+
+      if (!adminIds.includes(adminId)) {
+        return;
+      }
+
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          admins: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async createGroup(createGroupDto: CreateGroupDto): Promise<Conversation> {
     try {
       return await this.prisma.conversation.create({
         data: {
@@ -65,6 +153,11 @@ export class ConversationsService {
             connect: createGroupDto.userIds.map((userId) => ({
               id: userId,
             })),
+          },
+          admins: {
+            connect: {
+              id: createGroupDto.creatorId,
+            },
           },
           type: CONVERSATION_TYPE.group,
         },
@@ -155,6 +248,14 @@ export class ConversationsService {
           id,
         },
       });
+
+      // Delete group icon if exists
+      if (
+        deletedConversation.type === CONVERSATION_TYPE.group &&
+        deletedConversation.icon_public_id
+      ) {
+        this.cloudinaryService.deleteImage(deletedConversation.icon_public_id);
+      }
 
       return deletedConversation;
     } catch (error) {

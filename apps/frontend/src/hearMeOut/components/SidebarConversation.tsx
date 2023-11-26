@@ -10,7 +10,7 @@ import { useState } from 'react';
 interface Props {
   id: string;
   name: string;
-  avatarUrl?: string;
+  imageURL?: string;
   isOnline: boolean;
   type: ConversationTypes;
 }
@@ -23,7 +23,7 @@ const REMOVE_MESSAGE = {
 export const SidebarConversation: React.FC<Props> = ({
   id,
   name,
-  avatarUrl,
+  imageURL,
   isOnline,
   type
 }) => {
@@ -74,7 +74,7 @@ export const SidebarConversation: React.FC<Props> = ({
           radius="large"
           className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition cursor-pointer relative"
           onClick={handleOpenChat}>
-          <Avatar fallback={getFallbackAvatarName(name)} src={avatarUrl} />
+          <Avatar fallback={getFallbackAvatarName(name)} src={imageURL} />
           {name}
           {type === ConversationTypes.chat &&
             (isOnline ? (

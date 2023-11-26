@@ -14,6 +14,10 @@ export const Chat: React.FC = () => {
   );
   const socket = useChatStore((state) => state.socket);
 
+  const setShowGroupSettings = useChatStore(
+    (state) => state.setShowGroupSettings
+  );
+
   useEffect(() => {
     document.title = 'Chat | HearMeOut';
   }, []);
@@ -25,6 +29,10 @@ export const Chat: React.FC = () => {
 
     sendOpenChat(currentConversationId);
   }, [currentConversationId, socket]);
+
+  useEffect(() => {
+    setShowGroupSettings(false);
+  }, [currentConversationId]);
 
   useEffect(() => {
     connectSocketChat();

@@ -45,9 +45,9 @@ export enum ConversationTypes {
 
 export interface ConversationDetails {
   id: string;
-  name: null;
+  name: string;
   type: ConversationTypes;
-  icon: null;
+  icon?: string;
   creatorId: null;
   userIds: string[];
   messages: MessageDetails[];

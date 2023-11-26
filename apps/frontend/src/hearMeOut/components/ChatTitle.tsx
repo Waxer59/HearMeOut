@@ -4,13 +4,22 @@ import { useChatStore } from '../../store';
 import { ConversationTypes } from '../../store/types/types';
 
 export const ChatTitle: React.FC = () => {
-  const { currentConversationId, conversations } = useChatStore(
-    (state) => state
+  const currentConversationId = useChatStore(
+    (state) => state.currentConversationId
+  );
+  const conversations = useChatStore((state) => state.conversations);
+  const setShowGroupSettings = useChatStore(
+    (state) => state.setShowGroupSettings
   );
 
   const conversation = conversations.find(
     (el) => el.id === currentConversationId
   );
+
+  const handleShowGroupSettings = () => {
+    setShowGroupSettings(true);
+  };
+
   return (
     <div className="flex justify-end items-center px-20 pt-5 py-4 shadow-[0px_4px_4px_0px_#00000040]">
       <Heading
@@ -31,7 +40,10 @@ export const ChatTitle: React.FC = () => {
       </Heading>
       {conversation?.type === ConversationTypes.group && (
         <Tooltip content="Members">
-          <Button variant="ghost" className="transition">
+          <Button
+            variant="ghost"
+            className="transition"
+            onClick={handleShowGroupSettings}>
             <IconUsersGroup />
           </Button>
         </Tooltip>

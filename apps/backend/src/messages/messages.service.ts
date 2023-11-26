@@ -46,7 +46,6 @@ export class MessagesService {
         },
       });
     } catch (error) {
-      console.error(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

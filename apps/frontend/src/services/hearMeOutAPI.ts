@@ -146,25 +146,6 @@ export async function closeActiveConversation(
   }
 }
 
-export async function setActiveConversationFirst(
-  id: string
-): Promise<IResponseData> {
-  try {
-    const response = await fetch(
-      `${baseUrl}/users/active-conversations/${id}`,
-      {
-        credentials: 'include',
-        method: HttpMethods.PATCH
-      }
-    );
-    const data = await response.json();
-
-    return { data, status: response.status };
-  } catch (error) {
-    return { data: null, status: 500 };
-  }
-}
-
 export async function getAllConversationMessages(
   id: string
 ): Promise<IResponseData> {

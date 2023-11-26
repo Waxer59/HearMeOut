@@ -13,7 +13,6 @@ import type {
   MessageDetails,
   UserTyping
 } from '../../store/types/types';
-import { setActiveConversationFirst } from '../../services/hearMeOutAPI';
 
 export const useSocketChat = () => {
   const {
@@ -71,7 +70,6 @@ export const useSocketChat = () => {
       );
       if (!conversation) {
         addActiveConversation(message.toId);
-        await setActiveConversationFirst(message.toId);
       }
       addConversationMessage(message.toId, message);
     });

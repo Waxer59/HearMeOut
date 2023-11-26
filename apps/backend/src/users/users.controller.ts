@@ -52,13 +52,6 @@ export class UsersController {
     return await this.usersService.updateById(id, updateUserDto, avatar);
   }
 
-  @Patch('active-conversations/:id')
-  @ApiCookieAuth('Authorization')
-  async updateActiveConversations(@Req() req, @Param('id') id: string) {
-    const { id: userId } = req.user;
-    return await this.usersService.setActiveConversationFirst(userId, id);
-  }
-
   @Delete('active-conversations/:id')
   @ApiCookieAuth('Authorization')
   async removeActiveConversations(@Req() req, @Param('id') id: string) {

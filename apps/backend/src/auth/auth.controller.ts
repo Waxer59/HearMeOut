@@ -22,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
 import { clearAuthCookie, setAuthCookie } from 'src/common/helpers/cookies';
+import { User } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -35,7 +36,11 @@ export class AuthController {
   @Post('sign-up')
   async signUp(@Body() signUpDto: SignUpDto) {
     const user = await this.authService.signUp(signUpDto);
-    return excludeUserFields(user, ['password', 'githubId']);
+    return excludeUserFields(user, [
+      'password',
+      'githubId',
+      'avatar_public_id',
+    ]);
   }
 
   @ApiProperty()
@@ -87,6 +92,10 @@ export class AuthController {
   @ApiCookieAuth('Authorization')
   @UseGuards(AuthGuard('jwt'))
   async verify(@Req() req) {
-    return excludeUserFields(req.user, ['password', 'githubId']);
+    return excludeUserFields(req.user as User, [
+      'password',
+      'githubId',
+      'avatar_public_id',
+    ]);
   }
 }

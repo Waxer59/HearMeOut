@@ -2,12 +2,16 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { UpdateConfigurationDto } from './dto/update-configuration.dto';
 import { CreateConfigurationDto } from './dto/create-configuration.dto';
+import { Configuration } from '@prisma/client';
 
 @Injectable()
 export class ConfigurationsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(id: string, createConfigurationDto: CreateConfigurationDto) {
+  async create(
+    id: string,
+    createConfigurationDto: CreateConfigurationDto,
+  ): Promise<Configuration> {
     const userConfig = await this.findByUserId(id);
 
     if (userConfig) {
@@ -28,7 +32,10 @@ export class ConfigurationsService {
     }
   }
 
-  async update(id: string, config: UpdateConfigurationDto) {
+  async update(
+    id: string,
+    config: UpdateConfigurationDto,
+  ): Promise<Configuration> {
     const userConfig = await this.findByUserId(id);
 
     if (!userConfig) {
@@ -53,7 +60,7 @@ export class ConfigurationsService {
     }
   }
 
-  async findByUserId(userId: string) {
+  async findByUserId(userId: string): Promise<Configuration> {
     try {
       const configuration = await this.prismaService.configuration.findUnique({
         where: { userId },
