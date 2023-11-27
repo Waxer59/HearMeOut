@@ -68,24 +68,6 @@ export enum HttpMethods {
   DELETE = 'DELETE'
 }
 
-export enum SOCKET_CHAT_EVENTS {
-  userConnect = 'userConnect',
-  userDisconnect = 'userDisconnect',
-  friendRequest = 'friendRequest',
-  acceptFriendRequest = 'acceptFriendRequest',
-  message = 'message',
-  typing = 'typing',
-  typingOff = 'typingOff',
-  newConversation = 'newConversation',
-  removeConversation = 'removeConversation',
-  friendRequestOutgoing = 'friendRequestOutgoing',
-  removeFriendRequest = 'removeFriendRequest',
-  createGroup = 'createGroup',
-  openChat = 'openChat',
-  deleteMessage = 'deleteMessage',
-  updateMessage = 'updateMessage'
-}
-
 export interface DeleteMessageDetails {
   conversationId: string;
   messageId: string;

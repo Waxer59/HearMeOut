@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatWsService } from './chat-ws.service';
 import type { Server, Socket } from 'socket.io';
-import { CHAT_EVENTS } from 'src/common/constants/constants';
+import { CHAT_EVENTS } from 'ws-types';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { FriendRequestDto } from './dto/friend-request.dto';
@@ -135,6 +135,12 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async openChat(@MessageBody() conversationDto: ConversationDto) {
     const { id: userId } = this.user;
     return this.chatWsService.openChat(conversationDto, userId);
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.exitGroup)
+  async exitGroup(@MessageBody() conversationDto: ConversationDto) {
+    const { id: userId } = this.user;
+    return this.chatWsService.exitGroup(conversationDto, userId);
   }
 
   async handleConnection(client: Socket) {

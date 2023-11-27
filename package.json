@@ -17,13 +17,14 @@
   "name": "HearMeOut",
   "packageManager": "yarn@1.22.19",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "lint-staged": {
-    "frontend/*.{ts,tsx,js,jsx}": [
+    "apps/**/*.{ts,tsx,js,jsx}": [
       "eslint --fix"
     ],
-    "backend/*.ts": [
+    "packages/**/*.ts": [
       "eslint --fix"
     ],
     "*.{ts,tsx,js,jsx,html,css,md}": [

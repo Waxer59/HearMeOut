@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  AUTH_COOKIE,
-  CACHE_PREFIXES,
-  CHAT_EVENTS,
-} from 'src/common/constants/constants';
+import { AUTH_COOKIE, CACHE_PREFIXES } from 'src/common/constants/constants';
+import { CHAT_EVENTS } from 'ws-types';
 import { parseCookies } from 'src/common/helpers/cookies';
 import type { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
@@ -256,6 +253,16 @@ export class ChatWsService {
         content,
       });
     } catch (e) {}
+  }
+
+  async exitGroup(
+    conversationDto: ConversationDto,
+    userId: string,
+  ): Promise<void> {
+    try {
+      // TODO: Complete this method
+      console.log(conversationDto, userId);
+    } catch (error) {}
   }
 
   async deleteMessage(

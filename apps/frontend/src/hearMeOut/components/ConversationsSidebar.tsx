@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 
 const getConversationName = (c: ConversationDetails): string =>
-  c.type === ConversationTypes.group ? c.name! : c.users[0].username;
+  c.type === ConversationTypes.group ? c.name : c.users[0].username;
 
 const getConversationAvatar = (c: ConversationDetails): string | undefined =>
   c.type === ConversationTypes.group ? c.icon : c.users[0].avatar;

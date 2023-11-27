@@ -1,11 +1,11 @@
 import { useChatStore } from '../../store';
-import { SOCKET_CHAT_EVENTS } from '../../types/types';
+import { CHAT_EVENTS } from 'ws-types';
 
 export const useSocketChatEvents = () => {
   const { currentConversationId, socket } = useChatStore((state) => state);
 
   const sendMessage = (content: string, replyId: string = '') => {
-    socket?.emit(SOCKET_CHAT_EVENTS.message, {
+    socket?.emit(CHAT_EVENTS.message, {
       content,
       replyId,
       toId: currentConversationId
@@ -13,49 +13,49 @@ export const useSocketChatEvents = () => {
   };
 
   const sendTyping = () => {
-    socket?.emit(SOCKET_CHAT_EVENTS.typing, {
+    socket?.emit(CHAT_EVENTS.typing, {
       conversationId: currentConversationId
     });
   };
 
   const sendTypingOff = () => {
-    socket?.emit(SOCKET_CHAT_EVENTS.typingOff, {
+    socket?.emit(CHAT_EVENTS.typingOff, {
       conversationId: currentConversationId
     });
   };
 
   const sendFriendRequest = (id: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.friendRequest, {
+    socket?.emit(CHAT_EVENTS.friendRequest, {
       id
     });
   };
 
   const sendAcceptFriendRequest = (id: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.acceptFriendRequest, { id });
+    socket?.emit(CHAT_EVENTS.acceptFriendRequest, { id });
   };
 
   const sendRemoveConversation = (id: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.removeConversation, { id });
+    socket?.emit(CHAT_EVENTS.removeConversation, { id });
   };
 
   const sendCreateGroup = (name: string, userIds: string[]) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.createGroup, { name, userIds });
+    socket?.emit(CHAT_EVENTS.createGroup, { name, userIds });
   };
 
   const sendRemoveFriendRequest = (id: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.removeFriendRequest, { id });
+    socket?.emit(CHAT_EVENTS.removeFriendRequest, { id });
   };
 
   const sendOpenChat = (id: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.openChat, { id });
+    socket?.emit(CHAT_EVENTS.openChat, { id });
   };
 
   const sendDeleteMessage = (messageId: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.deleteMessage, { messageId });
+    socket?.emit(CHAT_EVENTS.deleteMessage, { messageId });
   };
 
   const sendUpdateMessage = (messageId: string, content: string) => {
-    socket?.emit(SOCKET_CHAT_EVENTS.updateMessage, { messageId, content });
+    socket?.emit(CHAT_EVENTS.updateMessage, { messageId, content });
   };
 
   return {

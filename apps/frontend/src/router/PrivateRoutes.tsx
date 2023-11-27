@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAccountStore } from '../store/account';
 
 interface Props {
-  children: React.ReactNode;
+  children: JSX.Element;
 }
 
 export const PrivateRoutes: React.FC<Props> = ({ children }) => {

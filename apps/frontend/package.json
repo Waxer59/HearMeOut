@@ -25,7 +25,8 @@
     "sonner": "^0.6.2",
     "use-debounce": "^9.0.4",
     "zod": "^3.22.2",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.1",
+    "ws-types": "*"
   },
   "devDependencies": {
     "@types/emoji-mart": "^3.0.9",

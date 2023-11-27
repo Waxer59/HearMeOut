@@ -17,7 +17,12 @@ interface Props {
 
 const REMOVE_MESSAGE = {
   [ConversationTypes.chat]: 'Remove contact',
-  [ConversationTypes.group]: 'Remove group'
+  [ConversationTypes.group]: 'Exit group'
+};
+
+const CLOSE_MESSAGE = {
+  [ConversationTypes.chat]: 'Close chat',
+  [ConversationTypes.group]: 'Close group'
 };
 
 export const SidebarConversation: React.FC<Props> = ({
@@ -57,12 +62,18 @@ export const SidebarConversation: React.FC<Props> = ({
     removeActiveConversation(id);
   };
 
-  const handleRemoveContact = async () => {
+  const handleExitConversation = async () => {
     if (currentConversationId === id) {
       setCurrentConversationId(null);
     }
 
-    sendRemoveConversation(id);
+    switch (type) {
+      case ConversationTypes.group:
+        break;
+      case ConversationTypes.chat:
+        sendRemoveConversation(id);
+        break;
+    }
     removeConversation(id);
   };
 
@@ -95,7 +106,7 @@ export const SidebarConversation: React.FC<Props> = ({
             <ContextMenu.Item
               className="cursor-pointer"
               onClick={handleCloseChat}>
-              Close chat
+              {CLOSE_MESSAGE[type]}
             </ContextMenu.Item>
 
             <ContextMenu.Separator />
@@ -105,7 +116,7 @@ export const SidebarConversation: React.FC<Props> = ({
         <ContextMenu.Item
           color="red"
           className="cursor-pointer"
-          onClick={handleRemoveContact}>
+          onClick={handleExitConversation}>
           {REMOVE_MESSAGE[type]}
         </ContextMenu.Item>
       </ContextMenu.Content>
