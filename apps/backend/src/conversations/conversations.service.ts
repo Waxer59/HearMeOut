@@ -241,6 +241,41 @@ export class ConversationsService {
     }
   }
 
+  async updateIcon(
+    conversationId: string,
+    file: Express.Multer.File,
+  ): Promise<Conversation> {
+    try {
+      const { type, icon_public_id } =
+        await this.findConversationById(conversationId);
+
+      // Icon is only available in group conversations
+      if (type !== CONVERSATION_TYPE.group) {
+        return;
+      }
+
+      // Delete previous icon
+      if (icon_public_id) {
+        await this.cloudinaryService.deleteImage(icon_public_id);
+      }
+
+      const { public_id } = await this.cloudinaryService.uploadImage(file);
+
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          icon_public_id: public_id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async remove(id: string): Promise<Conversation> {
     try {
       const deletedConversation = await this.prisma.conversation.delete({
