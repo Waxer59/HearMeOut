@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
     "lib": ["ESNext", "dom"],
-    "outDir": "dist",
+    "outDir": "dist/mjs",
     "removeComments": true,
-    "module": "CommonJS",
-    "declaration": true,
+    "module": "ESNext",
     "target": "ESNext",
     "baseUrl": "./",
     "esModuleInterop": true,
@@ -17,7 +16,7 @@
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
   },
   "include": ["./src/*.ts"],
   "exclude": ["node_modules/**/*", "dist"]
