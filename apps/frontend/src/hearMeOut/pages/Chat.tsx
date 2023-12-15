@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChat } from '../hooks/useSocketChat';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import { ConversationTypes } from '../../store/types/types';
 
 export const Chat: React.FC = () => {
   const { connectSocketChat, disconnectSocketChat } = useSocketChat();
@@ -11,6 +12,9 @@ export const Chat: React.FC = () => {
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
+  );
+  const currentConversation = useChatStore((state) => state.conversations).find(
+    (el) => el.id === currentConversationId
   );
   const socket = useChatStore((state) => state.socket);
 
@@ -49,7 +53,9 @@ export const Chat: React.FC = () => {
       <div className="flex h-screen">
         <ConversationsSidebar />
         <ChatView />
-        <GroupSettings />
+        {currentConversation?.type === ConversationTypes.group && (
+          <GroupSettings />
+        )}
       </div>
       <Toaster position="bottom-right" />
     </>

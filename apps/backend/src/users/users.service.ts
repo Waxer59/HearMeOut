@@ -229,16 +229,18 @@ export class UsersService {
   async generateUniqueUsername(username: string): Promise<string> {
     let newUsername = username;
     let suffix = 1;
+    let isUnique = false;
 
-    while (true) {
+    do {
       const existingUser = await this.findOneByUsername(newUsername);
-      if (!existingUser) {
-        break;
-      }
 
-      newUsername = `${username}${suffix}`;
-      suffix++;
-    }
+      if (existingUser) {
+        newUsername = `${username}${suffix}`;
+        suffix++;
+      } else {
+        isUnique = true;
+      }
+    } while (!isUnique);
 
     return newUsername;
   }

@@ -133,6 +133,7 @@ export class FriendRequestsService {
   async accept(id: string): Promise<ConversationDetails> {
     try {
       const { fromId: userId1, toId: userId2 } = await this.findById(id);
+      // Delete friend req
       await this.delete(id);
       const chat = await this.conversationsService.createChat({
         userId1,
