@@ -10,7 +10,7 @@ import {
   type SignInDetails
 } from '../types/types';
 
-const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
+const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}`;
 
 interface IResponseData {
   data: any;

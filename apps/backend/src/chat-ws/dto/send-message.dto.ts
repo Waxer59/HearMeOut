@@ -1,7 +1,8 @@
 import { IsOptional, IsString } from 'class-validator';
 import { IsNotBlank } from 'src/common/validators/isNotBlank';
+import { BaseDTO } from './base.dto';
 
-export class SendMessageDto {
+export class SendMessageDto extends BaseDTO {
   @IsString()
   toId: string;
 

@@ -8,6 +8,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import { compareHash } from 'src/common/helpers/bcrypt';
 import { SignUpDto } from './dto/sign-up.dto';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
     return this.jwtService.sign({ id: user.id });
   }
 
-  async signUp(signUpDto: SignUpDto) {
+  async signUp(signUpDto: SignUpDto): Promise<User> {
     return await this.usersService.create(signUpDto);
   }
 
@@ -43,7 +44,7 @@ export class AuthService {
     return this.jwtService.sign({ id: githubUser.id });
   }
 
-  async verify(jwt: string): Promise<any> {
+  async verify(jwt: string): Promise<User> {
     let payload;
 
     try {

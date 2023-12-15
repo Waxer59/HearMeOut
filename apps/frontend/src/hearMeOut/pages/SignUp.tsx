@@ -14,6 +14,7 @@ import { validateSignUp } from '../helpers/validateSignUpForm';
 import { toast } from 'sonner';
 import { HttpStatusCodes } from '../../types/types';
 import { IconEye, IconEyeClosed } from '@tabler/icons-react';
+import { REGISTER_TIMEOUT } from '../../constants/constants';
 
 export const SignUp: React.FC = () => {
   const form = useRef<HTMLFormElement>(null);
@@ -41,16 +42,13 @@ export const SignUp: React.FC = () => {
       return;
     }
 
-    const { data, status } = await signUp({ username, password });
+    const { status } = await signUp({ username, password });
 
     if (status === HttpStatusCodes.CREATED) {
       toast.success('Account created successfully!');
-      setTimeout(() => navigate('/'), 2000);
+      setTimeout(() => navigate('/'), REGISTER_TIMEOUT);
     } else {
-      toast.error(
-        data?.message ??
-          'There was an error creating your account, please try again'
-      );
+      toast.error('There was an error creating your account, please try again');
     }
 
     form.current.reset();

@@ -1,5 +1,11 @@
 {
   "private": true,
+  "name": "hearmeout",
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -14,12 +20,6 @@
     "prettier": "^3.0.2",
     "turbo": "latest"
   },
-  "name": "HearMeOut",
-  "packageManager": "yarn@1.22.19",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "lint-staged": {
     "apps/**/*.{ts,tsx,js,jsx}": [
       "eslint --fix"

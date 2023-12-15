@@ -20,16 +20,17 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const findUser = await this.findOneByUsername(createUserDto.username);
-    const isGithubAccount = Boolean(createUserDto.githubId);
+    const { username, password, githubId } = createUserDto;
+    const findUser = await this.findOneByUsername(username);
+    const isGithubAccount = Boolean(githubId);
 
     if (findUser) {
       throw new BadRequestException('User already exists');
     }
 
-    if (createUserDto.password) {
+    if (password) {
       createUserDto.password = generateHash({
-        raw: createUserDto.password,
+        raw: password,
       });
     }
 
@@ -58,6 +59,7 @@ export class UsersService {
         },
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

@@ -65,8 +65,7 @@ export class ConversationsService {
     adminId: string,
   ): Promise<Conversation> {
     try {
-      const { adminIds, type } =
-        await this.findConversationById(conversationId);
+      const { adminIds, type } = await this.findById(conversationId);
 
       if (!adminIds.includes(adminId) || type !== CONVERSATION_TYPE.group) {
         return;
@@ -95,7 +94,7 @@ export class ConversationsService {
     adminId: string,
   ): Promise<Conversation> {
     try {
-      const { adminIds } = await this.findConversationById(conversationId);
+      const { adminIds } = await this.findById(conversationId);
 
       if (!adminIds.includes(adminId)) {
         return;
@@ -120,7 +119,7 @@ export class ConversationsService {
 
   async makeAdmin(userId, conversationId, adminId): Promise<Conversation> {
     try {
-      const { adminIds } = await this.findConversationById(conversationId);
+      const { adminIds } = await this.findById(conversationId);
 
       if (!adminIds.includes(adminId)) {
         return;
@@ -203,7 +202,7 @@ export class ConversationsService {
     }
   }
 
-  async findConversationById(id: string): Promise<Conversation> {
+  async findById(id: string): Promise<Conversation> {
     try {
       return await this.prisma.conversation.findFirst({
         where: {
@@ -246,8 +245,7 @@ export class ConversationsService {
     file: Express.Multer.File,
   ): Promise<Conversation> {
     try {
-      const { type, icon_public_id } =
-        await this.findConversationById(conversationId);
+      const { type, icon_public_id } = await this.findById(conversationId);
 
       // Icon is only available in group conversations
       if (type !== CONVERSATION_TYPE.group) {

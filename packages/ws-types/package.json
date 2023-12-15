@@ -1,8 +1,10 @@
 {
   "name": "ws-types",
+  "private": true,
   "version": "1.0.0",
   "description": "",
-  "types": "dist/types/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
     "lint": "eslint --fix",
     "format": "prettier --write",

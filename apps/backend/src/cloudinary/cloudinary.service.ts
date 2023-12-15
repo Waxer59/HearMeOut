@@ -27,7 +27,6 @@ export class CloudinaryService {
       )) as unknown as ICloudinaryUploadResponse;
       return { secure_url: img.secure_url, public_id: img.public_id };
     } catch (e) {
-      console.error(e);
       throw new InternalServerErrorException();
     }
   }
@@ -36,7 +35,6 @@ export class CloudinaryService {
     try {
       await cloudinary.uploader.destroy(publicId);
     } catch (e) {
-      console.error(e);
       throw new InternalServerErrorException();
     }
   }
