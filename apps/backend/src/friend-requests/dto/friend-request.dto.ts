@@ -1,5 +1,5 @@
 import { IsString } from 'class-validator';
-import { BaseDTO } from './base.dto';
+import { BaseDTO } from '../../common/dto/base.dto';
 
 export class FriendRequestDto extends BaseDTO {
   @IsString()

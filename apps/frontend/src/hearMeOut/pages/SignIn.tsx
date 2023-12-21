@@ -60,7 +60,7 @@ export const SignIn: React.FC = () => {
         size="3"
         className="transition"
         asChild>
-        <Link to={`${getEnvVariables().VITE_HEARMEOUT_API}/api/auth/github`}>
+        <Link to={`${getEnvVariables().VITE_HEARMEOUT_API}/auth/github`}>
           <IconBrandGithub /> Sign in with GitHub
         </Link>
       </Button>

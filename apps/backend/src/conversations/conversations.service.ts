@@ -9,6 +9,7 @@ import { CONVERSATION_TYPE } from 'src/common/types/types';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { UpdateGroupDTO } from './dto/update-group.dto';
 
 @Injectable()
 export class ConversationsService {
@@ -16,6 +17,32 @@ export class ConversationsService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  async createGroup(createGroupDto: CreateGroupDto): Promise<Conversation> {
+    try {
+      return await this.prisma.conversation.create({
+        data: {
+          name: createGroupDto.name,
+          userIds: createGroupDto.userIds,
+          users: {
+            connect: createGroupDto.userIds.map((userId) => ({
+              id: userId,
+            })),
+          },
+          admins: {
+            connect: {
+              id: createGroupDto.creatorId,
+            },
+          },
+          type: CONVERSATION_TYPE.group,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
 
   async createChat(createChatDto: CreateChatDto): Promise<Conversation> {
     const { userId1, userId2 } = createChatDto;
@@ -62,15 +89,8 @@ export class ConversationsService {
   async kickUser(
     userId: string,
     conversationId: string,
-    adminId: string,
   ): Promise<Conversation> {
     try {
-      const { adminIds, type } = await this.findById(conversationId);
-
-      if (!adminIds.includes(adminId) || type !== CONVERSATION_TYPE.group) {
-        return;
-      }
-
       return await this.prisma.conversation.update({
         where: {
           id: conversationId,
@@ -142,33 +162,7 @@ export class ConversationsService {
     }
   }
 
-  async createGroup(createGroupDto: CreateGroupDto): Promise<Conversation> {
-    try {
-      return await this.prisma.conversation.create({
-        data: {
-          name: createGroupDto.name,
-          userIds: createGroupDto.userIds,
-          users: {
-            connect: createGroupDto.userIds.map((userId) => ({
-              id: userId,
-            })),
-          },
-          admins: {
-            connect: {
-              id: createGroupDto.creatorId,
-            },
-          },
-          type: CONVERSATION_TYPE.group,
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later',
-      );
-    }
-  }
-
-  async findAllChats(userId: string): Promise<Conversation[]> {
+  async findAllByUserId(userId: string): Promise<Conversation[]> {
     try {
       return await this.prisma.conversation.findMany({
         where: {
@@ -274,6 +268,60 @@ export class ConversationsService {
     }
   }
 
+  async updateGroup(updateGroupDto: UpdateGroupDTO): Promise<Conversation> {
+    const { id, userId, icon, addUsers, kickUsers } = updateGroupDto;
+    const group = await this.findById(id);
+    const isUserAdmin = group.adminIds.includes(userId);
+    const existsGroupIcon =
+      group.type === CONVERSATION_TYPE.group && group.icon;
+
+    if (!isUserAdmin) {
+      return;
+    }
+
+    if (icon && existsGroupIcon) {
+      await this.updateIcon(id, icon);
+    }
+
+    if (addUsers) {
+      const addUserPromises = addUsers.map((addUserId) =>
+        this.addGroupUser(id, addUserId),
+      );
+      await Promise.all(addUserPromises);
+    }
+
+    if (kickUsers) {
+      const kickUsersPromises = kickUsers.map((kickUserId) =>
+        this.kickUser(kickUserId, id),
+      );
+      await Promise.all(kickUsersPromises);
+    }
+  }
+
+  async addGroupUser(
+    conversationId: string,
+    userId: string,
+  ): Promise<Conversation> {
+    try {
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          users: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async remove(id: string): Promise<Conversation> {
     try {
       const deletedConversation = await this.prisma.conversation.delete({
@@ -281,12 +329,12 @@ export class ConversationsService {
           id,
         },
       });
+      const existsGroupIcon =
+        deletedConversation.type === CONVERSATION_TYPE.group &&
+        deletedConversation.icon_public_id;
 
       // Delete group icon if exists
-      if (
-        deletedConversation.type === CONVERSATION_TYPE.group &&
-        deletedConversation.icon_public_id
-      ) {
+      if (existsGroupIcon) {
         this.cloudinaryService.deleteImage(deletedConversation.icon_public_id);
       }
 

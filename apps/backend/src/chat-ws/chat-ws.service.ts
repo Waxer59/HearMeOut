@@ -11,12 +11,12 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 import { ConversationsService } from 'src/conversations/conversations.service';
-import { ConversationDto } from './dto/conversation.dto';
-import { FriendRequestDto } from './dto/friend-request.dto';
+import { ConversationActionsDto } from '../conversations/dto/conversation-actions.dto';
+import { FriendRequestDto } from '../friend-requests/dto/friend-request.dto';
 import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 import { CachingService } from 'src/caching/caching.service';
-import { DeleteMessageDto } from './dto/delete-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
+import { DeleteMessageDto } from '../messages/dto/delete-message.dto';
+import { UpdateMessageDto } from '../messages/dto/update-message.dto';
 
 @Injectable()
 export class ChatWsService {
@@ -122,10 +122,10 @@ export class ChatWsService {
   }
 
   async removeConversation(
-    conversationDto: ConversationDto,
+    conversationActionsDto: ConversationActionsDto,
     server: Server,
   ): Promise<void> {
-    const { id: conversationId, userId } = conversationDto;
+    const { id: conversationId, userId } = conversationActionsDto;
     const conversation =
       await this.conversationsService.findById(conversationId);
     const isGroupAdmin =
@@ -158,8 +158,10 @@ export class ChatWsService {
     } catch (error) {}
   }
 
-  async openChat(conversationDto: ConversationDto): Promise<void> {
-    const { id: conversationId, userId } = conversationDto;
+  async openChat(
+    conversationActionsDto: ConversationActionsDto,
+  ): Promise<void> {
+    const { id: conversationId, userId } = conversationActionsDto;
     this.cachingService.setCacheKey(
       CACHE_PREFIXES.usersActiveChat + userId,
       conversationId,
@@ -226,10 +228,12 @@ export class ChatWsService {
     } catch (e) {}
   }
 
-  async exitGroup(conversationDto: ConversationDto): Promise<void> {
+  async exitGroup(
+    conversationActionsDto: ConversationActionsDto,
+  ): Promise<void> {
     try {
       // TODO: Complete this method
-      console.log(conversationDto);
+      console.log(conversationActionsDto);
     } catch (error) {}
   }
 

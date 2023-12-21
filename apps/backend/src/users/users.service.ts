@@ -192,7 +192,7 @@ export class UsersService {
     finderUserId: string,
     username: string,
   ): Promise<any[]> {
-    const chats = await this.conversationsService.findAllChats(finderUserId);
+    const chats = await this.conversationsService.findAllByUserId(finderUserId);
     const chatsUserIds = [
       ...new Set(
         chats

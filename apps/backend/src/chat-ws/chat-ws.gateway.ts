@@ -12,14 +12,14 @@ import type { Server, Socket } from 'socket.io';
 import { CHAT_EVENTS } from 'ws-types';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
-import { FriendRequestDto } from './dto/friend-request.dto';
-import { ConversationDto } from './dto/conversation.dto';
+import { FriendRequestDto } from '../friend-requests/dto/friend-request.dto';
 import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
-import { DeleteMessageDto } from './dto/delete-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
+import { DeleteMessageDto } from '../messages/dto/delete-message.dto';
+import { UpdateMessageDto } from '../messages/dto/update-message.dto';
 import { ValidationPipe, UsePipes, UseFilters } from '@nestjs/common';
 import { WsExceptionFilterFilter } from './filters/ws-exception-filter.filter';
 import { User } from '@prisma/client';
+import { ConversationActionsDto } from '../conversations/dto/conversation-actions.dto';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @UseFilters(WsExceptionFilterFilter)
@@ -100,13 +100,13 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(CHAT_EVENTS.removeConversation)
   async removeConversation(
-    @MessageBody() conversationDto: ConversationDto,
+    @MessageBody() conversationActionsDto: ConversationActionsDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    conversationDto.userId = userId;
+    conversationActionsDto.userId = userId;
     return await this.chatWsService.removeConversation(
-      conversationDto,
+      conversationActionsDto,
       this.server,
     );
   }
@@ -149,22 +149,22 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(CHAT_EVENTS.openChat)
   async openChat(
-    @MessageBody() conversationDto: ConversationDto,
+    @MessageBody() conversationActionsDto: ConversationActionsDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    conversationDto.userId = userId;
-    return this.chatWsService.openChat(conversationDto);
+    conversationActionsDto.userId = userId;
+    return this.chatWsService.openChat(conversationActionsDto);
   }
 
   @SubscribeMessage(CHAT_EVENTS.exitGroup)
   async exitGroup(
-    @MessageBody() conversationDto: ConversationDto,
+    @MessageBody() conversationActionsDto: ConversationActionsDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    conversationDto.userId = userId;
-    return this.chatWsService.exitGroup(conversationDto);
+    conversationActionsDto.userId = userId;
+    return this.chatWsService.exitGroup(conversationActionsDto);
   }
 
   async handleConnection(client: Socket) {

@@ -1,7 +1,7 @@
 import { IsString } from 'class-validator';
 import { BaseDTO } from '../../common/dto/base.dto';
 
-export class TypingDto extends BaseDTO {
+export class ConversationActionsDto extends BaseDTO {
   @IsString()
-  conversationId: string;
+  id: string;
 }
