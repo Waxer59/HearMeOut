@@ -42,7 +42,7 @@ export const ChatTitle: React.FC = () => {
         <Tooltip content="Members">
           <Button
             variant="ghost"
-            className="transition"
+            className="transition cursor-pointer"
             onClick={handleShowGroupSettings}>
             <IconUsersGroup />
           </Button>

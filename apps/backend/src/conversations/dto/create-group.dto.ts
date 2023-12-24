@@ -9,9 +9,6 @@ import { IsNotBlank } from 'src/common/validators/isNotBlank';
 
 export class CreateGroupDto {
   @IsString()
-  creatorId: string;
-
-  @IsString()
   @MinLength(3)
   @IsNotBlank('name')
   @MaxLength(24)
@@ -19,6 +16,6 @@ export class CreateGroupDto {
 
   @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(3)
+  @ArrayMinSize(2)
   userIds: string[];
 }

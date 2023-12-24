@@ -1,12 +1,11 @@
 import { IsArray, IsOptional, IsString } from 'class-validator';
-import { BaseDTO } from 'src/common/dto/base.dto';
 
-export class UpdateGroupDTO extends BaseDTO {
+export class UpdateGroupDTO {
   @IsString()
   id: string;
 
   @IsOptional()
-  icon?: Express.Multer.File;
+  icon?: string;
 
   @IsString()
   @IsOptional()
@@ -16,6 +15,16 @@ export class UpdateGroupDTO extends BaseDTO {
   @IsString({ each: true })
   @IsOptional()
   kickUsers?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  makeAdmins?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  removeAdmins?: string[];
 
   @IsArray()
   @IsString({ each: true })

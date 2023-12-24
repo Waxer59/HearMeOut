@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
-import { base64File } from 'src/common/helpers/base64File';
 import { ICloudinaryUploadResponse } from 'src/common/types/types';
 import { CreateImageDetails } from './types/types';
 
@@ -16,13 +15,10 @@ export class CloudinaryService {
     });
   }
 
-  async uploadImage(
-    file: Express.Multer.File,
-    options = {},
-  ): Promise<CreateImageDetails> {
+  async uploadImage(file: string, options = {}): Promise<CreateImageDetails> {
     try {
       const img = (await cloudinary.uploader.upload(
-        base64File(file),
+        file,
         options,
       )) as unknown as ICloudinaryUploadResponse;
       return { secure_url: img.secure_url, public_id: img.public_id };

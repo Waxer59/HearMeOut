@@ -82,3 +82,12 @@ export interface UpdateMessageDetails {
 export enum LOCAL_STORAGE_ITEMS {
   isAuth = 'isAuth'
 }
+
+export interface UpdateGroupOptions {
+  icon?: any;
+  name?: string;
+  kickUsers?: string[];
+  addUsers?: string[];
+  makeAdmins?: string[];
+  removeAdmins?: string[];
+}

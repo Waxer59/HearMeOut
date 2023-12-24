@@ -31,12 +31,15 @@ export const EditableTitle: React.FC<Props> = ({
   };
   return (
     <div className="flex items-center gap-4 justify-center w-full">
-      <Heading as={as} size={size} className="capitalize max-w-[10ch]">
+      <Heading
+        as={as}
+        size={size}
+        className="capitalize max-w-[10ch] text-center">
         {title}
       </Heading>
       <Dialog.Root onOpenChange={setIsOpen} open={isOpen}>
         <Dialog.Trigger>
-          <IconButton className="transition">
+          <IconButton className="transition cursor-pointer">
             <IconPencil className="text-tertiary" />
           </IconButton>
         </Dialog.Trigger>

@@ -10,6 +10,7 @@ import { generateHash } from 'src/common/helpers/bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ConversationsService } from 'src/conversations/conversations.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { base64File } from 'src/common/helpers/base64File';
 
 @Injectable()
 export class UsersService {
@@ -149,7 +150,7 @@ export class UsersService {
       }
 
       const { secure_url, public_id } =
-        await this.cloudinaryService.uploadImage(avatar);
+        await this.cloudinaryService.uploadImage(base64File(avatar));
       updateUserDto.avatar = secure_url;
       updateUserDto.avatar_public_id = public_id;
     }

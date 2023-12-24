@@ -59,6 +59,7 @@ interface Actions {
   clearUserTyping: () => void;
   clearChatState: () => void;
   setShowGroupSettings: (showGroupSettings: boolean) => void;
+  updateConversation: (conversation: ConversationDetails) => void;
 }
 
 export const useChatStore = create<State & Actions>()(
@@ -216,6 +217,12 @@ export const useChatStore = create<State & Actions>()(
     setReplyMessage: (replyMessage) => set({ replyMessage }),
     clearReplyMessage: () => set({ replyMessage: null }),
     showGroupSettings: false,
-    setShowGroupSettings: (showGroupSettings) => set({ showGroupSettings })
+    setShowGroupSettings: (showGroupSettings) => set({ showGroupSettings }),
+    updateConversation: (conversation) =>
+      set((state) => ({
+        conversations: state.conversations.map((el) =>
+          el.id === conversation.id ? { ...el, ...conversation } : el
+        )
+      }))
   }))
 );

@@ -1,8 +1,19 @@
-import { Avatar, Button, Heading, Badge, ContextMenu } from '@radix-ui/themes';
 import {
+  Avatar,
+  Button,
+  Heading,
+  Badge,
+  ContextMenu,
+  Dialog,
+  Checkbox
+} from '@radix-ui/themes';
+import {
+  IconCrown,
+  IconCrownOff,
   IconDoorExit,
   IconTrash,
   IconUserMinus,
+  IconUsersPlus,
   IconX
 } from '@tabler/icons-react';
 import { useAccountStore, useChatStore } from '../../store';
@@ -11,27 +22,82 @@ import { ConversationTypes } from '../../store/types/types';
 import { useRef } from 'react';
 import { ImageUploaderBtn } from '../../components/ImageUploaderBtn';
 import { EditableTitle } from '../../components';
+import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import type { InputEvent } from '../../types/types';
+import { toast } from 'sonner';
+import { getFileExtension } from '../../helpers/getFileExtension';
+import { ACCEPTED_IMG_EXTENSIONS } from '../../constants/constants';
+import { getBase64File } from '../helpers/getBase64File';
 
 export const GroupSettings = () => {
   const setShowGroupSettings = useChatStore(
     (state) => state.setShowGroupSettings
   );
   const showGroupSettings = useChatStore((state) => state.showGroupSettings);
-  const { id, username, avatar } = useAccountStore((state) => state.account)!;
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
-  );
+  )!;
+  const asideRef = useRef<HTMLElement>(null);
+  const usersNotInGroup = useChatStore((state) =>
+    state.conversations.filter((el) => el.type === ConversationTypes.chat)
+  ).filter((el) => !users.find((user) => user.id === el.users[0].id));
+  const { id, username, avatar } = useAccountStore((state) => state.account)!;
   const { name, icon, users, adminIds, type } = useChatStore((state) =>
     state.conversations.find((c) => c.id === currentConversationId)
   )!;
-  const asideRef = useRef<HTMLElement>(null);
+  const { sendUpdateGroup, sendRemoveConversation } = useSocketChatEvents();
   const isAdminAccount = adminIds.includes(id);
 
-  const handleChangeGroupName = () => {};
+  const handleAddUserCheckbox = (e: any, userId: string): void => {
+    // const isChecked = e.target
+  };
 
-  const handleKickUser = () => {};
+  const handleChangeGroupName = (title: string): void => {
+    sendUpdateGroup(currentConversationId, {
+      name: title
+    });
+  };
 
-  const handleChangeImage = () => {};
+  const handleMakeAdmin = (userId: string): void => {
+    sendUpdateGroup(currentConversationId, {
+      makeAdmins: [userId]
+    });
+  };
+
+  const handleRemoveAdmin = (userId: string): void => {
+    sendUpdateGroup(currentConversationId, {
+      removeAdmins: [userId]
+    });
+  };
+
+  const handleKickUser = (userId: string): void => {
+    sendUpdateGroup(currentConversationId, {
+      kickUsers: [userId]
+    });
+  };
+
+  const handleDeleteGroup = (): void => {
+    sendRemoveConversation(currentConversationId);
+  };
+
+  const handleChangeImage = async (e: InputEvent) => {
+    const file = e.target.files?.[0];
+    const fileExt = getFileExtension(file!.name);
+    if (!file) {
+      toast.error('There was an error uploading your avatar');
+      return;
+    }
+
+    if (!ACCEPTED_IMG_EXTENSIONS.includes(fileExt)) {
+      toast.error('Invalid file extension');
+      return;
+    }
+
+    const base64File = await getBase64File(file);
+    sendUpdateGroup(currentConversationId, {
+      icon: base64File
+    });
+  };
 
   const handleClose = () => {
     setShowGroupSettings(false);
@@ -72,7 +138,9 @@ export const GroupSettings = () => {
             onChangeTitle={handleChangeGroupName}
           />
         ) : (
-          <Heading as="h3" className="mx-auto max-w-[10ch] capitalize">
+          <Heading
+            as="h3"
+            className="mx-auto max-w-[10ch] capitalize text-center">
             {name}
           </Heading>
         )}
@@ -85,7 +153,9 @@ export const GroupSettings = () => {
             avatar={avatar}
             isUserAdmin={adminIds.includes(id)}
             isAdminAccount={isAdminAccount}
-            onKickUser={handleKickUser}
+            onKickUser={() => handleKickUser(id)}
+            onMakeAdmin={() => handleMakeAdmin(id)}
+            onRemoveAdmin={() => handleRemoveAdmin(id)}
             key={id}
           />
         ))}
@@ -99,20 +169,63 @@ export const GroupSettings = () => {
       </ul>
       <div className="flex flex-col gap-5 mt-8 items-center">
         <Button
-          className="transition-[background] cursor-pointer"
-          color="red"
-          variant="ghost">
-          <span className="uppercase font-bold">leave group</span>
-          <IconDoorExit />
+          className="transition-[background] cursor-pointer uppercase font-bold w-3/4"
+          color="ruby"
+          variant="soft">
+          leave group
+          <IconDoorExit size={18} />
         </Button>
         {isAdminAccount && (
-          <Button
-            className="transition-[background] cursor-pointer"
-            color="red"
-            variant="solid">
-            <span className="uppercase font-bold">delete group</span>
-            <IconTrash />
-          </Button>
+          <>
+            <Dialog.Root>
+              <Dialog.Trigger>
+                <Button
+                  className="transition-[background] cursor-pointer uppercase font-bold w-3/4"
+                  variant="ghost"
+                  color="iris">
+                  Add users
+                  <IconUsersPlus size={18} />
+                </Button>
+              </Dialog.Trigger>
+              <Dialog.Content>
+                <Dialog.Title>Add users to group</Dialog.Title>
+                <div className="flex flex-col gap-6 mt-10 items-center">
+                  {usersNotInGroup.map(({ id, users }) => (
+                    <div className="flex items-center w-full gap-5" key={id}>
+                      <Avatar
+                        fallback={getFallbackAvatarName(users[0].username)}
+                        src={users[0].avatar}
+                        size="4"
+                      />
+                      <div className="flex gap-4 items-center">
+                        <Heading as="h3" className="capitalize text-md">
+                          {users[0].username}
+                        </Heading>
+                        <Checkbox
+                          color="blue"
+                          variant="surface"
+                          size="3"
+                          onChange={(e) => handleAddUserCheckbox(e, id)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button className="mt-10 w-full" variant="soft" color="iris">
+                  <IconUsersPlus />
+                  Add users
+                </Button>
+              </Dialog.Content>
+            </Dialog.Root>
+            <Button
+              className="transition-[background] cursor-pointer uppercase font-bold w-3/4 mt-10"
+              color="red"
+              variant="soft"
+              onClick={handleDeleteGroup}>
+              delete group
+              <IconTrash size={18} />
+            </Button>
+          </>
         )}
       </div>
     </aside>
@@ -127,6 +240,8 @@ interface UserItemProps {
   isAdminAccount?: boolean;
   showControls?: boolean;
   onKickUser?: () => void;
+  onMakeAdmin?: () => void;
+  onRemoveAdmin?: () => void;
 }
 
 const UserItem: React.FC<UserItemProps> = ({
@@ -136,6 +251,8 @@ const UserItem: React.FC<UserItemProps> = ({
   avatar,
   onKickUser,
   isAdminAccount,
+  onMakeAdmin,
+  onRemoveAdmin,
   showControls = true
 }) => (
   <ContextMenu.Root>
@@ -160,11 +277,26 @@ const UserItem: React.FC<UserItemProps> = ({
     </ContextMenu.Trigger>
     {isAdminAccount && showControls && (
       <ContextMenu.Content>
-        <ContextMenu.Item
-          color="red"
-          className="flex gap-2"
-          onClick={onKickUser}>
-          <IconUserMinus size={18} /> Kick
+        {!isUserAdmin ? (
+          <ContextMenu.Item color="gold" onClick={onMakeAdmin}>
+            <span className="flex gap-2">
+              <IconCrown size={18} /> Admin
+            </span>
+          </ContextMenu.Item>
+        ) : (
+          <>
+            <ContextMenu.Item color="red" onClick={onRemoveAdmin}>
+              <span className="flex gap-2">
+                <IconCrownOff size={18} /> Remove admin
+              </span>
+            </ContextMenu.Item>
+          </>
+        )}
+
+        <ContextMenu.Item color="red" onClick={onKickUser}>
+          <span className="flex gap-2">
+            <IconUserMinus size={18} /> Kick
+          </span>
         </ContextMenu.Item>
       </ContextMenu.Content>
     )}

@@ -10,6 +10,7 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdateGroupDTO } from './dto/update-group.dto';
+import { base64File } from 'src/common/helpers/base64File';
 
 @Injectable()
 export class ConversationsService {
@@ -18,23 +19,42 @@ export class ConversationsService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async createGroup(createGroupDto: CreateGroupDto): Promise<Conversation> {
+  async createGroup(
+    createGroupDto: CreateGroupDto,
+    creatorId: string,
+  ): Promise<Conversation> {
+    const { name, userIds } = createGroupDto;
     try {
       return await this.prisma.conversation.create({
         data: {
-          name: createGroupDto.name,
-          userIds: createGroupDto.userIds,
+          name: name,
+          userIds: userIds,
           users: {
-            connect: createGroupDto.userIds.map((userId) => ({
-              id: userId,
+            connect: userIds.map((id) => ({
+              id,
             })),
           },
           admins: {
             connect: {
-              id: createGroupDto.creatorId,
+              id: creatorId,
             },
           },
           type: CONVERSATION_TYPE.group,
+        },
+        include: {
+          users: {
+            where: {
+              id: {
+                not: creatorId,
+              },
+            },
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              isOnline: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -196,11 +216,21 @@ export class ConversationsService {
     }
   }
 
-  async findById(id: string): Promise<Conversation> {
+  async findById(id: string): Promise<any> {
     try {
       return await this.prisma.conversation.findFirst({
         where: {
           id,
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              isOnline: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -236,7 +266,7 @@ export class ConversationsService {
 
   async updateIcon(
     conversationId: string,
-    file: Express.Multer.File,
+    file: Express.Multer.File | string,
   ): Promise<Conversation> {
     try {
       const { type, icon_public_id } = await this.findById(conversationId);
@@ -251,7 +281,12 @@ export class ConversationsService {
         await this.cloudinaryService.deleteImage(icon_public_id);
       }
 
-      const { public_id } = await this.cloudinaryService.uploadImage(file);
+      if (typeof file !== 'string') {
+        file = base64File(file);
+      }
+
+      const { public_id, secure_url } =
+        await this.cloudinaryService.uploadImage(file);
 
       return await this.prisma.conversation.update({
         where: {
@@ -259,6 +294,7 @@ export class ConversationsService {
         },
         data: {
           icon_public_id: public_id,
+          icon: secure_url,
         },
       });
     } catch (error) {
@@ -268,18 +304,10 @@ export class ConversationsService {
     }
   }
 
-  async updateGroup(updateGroupDto: UpdateGroupDTO): Promise<Conversation> {
-    const { id, userId, icon, addUsers, kickUsers } = updateGroupDto;
-    const group = await this.findById(id);
-    const isUserAdmin = group.adminIds.includes(userId);
-    const existsGroupIcon =
-      group.type === CONVERSATION_TYPE.group && group.icon;
+  async updateGroup(updateGroupDto: UpdateGroupDTO): Promise<any> {
+    const { id, icon, addUsers, kickUsers, ...rest } = updateGroupDto;
 
-    if (!isUserAdmin) {
-      return;
-    }
-
-    if (icon && existsGroupIcon) {
+    if (icon) {
       await this.updateIcon(id, icon);
     }
 
@@ -296,6 +324,38 @@ export class ConversationsService {
       );
       await Promise.all(kickUsersPromises);
     }
+
+    // Update the rest of the parameters that
+    // dont require special actions
+    if (Object.keys(rest).length) {
+      const { makeAdmins, removeAdmins, ...fields } = rest;
+      const newAdmins = makeAdmins?.length
+        ? {
+            admins: {
+              connect: makeAdmins.map((id) => ({ id })),
+            },
+          }
+        : {};
+      const removedAdmins = removeAdmins?.length
+        ? {
+            admins: {
+              disconnect: removeAdmins.map((id) => ({ id })),
+            },
+          }
+        : {};
+      await this.prisma.conversation.update({
+        where: {
+          id,
+        },
+        data: {
+          ...fields,
+          ...newAdmins,
+          ...removedAdmins,
+        },
+      });
+    }
+
+    return await this.findById(id);
   }
 
   async addGroupUser(

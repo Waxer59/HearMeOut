@@ -1,5 +1,6 @@
 import { useChatStore } from '../../store';
 import { CHAT_EVENTS } from 'ws-types';
+import type { UpdateGroupOptions } from '../../types/types';
 
 export const useSocketChatEvents = () => {
   const { currentConversationId, socket } = useChatStore((state) => state);
@@ -58,6 +59,10 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.updateMessage, { messageId, content });
   };
 
+  const sendUpdateGroup = (id: string, options: UpdateGroupOptions) => {
+    socket?.emit(CHAT_EVENTS.updateGroup, { id, ...options });
+  };
+
   return {
     sendMessage,
     sendTyping,
@@ -69,6 +74,7 @@ export const useSocketChatEvents = () => {
     sendRemoveFriendRequest,
     sendOpenChat,
     sendDeleteMessage,
-    sendUpdateMessage
+    sendUpdateMessage,
+    sendUpdateGroup
   };
 };

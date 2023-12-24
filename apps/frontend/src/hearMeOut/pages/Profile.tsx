@@ -85,7 +85,7 @@ export const Profile: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-24 mt-24 p-7 rounded-lg h-auto border border-gray-400 justify-center w-11/12 max-w-[650px] mx-auto bg-secondary">
+      <div className="flex flex-col gap-16 mt-24 p-7 rounded-lg border border-gray-400 justify-center w-11/12 max-w-[650px] mx-auto mb-6 bg-secondary">
         <div className="flex flex-col gap-7 items-center w-full relative">
           <div className="absolute top-0 left-0">
             <Button variant="ghost" className="transition" asChild>

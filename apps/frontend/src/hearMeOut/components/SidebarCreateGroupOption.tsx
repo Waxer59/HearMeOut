@@ -18,7 +18,11 @@ import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { toast } from 'sonner';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
-export const SidebarCreateGroupOption: React.FC = () => {
+interface Props {
+  closeDialog: () => void;
+}
+
+export const SidebarCreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
   const { conversations } = useChatStore();
   const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
   const [groupName, setGroupName] = useState('');
@@ -47,6 +51,8 @@ export const SidebarCreateGroupOption: React.FC = () => {
       groupName,
       selectedUsers.map((el) => el.id)
     );
+    toast.success('Group created successfully!');
+    closeDialog();
   };
 
   const removeUser = (user: AccountDetails) => {

@@ -27,6 +27,11 @@ export const SidebarOptions: React.FC = () => {
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setDialogSelection(DialogSelectionEnum.NONE);
+  };
+
   const onResetDialog = () => {
     setDialogSelection(DialogSelectionEnum.NONE);
   };
@@ -121,7 +126,7 @@ export const SidebarOptions: React.FC = () => {
           <SidebarAddContactOption />
         )}
         {dialogSelection === DialogSelectionEnum.CREATE_GROUP && (
-          <SidebarCreateGroupOption />
+          <SidebarCreateGroupOption closeDialog={closeDialog} />
         )}
         {dialogSelection === DialogSelectionEnum.JOIN_GROUP && (
           <SidebarJoinGroupOption />

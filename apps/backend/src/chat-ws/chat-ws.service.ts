@@ -5,7 +5,7 @@ import { parseCookies } from 'src/common/helpers/cookies';
 import type { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
-import { ConversationType, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { MessagesService } from 'src/messages/messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
@@ -17,6 +17,7 @@ import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 import { CachingService } from 'src/caching/caching.service';
 import { DeleteMessageDto } from '../messages/dto/delete-message.dto';
 import { UpdateMessageDto } from '../messages/dto/update-message.dto';
+import { UpdateGroupDTO } from 'src/conversations/dto/update-group.dto';
 
 @Injectable()
 export class ChatWsService {
@@ -31,27 +32,33 @@ export class ChatWsService {
 
   async sendMessage(
     sendMessageDto: SendMessageDto,
+    userId: string,
     server: Server,
   ): Promise<void> {
-    const { userId, ...messageDetails } = sendMessageDto;
     try {
       const message = await this.messageService.create({
-        ...messageDetails,
+        ...sendMessageDto,
         fromId: userId,
       });
       server.to(sendMessageDto.toId).emit(CHAT_EVENTS.message, message);
     } catch (error) {}
   }
 
-  async typing(typingDto: TypingDto, client: Socket): Promise<void> {
-    const { userId } = typingDto;
+  async typing(
+    typingDto: TypingDto,
+    client: Socket,
+    userId: string,
+  ): Promise<void> {
     client.broadcast
       .to(typingDto.conversationId)
       .emit(CHAT_EVENTS.typing, { userId, ...typingDto });
   }
 
-  async typingOff(typingDto: TypingDto, client: Socket): Promise<void> {
-    const { userId } = typingDto;
+  async typingOff(
+    typingDto: TypingDto,
+    client: Socket,
+    userId: string,
+  ): Promise<void> {
     client.broadcast
       .to(typingDto.conversationId)
       .emit(CHAT_EVENTS.typingOff, { userId, ...typingDto });
@@ -60,8 +67,9 @@ export class ChatWsService {
   async friendRequest(
     friendRequestDto: FriendRequestDto,
     client: Socket,
+    fromId: string,
   ): Promise<void> {
-    const { id, userId: fromId } = friendRequestDto;
+    const { id } = friendRequestDto;
     try {
       const request = await this.friendRequestsService.create(fromId, id);
       client.to(id).emit(CHAT_EVENTS.friendRequest, request);
@@ -72,8 +80,9 @@ export class ChatWsService {
   async acceptFriendRequest(
     friendRequestDto: FriendRequestDto,
     server: Server,
+    userId: string,
   ): Promise<void> {
-    const { id: friendReqId, userId } = friendRequestDto;
+    const { id: friendReqId } = friendRequestDto;
 
     try {
       const { toId } = await this.friendRequestsService.findById(friendReqId);
@@ -104,8 +113,9 @@ export class ChatWsService {
   async removeFriendRequest(
     friendRequestDto: FriendRequestDto,
     server: Server,
+    userId: string,
   ): Promise<void> {
-    const { id, userId } = friendRequestDto;
+    const { id } = friendRequestDto;
 
     try {
       const request = await this.friendRequestsService.findById(id);
@@ -124,16 +134,13 @@ export class ChatWsService {
   async removeConversation(
     conversationActionsDto: ConversationActionsDto,
     server: Server,
+    userId: string,
   ): Promise<void> {
-    const { id: conversationId, userId } = conversationActionsDto;
+    const { id: conversationId } = conversationActionsDto;
     const conversation =
       await this.conversationsService.findById(conversationId);
-    const isGroupAdmin =
-      conversation.type === ConversationType.group &&
-      !conversation.adminIds.includes(userId);
-    const isChatMember =
-      conversation.type === ConversationType.chat &&
-      !conversation.userIds.includes(userId);
+    const isGroupAdmin = conversation.adminIds.includes(userId);
+    const isChatMember = conversation.userIds.includes(userId);
 
     // User must be in the conversation if its a chat
     // User must be an admin if its a group
@@ -160,8 +167,9 @@ export class ChatWsService {
 
   async openChat(
     conversationActionsDto: ConversationActionsDto,
+    userId: string,
   ): Promise<void> {
-    const { id: conversationId, userId } = conversationActionsDto;
+    const { id: conversationId } = conversationActionsDto;
     this.cachingService.setCacheKey(
       CACHE_PREFIXES.usersActiveChat + userId,
       conversationId,
@@ -191,11 +199,14 @@ export class ChatWsService {
   async createGroup(
     createGroupDto: CreateGroupDto,
     server: Server,
+    creatorId: string,
   ): Promise<void> {
-    const { creatorId } = createGroupDto;
     try {
       createGroupDto.userIds.push(creatorId);
-      const group = await this.conversationsService.createGroup(createGroupDto);
+      const group = await this.conversationsService.createGroup(
+        createGroupDto,
+        creatorId,
+      );
 
       // Join users to conversation room & set conversation as active
       createGroupDto.userIds.forEach(async (el) => {
@@ -207,11 +218,42 @@ export class ChatWsService {
     } catch (error) {}
   }
 
+  async updateGroup(
+    updateGroupDto: UpdateGroupDTO,
+    userId: string,
+    server: Server,
+  ) {
+    const { id: groupId } = updateGroupDto;
+    const group = await this.conversationsService.findById(groupId);
+    const isGroupAdmin = group.adminIds.includes(userId);
+
+    if (!isGroupAdmin) {
+      return;
+    }
+
+    const newGroup =
+      await this.conversationsService.updateGroup(updateGroupDto);
+
+    // Remove own user
+    newGroup.userIds = newGroup.userIds.filter((el) => el !== userId);
+    newGroup.users = newGroup.users.filter((el) => el.id !== userId);
+
+    if (updateGroupDto.kickUsers) {
+      server.in(updateGroupDto.kickUsers).socketsLeave(groupId);
+      server
+        .to(updateGroupDto.kickUsers)
+        .emit(CHAT_EVENTS.removeConversation, groupId);
+    }
+
+    server.in(groupId).emit(CHAT_EVENTS.updateGroup, newGroup);
+  }
+
   async updateMessage(
     updateMessageDto: UpdateMessageDto,
     server: Server,
+    userId: string,
   ): Promise<void> {
-    const { messageId, content, userId } = updateMessageDto;
+    const { messageId, content } = updateMessageDto;
     try {
       const msg = await this.messageService.findOneById(messageId);
 
@@ -230,18 +272,20 @@ export class ChatWsService {
 
   async exitGroup(
     conversationActionsDto: ConversationActionsDto,
+    userId: string,
   ): Promise<void> {
     try {
       // TODO: Complete this method
-      console.log(conversationActionsDto);
+      console.log(conversationActionsDto, userId);
     } catch (error) {}
   }
 
   async deleteMessage(
     deleteMessageDto: DeleteMessageDto,
     server: Server,
+    userId: string,
   ): Promise<void> {
-    const { messageId, userId } = deleteMessageDto;
+    const { messageId } = deleteMessageDto;
     try {
       const msg = await this.messageService.findOneById(messageId);
 

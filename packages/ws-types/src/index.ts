@@ -11,6 +11,7 @@ export enum CHAT_EVENTS {
   friendRequestOutgoing = 'friendRequestOutgoing',
   removeFriendRequest = 'removeFriendRequest',
   createGroup = 'createGroup',
+  updateGroup = 'updateGroup',
   openChat = 'openChat',
   deleteMessage = 'deleteMessage',
   updateMessage = 'updateMessage',

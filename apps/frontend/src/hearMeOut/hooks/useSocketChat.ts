@@ -29,6 +29,7 @@ export const useSocketChat = () => {
     removeUserTyping,
     setConversationIsOnline,
     setCurrentConversationId,
+    updateConversation,
     setSocket,
     socket
   } = useChatStore((state) => state);
@@ -103,11 +104,16 @@ export const useSocketChat = () => {
     );
 
     socket.on(CHAT_EVENTS.removeConversation, (id: string) => {
+      console.log(id, currentConversationId);
       if (currentConversationId === id) {
         setCurrentConversationId(null);
       }
 
       removeConversation(id);
+    });
+
+    socket.on(CHAT_EVENTS.updateGroup, (newGroup: ConversationDetails) => {
+      updateConversation(newGroup);
     });
 
     socket.on(
