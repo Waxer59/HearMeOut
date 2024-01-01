@@ -38,10 +38,11 @@ export const SidebarConversation: React.FC<Props> = ({
     conversations,
     removeConversation,
     currentConversationId,
-    activeConversations
+    activeConversations,
+    setShowGroupSettings
   } = useChatStore((state: any) => state);
-  const { account } = useAccountStore((state) => state);
-  const { sendRemoveConversation } = useSocketChatEvents();
+  const account = useAccountStore((state) => state.account);
+  const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
   const [hasNewMessages, setHasNewMessages] = useState(
     conversations
       .find((conversation: any) => conversation.id === id)
@@ -69,6 +70,8 @@ export const SidebarConversation: React.FC<Props> = ({
 
     switch (type) {
       case ConversationTypes.group:
+        sendExitGroup(id);
+        setShowGroupSettings(false);
         break;
       case ConversationTypes.chat:
         sendRemoveConversation(id);

@@ -7,14 +7,10 @@ import {
 } from '.';
 import { useChatStore } from '../../store';
 import { VoidIcon } from './Icons';
-import { useEffect } from 'react';
 import {
   ConversationTypes,
   type ConversationDetails
 } from '../../store/types/types';
-import { HttpStatusCodes } from '../../types/types';
-import { toast } from 'sonner';
-import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 
 const getConversationName = (c: ConversationDetails): string =>
   c.type === ConversationTypes.group ? c.name : c.users[0].username;
@@ -27,34 +23,10 @@ const getConversationIsOnline = (c: ConversationDetails): boolean =>
 
 export const ConversationsSidebar: React.FC = () => {
   const chatQueryFilter = useChatStore((state) => state.chatQueryFilter);
-  const {
-    conversations,
-    setConversationMessages,
-    currentConversationId,
-    getActiveConversations,
-    clearReplyMessage
-  } = useChatStore((state) => state);
-
-  useEffect(() => {
-    async function fetchMessages() {
-      if (!currentConversationId) {
-        return;
-      }
-
-      const { data, status } = await getAllConversationMessages(
-        currentConversationId
-      );
-
-      if (status >= HttpStatusCodes.BAD_REQUEST) {
-        toast.error('There was an error fetching messages');
-      }
-
-      setConversationMessages(currentConversationId, data);
-    }
-    // clear replying message while navigating between chats
-    clearReplyMessage();
-    fetchMessages();
-  }, [currentConversationId]);
+  const conversations = useChatStore((state) => state.conversations);
+  const getActiveConversations = useChatStore(
+    (state) => state.getActiveConversations
+  );
 
   if (conversations.length === 0) {
     return (

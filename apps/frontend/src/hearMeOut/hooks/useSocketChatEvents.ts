@@ -25,9 +25,9 @@ export const useSocketChatEvents = () => {
     });
   };
 
-  const sendFriendRequest = (id: string) => {
+  const sendFriendRequest = (userId: string) => {
     socket?.emit(CHAT_EVENTS.friendRequest, {
-      id
+      userId
     });
   };
 
@@ -43,8 +43,8 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.createGroup, { name, userIds });
   };
 
-  const sendRemoveFriendRequest = (id: string) => {
-    socket?.emit(CHAT_EVENTS.removeFriendRequest, { id });
+  const sendRemoveFriendRequest = (id: string, isOutgoing: boolean) => {
+    socket?.emit(CHAT_EVENTS.removeFriendRequest, { id, isOutgoing });
   };
 
   const sendOpenChat = (id: string) => {
@@ -63,6 +63,10 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.updateGroup, { id, ...options });
   };
 
+  const sendExitGroup = (id: string) => {
+    socket?.emit(CHAT_EVENTS.exitGroup, { id });
+  };
+
   return {
     sendMessage,
     sendTyping,
@@ -75,6 +79,7 @@ export const useSocketChatEvents = () => {
     sendOpenChat,
     sendDeleteMessage,
     sendUpdateMessage,
-    sendUpdateGroup
+    sendUpdateGroup,
+    sendExitGroup
   };
 };

@@ -104,6 +104,7 @@ export const Profile: React.FC = () => {
             as="h2"
             size="8"
             onChangeTitle={handleChangeUsername}
+            dialogTitle="Change username"
             title={username}
           />
         </div>

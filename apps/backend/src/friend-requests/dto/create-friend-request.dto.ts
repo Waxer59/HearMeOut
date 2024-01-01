@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class FriendRequestDto {
+export class CreateFriendRequestDto {
   @IsString()
-  id: string;
+  userId: string;
 }

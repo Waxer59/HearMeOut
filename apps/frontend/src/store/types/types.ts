@@ -19,14 +19,13 @@ export interface SettingsDetails {
 export interface MessageDetails {
   id: string;
   fromId: string;
-  toId: string;
+  conversationId: string;
   content: string;
   viewedByAll: boolean;
   viewedByIds: string[];
   createdAt: Date;
   replyId?: string;
   from: AccountDetails;
-  conversationId: string;
   isEdited: boolean;
 }
 

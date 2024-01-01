@@ -5,6 +5,7 @@ import { useAccountStore, useChatStore } from '../../store';
 import { CHAT_EVENTS } from 'ws-types';
 import {
   type DeleteMessageDetails,
+  type RemoveFriendRequestDetails,
   type UpdateMessageDetails
 } from '../../types/types';
 import type {
@@ -33,8 +34,12 @@ export const useSocketChat = () => {
     setSocket,
     socket
   } = useChatStore((state) => state);
-  const { addFriendRequest, addFriendRequestOutgoing, removeFriendRequest } =
-    useAccountStore();
+  const {
+    addFriendRequest,
+    addFriendRequestOutgoing,
+    removeFriendRequest,
+    removeFriendRequestOutgoing
+  } = useAccountStore();
 
   const connectSocketChat = useCallback(() => {
     const socketTmp = io(`${getEnvVariables().VITE_HEARMEOUT_API}`, {
@@ -44,7 +49,7 @@ export const useSocketChat = () => {
       forceNew: true
     });
     setSocket(socketTmp);
-  }, [getEnvVariables().VITE_HEARMEOUT_API]);
+  }, []);
 
   const disconnectSocketChat = useCallback(() => {
     socket?.disconnect();
@@ -67,12 +72,12 @@ export const useSocketChat = () => {
     socket.on(CHAT_EVENTS.message, async (message: MessageDetails) => {
       const activeConversations = getActiveConversations();
       const conversation = activeConversations.find(
-        (conversation) => conversation.id === message.toId
+        (conversation) => conversation.id === message.conversationId
       );
       if (!conversation) {
-        addActiveConversation(message.toId);
+        addActiveConversation(message.conversationId);
       }
-      addConversationMessage(message.toId, message);
+      addConversationMessage(message.conversationId, message);
     });
 
     socket.on(CHAT_EVENTS.typing, (typing: UserTyping) => {
@@ -104,7 +109,6 @@ export const useSocketChat = () => {
     );
 
     socket.on(CHAT_EVENTS.removeConversation, (id: string) => {
-      console.log(id, currentConversationId);
       if (currentConversationId === id) {
         setCurrentConversationId(null);
       }
@@ -128,9 +132,16 @@ export const useSocketChat = () => {
       addActiveConversation(group.id);
     });
 
-    socket.on(CHAT_EVENTS.removeFriendRequest, (id: string) => {
-      removeFriendRequest(id);
-    });
+    socket.on(
+      CHAT_EVENTS.removeFriendRequest,
+      ({ id, isOutgoing }: RemoveFriendRequestDetails) => {
+        if (isOutgoing) {
+          removeFriendRequestOutgoing(id);
+        } else {
+          removeFriendRequest(id);
+        }
+      }
+    );
 
     socket.on(
       CHAT_EVENTS.deleteMessage,

@@ -11,6 +11,7 @@ import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../common/helpers/fileFilter';
+import { base64File } from 'src/common/helpers/base64File';
 
 @ApiTags('Conversations')
 @UseGuards(AuthGuard('jwt'))
@@ -32,6 +33,7 @@ export class ConversationsController {
     @UploadedFile() icon: Express.Multer.File,
     @Param('id') id: string,
   ) {
-    return await this.conversationsService.updateIcon(id, icon);
+    const base64Icon = base64File(icon);
+    return await this.conversationsService.updateIcon(id, base64Icon);
   }
 }

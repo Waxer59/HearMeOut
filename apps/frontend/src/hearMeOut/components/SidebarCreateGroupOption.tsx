@@ -42,7 +42,7 @@ export const SidebarCreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
       return;
     }
 
-    if (!groupName) {
+    if (groupName.trim().length < 3) {
       toast.error('Group name is required');
       return;
     }

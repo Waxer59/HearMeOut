@@ -12,7 +12,7 @@ import type { Server, Socket } from 'socket.io';
 import { CHAT_EVENTS } from 'ws-types';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
-import { FriendRequestDto } from '../friend-requests/dto/friend-request.dto';
+import { CreateFriendRequestDto } from '../friend-requests/dto/create-friend-request.dto';
 import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 import { DeleteMessageDto } from '../messages/dto/delete-message.dto';
 import { UpdateMessageDto } from '../messages/dto/update-message.dto';
@@ -20,6 +20,8 @@ import { ValidationPipe, UsePipes, UseFilters } from '@nestjs/common';
 import { WsExceptionFilterFilter } from './filters/ws-exception-filter.filter';
 import { ConversationActionsDto } from '../conversations/dto/conversation-actions.dto';
 import { UpdateGroupDTO } from 'src/conversations/dto/update-group.dto';
+import { RemoveFriendRequestDto } from 'src/friend-requests/dto/remove-friend-request.dto';
+import { AcceptFriendRequestDto } from 'src/friend-requests/dto/accept-friend-request.dto';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @UseFilters(WsExceptionFilterFilter)
@@ -63,12 +65,12 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(CHAT_EVENTS.friendRequest)
   async friendRequest(
-    @MessageBody() friendRequestDto: FriendRequestDto,
+    @MessageBody() createFriendRequestDto: CreateFriendRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
     return await this.chatWsService.friendRequest(
-      friendRequestDto,
+      createFriendRequestDto,
       client,
       userId,
     );
@@ -76,12 +78,12 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(CHAT_EVENTS.acceptFriendRequest)
   async acceptFriendRequest(
-    @MessageBody() friendRequestDto: FriendRequestDto,
+    @MessageBody() acceptFriendRequestDto: AcceptFriendRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
     return await this.chatWsService.acceptFriendRequest(
-      friendRequestDto,
+      acceptFriendRequestDto,
       this.server,
       userId,
     );
@@ -89,12 +91,12 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(CHAT_EVENTS.removeFriendRequest)
   async removeFriendRequest(
-    @MessageBody() friendRequestDto: FriendRequestDto,
+    @MessageBody() removeFriendRequestDto: RemoveFriendRequestDto,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
     return await this.chatWsService.removeFriendRequest(
-      friendRequestDto,
+      removeFriendRequestDto,
       this.server,
       userId,
     );
@@ -180,7 +182,11 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return this.chatWsService.exitGroup(conversationActionsDto, userId);
+    return this.chatWsService.exitGroup(
+      conversationActionsDto,
+      userId,
+      this.server,
+    );
   }
 
   async handleConnection(client: Socket) {

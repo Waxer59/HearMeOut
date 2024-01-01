@@ -58,7 +58,6 @@ model Configuration {
 model Message {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   fromId         String   @db.ObjectId
-  toId           String   @db.ObjectId
   replyId        String?  @db.ObjectId
   conversationId String   @db.ObjectId
   viewedByIds    String[] @default([]) @db.ObjectId
@@ -68,7 +67,6 @@ model Message {
   isEdited       Boolean  @default(false)
 
   from         User         @relation("messageFroms", fields: [fromId], references: [id])
-  to           Conversation @relation("messageTos", fields: [toId], references: [id])
   reply        Message?     @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies      Message[]    @relation("messageReply")
   viewedBy     User[]       @relation(fields: [viewedByIds], references: [id])
@@ -93,6 +91,5 @@ model Conversation {
 
   users      User[]    @relation("conversations", fields: [userIds], references: [id])
   admins     User[]    @relation("adminConversations", fields: [adminIds], references: [id])
-  messageTos Message[] @relation("messageTos")
   messages   Message[]
 }

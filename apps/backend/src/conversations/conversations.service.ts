@@ -10,28 +10,29 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UpdateGroupDTO } from './dto/update-group.dto';
-import { base64File } from 'src/common/helpers/base64File';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ConversationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly usersService: UsersService,
   ) {}
 
   async createGroup(
     createGroupDto: CreateGroupDto,
     creatorId: string,
   ): Promise<Conversation> {
-    const { name, userIds } = createGroupDto;
     try {
       return await this.prisma.conversation.create({
         data: {
-          name: name,
-          userIds: userIds,
+          name: createGroupDto.name,
+          userIds: createGroupDto.userIds,
+          creatorId,
           users: {
-            connect: userIds.map((id) => ({
-              id,
+            connect: createGroupDto.userIds.map((userId) => ({
+              id: userId,
             })),
           },
           admins: {
@@ -43,11 +44,6 @@ export class ConversationsService {
         },
         include: {
           users: {
-            where: {
-              id: {
-                not: creatorId,
-              },
-            },
             select: {
               id: true,
               username: true,
@@ -106,11 +102,12 @@ export class ConversationsService {
     }
   }
 
-  async kickUser(
+  async kickGroupUser(
     userId: string,
     conversationId: string,
   ): Promise<Conversation> {
     try {
+      await this.usersService.removeActiveConversation(userId, conversationId);
       return await this.prisma.conversation.update({
         where: {
           id: conversationId,
@@ -182,23 +179,6 @@ export class ConversationsService {
     }
   }
 
-  async findAllByUserId(userId: string): Promise<Conversation[]> {
-    try {
-      return await this.prisma.conversation.findMany({
-        where: {
-          userIds: {
-            hasEvery: [userId],
-          },
-          type: CONVERSATION_TYPE.chat,
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later',
-      );
-    }
-  }
-
   async findChat(userId1: string, userId2: string): Promise<Conversation> {
     try {
       return await this.prisma.conversation.findFirst({
@@ -216,7 +196,10 @@ export class ConversationsService {
     }
   }
 
-  async findById(id: string): Promise<any> {
+  // The user requesting the group information must be
+  // excluded from the list of users to avoid sending
+  // unnecessary information.
+  async findByIdExcludingUser(id: string, userId: string) {
     try {
       return await this.prisma.conversation.findFirst({
         where: {
@@ -224,6 +207,11 @@ export class ConversationsService {
         },
         include: {
           users: {
+            where: {
+              id: {
+                not: userId,
+              },
+            },
             select: {
               id: true,
               username: true,
@@ -240,11 +228,25 @@ export class ConversationsService {
     }
   }
 
+  async findById(id: string): Promise<Conversation> {
+    try {
+      return await this.prisma.conversation.findFirst({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async markAsRead(conversationId: string, userId: string): Promise<void> {
     try {
       await this.prisma.message.updateMany({
         where: {
-          toId: conversationId,
+          conversationId,
           NOT: {
             viewedByIds: {
               has: userId,
@@ -266,7 +268,7 @@ export class ConversationsService {
 
   async updateIcon(
     conversationId: string,
-    file: Express.Multer.File | string,
+    file: string,
   ): Promise<Conversation> {
     try {
       const { type, icon_public_id } = await this.findById(conversationId);
@@ -279,10 +281,6 @@ export class ConversationsService {
       // Delete previous icon
       if (icon_public_id) {
         await this.cloudinaryService.deleteImage(icon_public_id);
-      }
-
-      if (typeof file !== 'string') {
-        file = base64File(file);
       }
 
       const { public_id, secure_url } =
@@ -304,25 +302,32 @@ export class ConversationsService {
     }
   }
 
-  async updateGroup(updateGroupDto: UpdateGroupDTO): Promise<any> {
+  async updateGroup(
+    updateGroupDto: UpdateGroupDTO,
+    userId: string,
+  ): Promise<Conversation> {
     const { id, icon, addUsers, kickUsers, ...rest } = updateGroupDto;
 
     if (icon) {
       await this.updateIcon(id, icon);
     }
 
-    if (addUsers) {
+    if (addUsers?.length > 0) {
       const addUserPromises = addUsers.map((addUserId) =>
         this.addGroupUser(id, addUserId),
       );
-      await Promise.all(addUserPromises);
+      try {
+        await Promise.all(addUserPromises);
+      } catch (error) {}
     }
 
-    if (kickUsers) {
+    if (kickUsers?.length > 0) {
       const kickUsersPromises = kickUsers.map((kickUserId) =>
-        this.kickUser(kickUserId, id),
+        this.kickGroupUser(kickUserId, id),
       );
-      await Promise.all(kickUsersPromises);
+      try {
+        await Promise.all(kickUsersPromises);
+      } catch (error) {}
     }
 
     // Update the rest of the parameters that
@@ -355,7 +360,7 @@ export class ConversationsService {
       });
     }
 
-    return await this.findById(id);
+    return await this.findByIdExcludingUser(id, userId);
   }
 
   async addGroupUser(
@@ -376,6 +381,7 @@ export class ConversationsService {
         },
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -389,6 +395,10 @@ export class ConversationsService {
           id,
         },
       });
+
+      // Remove active conversation from users
+      await this.usersService.removeActiveConversationFromAllUsers(id);
+
       const existsGroupIcon =
         deletedConversation.type === CONVERSATION_TYPE.group &&
         deletedConversation.icon_public_id;

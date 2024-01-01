@@ -113,20 +113,6 @@ export async function getFriendRequests(): Promise<IResponseData> {
   }
 }
 
-export async function denyFriendRequest(id: string): Promise<IResponseData> {
-  try {
-    const response = await fetch(`${baseUrl}/friend-requests/deny/${id}`, {
-      credentials: 'include',
-      method: HttpMethods.DELETE
-    });
-    const data = await response.json();
-
-    return { data, status: response.status };
-  } catch (error) {
-    return { data: null, status: 500 };
-  }
-}
-
 export async function closeActiveConversation(
   id: string
 ): Promise<IResponseData> {

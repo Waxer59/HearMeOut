@@ -1,10 +1,12 @@
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import { ConversationsSidebar, ChatView, GroupSettings } from '../components/';
 import { useEffect } from 'react';
 import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChat } from '../hooks/useSocketChat';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 import { ConversationTypes } from '../../store/types/types';
+import { getAllConversationMessages } from '../../services/hearMeOutAPI';
+import { HttpStatusCodes } from '../../types/types';
 
 export const Chat: React.FC = () => {
   const { connectSocketChat, disconnectSocketChat } = useSocketChat();
@@ -13,11 +15,15 @@ export const Chat: React.FC = () => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
+  const setConversationMessages = useChatStore(
+    (state) => state.setConversationMessages
+  );
+  const clearReplyMessage = useChatStore((state) => state.clearReplyMessage);
   const currentConversation = useChatStore((state) => state.conversations).find(
     (el) => el.id === currentConversationId
   );
   const socket = useChatStore((state) => state.socket);
-
+  const conversations = useChatStore((state) => state.conversations);
   const setShowGroupSettings = useChatStore(
     (state) => state.setShowGroupSettings
   );
@@ -35,7 +41,35 @@ export const Chat: React.FC = () => {
   }, [currentConversationId, socket]);
 
   useEffect(() => {
-    setShowGroupSettings(false);
+    async function fetchMessages() {
+      if (!currentConversationId) {
+        return;
+      }
+
+      const { data, status } = await getAllConversationMessages(
+        currentConversationId
+      );
+
+      if (status >= HttpStatusCodes.BAD_REQUEST) {
+        toast.error('There was an error fetching messages');
+      }
+
+      setConversationMessages(currentConversationId, data);
+    }
+    const doesConversationMessagesExists = Boolean(
+      conversations.find((el) => currentConversationId === el.id)?.messages
+    );
+    // clear replying message when navigating between chats
+    clearReplyMessage();
+
+    // close group settings when navigating between chats
+    if (currentConversation?.type === ConversationTypes.group) {
+      setShowGroupSettings(false);
+    }
+
+    if (!doesConversationMessagesExists) {
+      fetchMessages();
+    }
   }, [currentConversationId]);
 
   useEffect(() => {

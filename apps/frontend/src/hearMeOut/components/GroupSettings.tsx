@@ -19,7 +19,7 @@ import {
 import { useAccountStore, useChatStore } from '../../store';
 import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
 import { ConversationTypes } from '../../store/types/types';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { ImageUploaderBtn } from '../../components/ImageUploaderBtn';
 import { EditableTitle } from '../../components';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
@@ -37,19 +37,42 @@ export const GroupSettings = () => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   )!;
+  const setCurrentConversationId = useChatStore(
+    (state) => state.setCurrentConversationId
+  );
+  const removeConversation = useChatStore((state) => state.removeConversation);
   const asideRef = useRef<HTMLElement>(null);
-  const usersNotInGroup = useChatStore((state) =>
-    state.conversations.filter((el) => el.type === ConversationTypes.chat)
-  ).filter((el) => !users.find((user) => user.id === el.users[0].id));
-  const { id, username, avatar } = useAccountStore((state) => state.account)!;
+  const newUsers = useRef<string[]>([]);
+  const [isNewUsersDialogOpen, setIsNewUsersDialogOpen] = useState(false);
   const { name, icon, users, adminIds, type } = useChatStore((state) =>
     state.conversations.find((c) => c.id === currentConversationId)
   )!;
-  const { sendUpdateGroup, sendRemoveConversation } = useSocketChatEvents();
-  const isAdminAccount = adminIds.includes(id);
+  const usersNotInGroup = useChatStore((state) =>
+    state.conversations.filter((el) => el.type === ConversationTypes.chat)
+  ).filter((el) => !users.find((user) => user.id === el.users[0].id));
+  const { sendUpdateGroup, sendExitGroup, sendRemoveConversation } =
+    useSocketChatEvents();
+  const {
+    id: ownUserId,
+    username,
+    avatar
+  } = useAccountStore((state) => state.account)!;
+  const isAdminAccount = adminIds.includes(ownUserId);
 
-  const handleAddUserCheckbox = (e: any, userId: string): void => {
-    // const isChecked = e.target
+  const handleAddNewUsers = () => {
+    sendUpdateGroup(currentConversationId, {
+      addUsers: newUsers.current
+    });
+    newUsers.current = [];
+    setIsNewUsersDialogOpen(false);
+  };
+
+  const handleAddUserCheckbox = (isChecked: boolean, userId: string): void => {
+    if (isChecked) {
+      newUsers.current.push(userId);
+    } else {
+      newUsers.current = newUsers.current.filter((user) => user !== userId);
+    }
   };
 
   const handleChangeGroupName = (title: string): void => {
@@ -99,6 +122,13 @@ export const GroupSettings = () => {
     });
   };
 
+  const handleLeaveGroup = () => {
+    sendExitGroup(currentConversationId);
+    setCurrentConversationId(null);
+    setShowGroupSettings(false);
+    removeConversation(currentConversationId);
+  };
+
   const handleClose = () => {
     setShowGroupSettings(false);
   };
@@ -136,6 +166,7 @@ export const GroupSettings = () => {
             as="h3"
             title={name}
             onChangeTitle={handleChangeGroupName}
+            dialogTitle="Change group name"
           />
         ) : (
           <Heading
@@ -148,6 +179,7 @@ export const GroupSettings = () => {
       <ul className="mt-7 px-5 max-h-96 overflow-auto">
         {users.map(({ username, id, avatar }) => (
           <UserItem
+            key={id}
             username={username}
             id={id}
             avatar={avatar}
@@ -156,12 +188,12 @@ export const GroupSettings = () => {
             onKickUser={() => handleKickUser(id)}
             onMakeAdmin={() => handleMakeAdmin(id)}
             onRemoveAdmin={() => handleRemoveAdmin(id)}
-            key={id}
+            showControls={ownUserId !== id}
           />
         ))}
         <UserItem
           username={username}
-          id={id}
+          id={ownUserId}
           avatar={avatar}
           isUserAdmin={isAdminAccount}
           showControls={false}
@@ -171,13 +203,16 @@ export const GroupSettings = () => {
         <Button
           className="transition-[background] cursor-pointer uppercase font-bold w-3/4"
           color="ruby"
-          variant="soft">
+          variant="soft"
+          onClick={handleLeaveGroup}>
           leave group
           <IconDoorExit size={18} />
         </Button>
         {isAdminAccount && (
           <>
-            <Dialog.Root>
+            <Dialog.Root
+              onOpenChange={setIsNewUsersDialogOpen}
+              open={isNewUsersDialogOpen}>
               <Dialog.Trigger>
                 <Button
                   className="transition-[background] cursor-pointer uppercase font-bold w-3/4"
@@ -190,6 +225,11 @@ export const GroupSettings = () => {
               <Dialog.Content>
                 <Dialog.Title>Add users to group</Dialog.Title>
                 <div className="flex flex-col gap-6 mt-10 items-center">
+                  {usersNotInGroup.length === 0 && (
+                    <Heading as="h3">
+                      There are no users to add to the group
+                    </Heading>
+                  )}
                   {usersNotInGroup.map(({ id, users }) => (
                     <div className="flex items-center w-full gap-5" key={id}>
                       <Avatar
@@ -205,16 +245,24 @@ export const GroupSettings = () => {
                           color="blue"
                           variant="surface"
                           size="3"
-                          onChange={(e) => handleAddUserCheckbox(e, id)}
+                          onCheckedChange={(check) =>
+                            handleAddUserCheckbox(check as boolean, users[0].id)
+                          }
                         />
                       </div>
                     </div>
                   ))}
                 </div>
-                <Button className="mt-10 w-full" variant="soft" color="iris">
-                  <IconUsersPlus />
-                  Add users
-                </Button>
+                {usersNotInGroup.length > 0 && (
+                  <Button
+                    className="mt-10 w-full cursor-pointer"
+                    variant="soft"
+                    color="iris"
+                    onClick={handleAddNewUsers}>
+                    <IconUsersPlus />
+                    Add users
+                  </Button>
+                )}
               </Dialog.Content>
             </Dialog.Root>
             <Button

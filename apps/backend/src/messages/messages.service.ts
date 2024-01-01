@@ -30,15 +30,10 @@ export class MessagesService {
           from: {
             connect: { id: fromId },
           },
-          to: {
+          conversation: {
             connect: { id: toId },
           },
           createdAt: new Date(),
-          conversation: {
-            connect: {
-              id: toId,
-            },
-          },
           ...replyMsg,
         },
         include: {
@@ -92,6 +87,7 @@ export class MessagesService {
         },
       });
     } catch (error) {
+      console.error(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -104,7 +100,7 @@ export class MessagesService {
     try {
       return await this.prisma.message.findMany({
         where: {
-          toId: conversationId,
+          conversationId,
         },
         include: {
           from: {

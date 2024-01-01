@@ -86,13 +86,13 @@ export const SidebarProfile: React.FC = () => {
   };
 
   const handleRemoveRequest = async (id: string): Promise<void> => {
-    sendRemoveFriendRequest(id);
+    sendRemoveFriendRequest(id, true);
     removeFriendRequestOutgoing(id);
     toast.success('Friend request removed!');
   };
 
   const handleDenyFriendRequest = async (id: string): Promise<void> => {
-    sendRemoveFriendRequest(id);
+    sendRemoveFriendRequest(id, false);
     removeFriendRequest(id);
     toast.success('Friend request denied!');
   };

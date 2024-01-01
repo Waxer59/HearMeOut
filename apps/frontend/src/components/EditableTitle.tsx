@@ -10,6 +10,7 @@ import { useState } from 'react';
 
 interface Props {
   title: string;
+  dialogTitle: string;
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   size?: '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
   onChangeTitle: (title: string) => void;
@@ -17,6 +18,7 @@ interface Props {
 
 export const EditableTitle: React.FC<Props> = ({
   title,
+  dialogTitle,
   onChangeTitle,
   as,
   size
@@ -44,7 +46,7 @@ export const EditableTitle: React.FC<Props> = ({
           </IconButton>
         </Dialog.Trigger>
         <Dialog.Content className="max-w-md">
-          <Dialog.Title>Change username</Dialog.Title>
+          <Dialog.Title>{dialogTitle}</Dialog.Title>
 
           <div className="flex flex-col gap-4">
             <TextFieldInput

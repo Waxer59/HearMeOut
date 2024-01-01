@@ -73,6 +73,11 @@ export interface DeleteMessageDetails {
   messageId: string;
 }
 
+export interface RemoveFriendRequestDetails {
+  id: string;
+  isOutgoing: boolean;
+}
+
 export interface UpdateMessageDetails {
   conversationId: string;
   messageId: string;

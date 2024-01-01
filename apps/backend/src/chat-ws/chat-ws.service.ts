@@ -12,12 +12,15 @@ import { TypingDto } from './dto/typing.dto';
 import { FriendRequestsService } from 'src/friend-requests/friend-requests.service';
 import { ConversationsService } from 'src/conversations/conversations.service';
 import { ConversationActionsDto } from '../conversations/dto/conversation-actions.dto';
-import { FriendRequestDto } from '../friend-requests/dto/friend-request.dto';
+import { CreateFriendRequestDto } from '../friend-requests/dto/create-friend-request.dto';
 import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
 import { CachingService } from 'src/caching/caching.service';
 import { DeleteMessageDto } from '../messages/dto/delete-message.dto';
 import { UpdateMessageDto } from '../messages/dto/update-message.dto';
 import { UpdateGroupDTO } from 'src/conversations/dto/update-group.dto';
+import { RemoveFriendRequestDto } from 'src/friend-requests/dto/remove-friend-request.dto';
+import { AcceptFriendRequestDto } from 'src/friend-requests/dto/accept-friend-request.dto';
+import { CONVERSATION_TYPE } from 'src/common/types/types';
 
 @Injectable()
 export class ChatWsService {
@@ -65,70 +68,66 @@ export class ChatWsService {
   }
 
   async friendRequest(
-    friendRequestDto: FriendRequestDto,
+    createFriendRequestDto: CreateFriendRequestDto,
     client: Socket,
     fromId: string,
   ): Promise<void> {
-    const { id } = friendRequestDto;
-    try {
-      const request = await this.friendRequestsService.create(fromId, id);
-      client.to(id).emit(CHAT_EVENTS.friendRequest, request);
-      client.emit(CHAT_EVENTS.friendRequestOutgoing, request);
-    } catch (error) {}
+    const { userId } = createFriendRequestDto;
+    const request = await this.friendRequestsService.create(fromId, userId);
+    client.to(userId).emit(CHAT_EVENTS.friendRequest, request);
+    client.emit(CHAT_EVENTS.friendRequestOutgoing, request);
   }
 
   async acceptFriendRequest(
-    friendRequestDto: FriendRequestDto,
+    acceptFriendRequestDto: AcceptFriendRequestDto,
     server: Server,
     userId: string,
   ): Promise<void> {
-    const { id: friendReqId } = friendRequestDto;
+    const { id: friendReqId } = acceptFriendRequestDto;
 
-    try {
-      const { toId } = await this.friendRequestsService.findById(friendReqId);
+    const { toId } = await this.friendRequestsService.findById(friendReqId);
 
-      // Check if the user who accepts the friend request
-      // is the user who was sent the friend request
-      if (toId !== userId) {
-        return;
-      }
+    // Check if the user who accepts the friend request
+    // is the user who was sent the friend request
+    if (toId !== userId) {
+      return;
+    }
 
-      const acceptedRequest =
-        await this.friendRequestsService.accept(friendReqId);
+    const acceptedRequest =
+      await this.friendRequestsService.accept(friendReqId);
 
-      // Join users to conversation room
-      server.in(acceptedRequest.userIds).socketsJoin(acceptedRequest.id);
+    // Join users to conversation room
+    server.in(acceptedRequest.userIds).socketsJoin(acceptedRequest.id);
 
-      // Notify users that the friend request was
-      // accepted and the conversation room was created
-      acceptedRequest.userIds.forEach((userId) => {
-        const users = acceptedRequest.users.filter((el) => el.id !== userId);
-        server
-          .to(userId)
-          .emit(CHAT_EVENTS.acceptFriendRequest, { ...acceptedRequest, users });
-      });
-    } catch (error) {}
+    // Notify users that the friend request was
+    // accepted and the conversation room was created
+    acceptedRequest.userIds.forEach((userId) => {
+      const users = acceptedRequest.users.filter((el) => el.id !== userId);
+      server
+        .to(userId)
+        .emit(CHAT_EVENTS.acceptFriendRequest, { ...acceptedRequest, users });
+    });
   }
 
   async removeFriendRequest(
-    friendRequestDto: FriendRequestDto,
+    removeFriendRequestDto: RemoveFriendRequestDto,
     server: Server,
     userId: string,
   ): Promise<void> {
-    const { id } = friendRequestDto;
+    const { id, isOutgoing } = removeFriendRequestDto;
+    const { toId, fromId } = await this.friendRequestsService.findById(id);
+    const notifyUserId = isOutgoing ? toId : fromId;
 
-    try {
-      const request = await this.friendRequestsService.findById(id);
+    // Check if the user who removes the friend request
+    // is the user who was sent the friend request or who sent the friend request
+    if (toId !== userId && fromId !== userId) {
+      return;
+    }
 
-      // Check if the user who removes the friend request
-      // is the user who was sent the friend request or who sent the friend request
-      if (request.toId !== userId && request.fromId !== userId) {
-        return;
-      }
-
-      await this.friendRequestsService.delete(id);
-      server.to(request.toId).emit(CHAT_EVENTS.removeFriendRequest, id);
-    } catch (error) {}
+    await this.friendRequestsService.delete(id);
+    server
+      .to(notifyUserId)
+      .emit(CHAT_EVENTS.removeFriendRequest, { id, isOutgoing: !isOutgoing });
   }
 
   async removeConversation(
@@ -141,10 +140,11 @@ export class ChatWsService {
       await this.conversationsService.findById(conversationId);
     const isGroupAdmin = conversation.adminIds.includes(userId);
     const isChatMember = conversation.userIds.includes(userId);
+    const isGroupConversation = conversation.type === CONVERSATION_TYPE.group;
 
     // User must be in the conversation if its a chat
     // User must be an admin if its a group
-    if (!isGroupAdmin || !isChatMember) {
+    if ((!isGroupAdmin && isGroupConversation) || !isChatMember) {
       return;
     }
 
@@ -187,7 +187,7 @@ export class ChatWsService {
       return;
     }
 
-    const token = parsedCookies[AUTH_COOKIE];
+    const token = parsedCookies?.[AUTH_COOKIE];
 
     try {
       return await this.authService.verify(token);
@@ -223,7 +223,7 @@ export class ChatWsService {
     userId: string,
     server: Server,
   ) {
-    const { id: groupId } = updateGroupDto;
+    const { id: groupId, kickUsers, addUsers } = updateGroupDto;
     const group = await this.conversationsService.findById(groupId);
     const isGroupAdmin = group.adminIds.includes(userId);
 
@@ -231,18 +231,21 @@ export class ChatWsService {
       return;
     }
 
-    const newGroup =
-      await this.conversationsService.updateGroup(updateGroupDto);
+    const newGroup = await this.conversationsService.updateGroup(
+      updateGroupDto,
+      userId,
+    );
 
-    // Remove own user
-    newGroup.userIds = newGroup.userIds.filter((el) => el !== userId);
-    newGroup.users = newGroup.users.filter((el) => el.id !== userId);
+    // Remove users from conversation room
+    if (kickUsers) {
+      server.in(kickUsers).socketsLeave(groupId);
+      server.to(kickUsers).emit(CHAT_EVENTS.removeConversation, groupId);
+    }
 
-    if (updateGroupDto.kickUsers) {
-      server.in(updateGroupDto.kickUsers).socketsLeave(groupId);
-      server
-        .to(updateGroupDto.kickUsers)
-        .emit(CHAT_EVENTS.removeConversation, groupId);
+    // Add users to conversation room
+    if (addUsers) {
+      server.in(addUsers).socketsJoin(groupId);
+      server.to(addUsers).emit(CHAT_EVENTS.newConversation, newGroup);
     }
 
     server.in(groupId).emit(CHAT_EVENTS.updateGroup, newGroup);
@@ -262,9 +265,9 @@ export class ChatWsService {
       }
 
       await this.messageService.updateById(messageId, content);
-      server.to(msg.toId).emit(CHAT_EVENTS.updateMessage, {
+      server.to(msg.conversationId).emit(CHAT_EVENTS.updateMessage, {
         messageId,
-        conversationId: msg.toId,
+        conversationId: msg.conversationId,
         content,
       });
     } catch (e) {}
@@ -273,11 +276,23 @@ export class ChatWsService {
   async exitGroup(
     conversationActionsDto: ConversationActionsDto,
     userId: string,
+    server: Server,
   ): Promise<void> {
-    try {
-      // TODO: Complete this method
-      console.log(conversationActionsDto, userId);
-    } catch (error) {}
+    const { id: conversationId } = conversationActionsDto;
+
+    const newGroup = await this.conversationsService.updateGroup(
+      {
+        id: conversationId,
+        kickUsers: [userId],
+      },
+      userId,
+    );
+
+    // Send group update
+    server.to(conversationId).emit(CHAT_EVENTS.updateGroup, newGroup);
+
+    // Leave socket room
+    server.in(userId).socketsLeave(conversationId);
   }
 
   async deleteMessage(
@@ -286,19 +301,17 @@ export class ChatWsService {
     userId: string,
   ): Promise<void> {
     const { messageId } = deleteMessageDto;
-    try {
-      const msg = await this.messageService.findOneById(messageId);
+    const msg = await this.messageService.findOneById(messageId);
 
-      if (msg.fromId !== userId) {
-        return;
-      }
+    if (msg.fromId !== userId) {
+      return;
+    }
 
-      await this.messageService.deleteById(messageId);
-      server.to(msg.toId).emit(CHAT_EVENTS.deleteMessage, {
-        messageId,
-        conversationId: msg.toId,
-      });
-    } catch (error) {}
+    await this.messageService.deleteById(messageId);
+    server.to(msg.conversationId).emit(CHAT_EVENTS.deleteMessage, {
+      messageId,
+      conversationId: msg.conversationId,
+    });
   }
 
   async connectUser(client: Socket, user: User): Promise<void> {

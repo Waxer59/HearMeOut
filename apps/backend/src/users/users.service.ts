@@ -8,15 +8,14 @@ import { PrismaService } from 'src/common/db/prisma.service';
 import { User } from '@prisma/client';
 import { generateHash } from 'src/common/helpers/bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ConversationsService } from 'src/conversations/conversations.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { base64File } from 'src/common/helpers/base64File';
+import { CONVERSATION_TYPE, UserWithRelations } from 'src/common/types/types';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly conversationsService: ConversationsService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -60,7 +59,6 @@ export class UsersService {
         },
       });
     } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -77,9 +75,9 @@ export class UsersService {
     }
   }
 
-  async findOneById(id: string): Promise<User> {
+  async findOneById(id: string): Promise<UserWithRelations> {
     try {
-      return await this.prisma.user.findFirst({
+      return (await this.prisma.user.findFirst({
         where: { id },
         include: {
           configuration: {
@@ -88,7 +86,14 @@ export class UsersService {
             },
           },
           conversations: {
-            include: {
+            select: {
+              id: true,
+              creatorId: true,
+              adminIds: true,
+              name: true,
+              type: true,
+              icon: true,
+              joinCode: true,
               users: {
                 where: {
                   id: {
@@ -129,8 +134,9 @@ export class UsersService {
             },
           },
         },
-      });
+      })) as unknown as UserWithRelations;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -189,19 +195,57 @@ export class UsersService {
     }
   }
 
+  async removeActiveConversationFromAllUsers(
+    conversationId: string,
+  ): Promise<void> {
+    try {
+      const users = await this.prisma.user.findMany({
+        where: {
+          activeConversationIds: {
+            has: conversationId,
+          },
+        },
+      });
+      const updatedUsers = users.map((user) =>
+        this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            activeConversationIds: {
+              set: user.activeConversationIds.filter(
+                (activeConversationId) =>
+                  activeConversationId !== conversationId,
+              ),
+            },
+          },
+        }),
+      );
+      await Promise.all(updatedUsers);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async findAllByUsernamesLike(
     finderUserId: string,
     username: string,
   ): Promise<any[]> {
-    const chats = await this.conversationsService.findAllByUserId(finderUserId);
-    const chatsUserIds = [
-      ...new Set(
-        chats
-          .map((chat) => chat.userIds)
-          .flat()
-          .concat(finderUserId),
-      ),
-    ];
+    // It's necessary to exclude the users
+    // who are already in the chat with the finder user.
+    const user = await this.findOneById(finderUserId);
+    const excludeUsersIds = user.conversations.reduce((acc, curr) => {
+      if (curr.type === CONVERSATION_TYPE.group) {
+        return acc;
+      }
+      const chatUser = curr.users.filter((user) => user.id !== finderUserId)[0]
+        .id;
+      acc.push(chatUser);
+      return acc;
+    }, []);
+
+    // Exclude own user
+    excludeUsersIds.push(finderUserId);
 
     try {
       return await this.prisma.user.findMany({
@@ -212,7 +256,7 @@ export class UsersService {
           },
           NOT: {
             id: {
-              in: chatsUserIds,
+              in: excludeUsersIds,
             },
           },
         },

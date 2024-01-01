@@ -1,4 +1,9 @@
-import { Conversation, User } from '@prisma/client';
+import {
+  Configuration,
+  Conversation,
+  FriendRequest,
+  User,
+} from '@prisma/client';
 import type { Socket } from 'socket.io';
 
 export type SocketIOMiddleware = {
@@ -8,6 +13,17 @@ export type SocketIOMiddleware = {
 export enum CONVERSATION_TYPE {
   chat = 'chat',
   group = 'group',
+}
+
+export interface ConversationWithRelations extends Conversation {
+  users: User[];
+}
+
+export interface UserWithRelations extends User {
+  conversations: ConversationWithRelations[];
+  configuration: Configuration;
+  friendReqFroms: FriendRequest[];
+  friendReqTos: FriendRequest[];
 }
 
 export interface ConversationDetails extends Conversation {
@@ -35,24 +51,5 @@ export interface ICloudinaryUploadResponse {
   secure_url: string;
   folder: string;
   access_mode: string;
-  info: Info;
   api_key: string;
-}
-
-export interface Info {
-  categorization: Categorization;
-}
-
-export interface Categorization {
-  google_tagging: GoogleTagging;
-}
-
-export interface GoogleTagging {
-  status: string;
-  data: Datum[];
-}
-
-export interface Datum {
-  tag: string;
-  confidence: number;
 }

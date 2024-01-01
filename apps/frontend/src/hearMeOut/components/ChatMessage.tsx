@@ -94,7 +94,7 @@ export const ChatMessage: React.FC<Props> = ({
               (isMenuOpen || isEditing) && 'bg-secondary shadow'
             } ${isReplying ? 'flex-col' : ''}`}>
             {isReplying && (
-              <div className="justify-start w-full pt-2 border-gray-700 flex items-center gap-2 pl-[60px] before:content-[''] before:absolute before:border-t-2 before:border-l-2 before:border-gray-500 before:w-10 before:h-4 before:rounded-tl before:left-4 before:bottom-0 relative">
+              <div className="justify-start w-full pt-2 border-gray-700 flex items-center gap-2 pl-[60px] before:content-[''] before:absolute before:border-t-2 before:border-l-2 before:border-gray-500 before:w-10 before:h-6 before:rounded-tl before:left-4 before:-bottom-2 relative">
                 <Avatar
                   fallback={getFallbackAvatarName(replyMsg!.from.username)}
                   src={replyMsg?.from.avatar}

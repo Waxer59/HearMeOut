@@ -1,10 +1,4 @@
-import {
-  IconButton,
-  TextField,
-  Tooltip,
-  Button,
-  Heading
-} from '@radix-ui/themes';
+import { IconButton, TextField, Tooltip, Button } from '@radix-ui/themes';
 import { IconMoodSmile, IconSend, IconX } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import type { EmojiProps, InputEvent } from '../../types/types';
@@ -116,9 +110,9 @@ export const ChatInput: React.FC = () => {
     <div className="flex flex-col px-20">
       {replyMessage && (
         <div className="flex justify-between bg-secondary p-4 rounded-t-lg gap-2 text-md">
-          <Heading as="h3">
+          <h3>
             Reply to <strong>{replyMessage.from.username}</strong>{' '}
-          </Heading>
+          </h3>
           <Button
             size="2"
             variant="ghost"
@@ -151,6 +145,7 @@ export const ChatInput: React.FC = () => {
                 handleSendMessage();
               }
             }}
+            autoFocus
           />
           <TextField.Slot>
             <Tooltip content="Add emoji">
