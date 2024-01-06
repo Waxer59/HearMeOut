@@ -1,6 +1,6 @@
 import { BeatLoader } from 'react-spinners';
-import type { UserTyping } from '../../store/types/types';
-import { useChatStore } from '../../store';
+import type { UserTyping } from '../../../store/types/types';
+import { useChatStore } from '../../../store';
 
 interface Props {
   usersTyping: UserTyping[];

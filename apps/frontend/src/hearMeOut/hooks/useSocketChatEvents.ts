@@ -9,7 +9,7 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.message, {
       content,
       replyId,
-      toId: currentConversationId
+      conversationId: currentConversationId
     });
   };
 

@@ -2,6 +2,7 @@ import {
   Configuration,
   Conversation,
   FriendRequest,
+  Message,
   User,
 } from '@prisma/client';
 import type { Socket } from 'socket.io';
@@ -19,15 +20,15 @@ export interface ConversationWithRelations extends Conversation {
   users: User[];
 }
 
+export interface MessageWithRelations extends Message {
+  replies: Message[];
+}
+
 export interface UserWithRelations extends User {
   conversations: ConversationWithRelations[];
   configuration: Configuration;
   friendReqFroms: FriendRequest[];
   friendReqTos: FriendRequest[];
-}
-
-export interface ConversationDetails extends Conversation {
-  users: User[];
 }
 
 export interface ICloudinaryUploadResponse {

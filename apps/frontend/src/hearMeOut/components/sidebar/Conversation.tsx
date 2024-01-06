@@ -1,10 +1,10 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
-import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
-import { useAccountStore, useChatStore } from '../../store';
-import { closeActiveConversation } from '../../services/hearMeOutAPI';
-import { ConversationTypes } from '../../store/types/types';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import { NotificationIndicator } from './NotificationIndicator';
+import { getFallbackAvatarName, capitalize } from '../../helpers';
+import { useAccountStore, useChatStore } from '../../../store';
+import { closeActiveConversation } from '../../../services/hearMeOutAPI';
+import { ConversationTypes } from '../../../store/types/types';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import { NotificationIndicator } from '../NotificationIndicator';
 import { useState } from 'react';
 
 interface Props {
@@ -25,7 +25,7 @@ const CLOSE_MESSAGE = {
   [ConversationTypes.group]: 'Close group'
 };
 
-export const SidebarConversation: React.FC<Props> = ({
+export const Conversation: React.FC<Props> = ({
   id,
   name,
   imageURL,
@@ -54,7 +54,7 @@ export const SidebarConversation: React.FC<Props> = ({
 
   const handleOpenChat = async () => {
     setCurrentConversationId(id);
-    document.title = `${name} | HearMeOut`;
+    document.title = `${capitalize(name)} | HearMeOut`;
     setHasNewMessages(false);
   };
 

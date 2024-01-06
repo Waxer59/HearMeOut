@@ -7,11 +7,7 @@ import {
   IconUsersGroup,
   IconX
 } from '@tabler/icons-react';
-import {
-  SidebarAddContactOption,
-  SidebarCreateGroupOption,
-  SidebarJoinGroupOption
-} from './';
+import { AddContactOption, CreateGroupOption, JoinGroupOption } from '..';
 import { useState } from 'react';
 
 enum DialogSelectionEnum {
@@ -21,7 +17,7 @@ enum DialogSelectionEnum {
   NONE = 'NONE'
 }
 
-export const SidebarOptions: React.FC = () => {
+export const Options: React.FC = () => {
   const [dialogSelection, setDialogSelection] = useState<DialogSelectionEnum>(
     DialogSelectionEnum.NONE
   );
@@ -123,13 +119,13 @@ export const SidebarOptions: React.FC = () => {
           </div>
         )}
         {dialogSelection === DialogSelectionEnum.ADD_CONTACT && (
-          <SidebarAddContactOption />
+          <AddContactOption />
         )}
         {dialogSelection === DialogSelectionEnum.CREATE_GROUP && (
-          <SidebarCreateGroupOption closeDialog={closeDialog} />
+          <CreateGroupOption closeDialog={closeDialog} />
         )}
         {dialogSelection === DialogSelectionEnum.JOIN_GROUP && (
-          <SidebarJoinGroupOption />
+          <JoinGroupOption />
         )}
       </Dialog.Content>
     </Dialog.Root>

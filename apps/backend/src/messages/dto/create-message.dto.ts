@@ -6,7 +6,7 @@ export class CreateMessageDto {
   fromId: string;
 
   @IsString()
-  toId: string;
+  conversationId: string;
 
   @IsString()
   @IsNotBlank('content')

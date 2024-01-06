@@ -1,5 +1,5 @@
 import { Avatar, Tooltip } from '@radix-ui/themes';
-import { getFallbackAvatarName } from '../hearMeOut/helpers/getFallbackAvatarName';
+import { getFallbackAvatarName } from '../hearMeOut/helpers';
 import { useRef, type ChangeEvent } from 'react';
 
 interface Props {

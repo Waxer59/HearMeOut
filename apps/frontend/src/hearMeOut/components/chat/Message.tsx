@@ -5,14 +5,14 @@ import {
   DropdownMenu,
   TextFieldInput
 } from '@radix-ui/themes';
-import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
+import { getFallbackAvatarName } from '../../helpers';
 import { IconChevronDown } from '@tabler/icons-react';
 import { useState, useRef, useEffect } from 'react';
-import { ChatMessageMenu } from './';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import { MessageMenu } from '../';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
 import { toast } from 'sonner';
-import type { MessageDetails } from '../../store/types/types';
-import { useChatStore } from '../../store';
+import type { MessageDetails } from '../../../store/types/types';
+import { useChatStore } from '../../../store';
 
 interface Props {
   message: MessageDetails;
@@ -21,12 +21,7 @@ interface Props {
   avatar?: string;
 }
 
-export const ChatMessage: React.FC<Props> = ({
-  message,
-  name,
-  avatar,
-  date
-}) => {
+export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
   const { id, isEdited, content } = message;
   const { sendUpdateMessage } = useSocketChatEvents();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -158,12 +153,12 @@ export const ChatMessage: React.FC<Props> = ({
             </div>
           </div>
         </ContextMenu.Trigger>
-        <ChatMessageMenu
+        <MessageMenu
           type={ContextMenu}
           message={message}
           handleEditMessage={handleEditMessage}
         />
-        <ChatMessageMenu
+        <MessageMenu
           type={DropdownMenu}
           message={message}
           handleEditMessage={handleEditMessage}

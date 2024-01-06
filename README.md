@@ -16,6 +16,7 @@
 - [Zod](https://zod.dev/)
 - [Zustand](https://docs.pmnd.rs/)
 - [Radix UI](https://www.radix-ui.com/)
+- [React Draggable](https://www.npmjs.com/package/react-draggable)
 
 ### Backend
 

@@ -1,15 +1,16 @@
 import { IconButton, TextField, Tooltip, Button } from '@radix-ui/themes';
 import { IconMoodSmile, IconSend, IconX } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
-import type { EmojiProps, InputEvent } from '../../types/types';
+import type { EmojiProps, InputEvent } from '../../../types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { TypingIndicator } from './';
-import { useAccountStore, useChatStore } from '../../store';
-import { TYPING_TIMEOUT } from '../../constants/constants';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import { TypingIndicator } from '..';
+import { useAccountStore, useChatStore } from '../../../store';
+import { TYPING_TIMEOUT } from '../../../constants/constants';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import Draggable from 'react-draggable';
 
-export const ChatInput: React.FC = () => {
+export const Input: React.FC = () => {
   const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
@@ -123,16 +124,19 @@ export const ChatInput: React.FC = () => {
         </div>
       )}
       <div className="pb-12 relative flex flex-col">
-        <div
-          className={`absolute bottom-24 right-20 ${
-            isEmojiMenuOpen ? 'block' : 'hidden'
-          }`}>
-          <Picker
-            data={data}
-            onEmojiSelect={onEmojiClick}
-            theme={settings.theme}
-          />
-        </div>
+        <Draggable axis="x" bounds="parent">
+          <div
+            className={`absolute bottom-28 right-20 cursor-move select-none ${
+              isEmojiMenuOpen ? 'block' : 'hidden'
+            }`}>
+            <Picker
+              data={data}
+              onEmojiSelect={onEmojiClick}
+              theme={settings.theme}
+              previewPosition="none"
+            />
+          </div>
+        </Draggable>
         <TextField.Root className="py-1" variant="soft" color="gray">
           <TextField.Input
             placeholder="Type a message here"

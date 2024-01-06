@@ -3,7 +3,7 @@ import { IsNotBlank } from 'src/common/validators/isNotBlank';
 
 export class SendMessageDto {
   @IsString()
-  toId: string;
+  conversationId: string;
 
   @IsString()
   @IsNotBlank('content')

@@ -8,25 +8,26 @@ import {
   Tooltip
 } from '@radix-ui/themes';
 import { IconSend } from '@tabler/icons-react';
-import { useChatStore } from '../../store';
+import { useAccountStore, useChatStore } from '../../../store';
 import {
   ConversationTypes,
   type AccountDetails
-} from '../../store/types/types';
+} from '../../../store/types/types';
 import { useState } from 'react';
-import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
+import { getFallbackAvatarName } from '../../helpers';
 import { toast } from 'sonner';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
 
 interface Props {
   closeDialog: () => void;
 }
 
-export const SidebarCreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
+export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
   const { conversations } = useChatStore();
   const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
   const [groupName, setGroupName] = useState('');
   const { sendCreateGroup } = useSocketChatEvents();
+  const ownUserId = useAccountStore((state) => state.account?.id);
 
   const chatConversations = conversations.filter(
     (el) => el.type === ConversationTypes.chat
@@ -61,8 +62,12 @@ export const SidebarCreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
   };
 
   const handleValueChange = (userId: string) => {
-    const user = chatConversations.find((el) => el.users[0].id === userId)
-      ?.users[0];
+    const user = chatConversations
+      .find((el) => {
+        const userInChat = el.users.find((user) => user.id !== ownUserId)!;
+        return userInChat.id === userId;
+      })
+      ?.users.find((user) => user.id !== ownUserId);
     if (!user) {
       toast.error('User not found');
       return;
@@ -87,18 +92,28 @@ export const SidebarCreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
           <Select.Trigger placeholder="Contacts" />
           <Select.Content color="blue">
             {chatConversations
-              .filter(
-                (el) =>
-                  !selectedUsers.find((user) => user.id === el.users[0].id)
-              )
-              .map((el) => (
-                <Select.Item
-                  value={el.users[0].id}
-                  key={el.users[0].id}
-                  className="capitalize">
-                  {el.users[0].username}
-                </Select.Item>
-              ))}
+              .filter((el) => {
+                const userInChat = el.users.find(
+                  (user) => user.id !== ownUserId
+                )!;
+                const isUserSelected = selectedUsers.find(
+                  (user) => user.id === userInChat.id
+                );
+                return !isUserSelected;
+              })
+              .map((el) => {
+                const userInChat = el.users.find(
+                  (user) => user.id !== ownUserId
+                )!;
+                return (
+                  <Select.Item
+                    key={el.id}
+                    value={userInChat.id}
+                    className="capitalize">
+                    {userInChat.username}
+                  </Select.Item>
+                );
+              })}
           </Select.Content>
         </Select.Root>
       </div>

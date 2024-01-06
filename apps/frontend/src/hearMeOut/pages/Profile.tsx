@@ -12,7 +12,7 @@ import {
 } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes, LOCAL_STORAGE_ITEMS } from '../../types/types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { getFileExtension } from '../../helpers/getFileExtension';
+import { getFileExtension } from '../helpers';
 import { ACCEPTED_IMG_EXTENSIONS } from '../../constants/constants';
 import { ImageUploaderBtn, EditableTitle } from '../../components';
 

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { FriendRequest } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { ConversationDetails } from 'src/common/types/types';
+import { ConversationWithRelations } from 'src/common/types/types';
 import { ConversationsService } from 'src/conversations/conversations.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -130,7 +130,7 @@ export class FriendRequestsService {
     }
   }
 
-  async accept(id: string): Promise<ConversationDetails> {
+  async accept(id: string): Promise<ConversationWithRelations> {
     try {
       const { fromId: userId1, toId: userId2 } = await this.findById(id);
       // Delete friend req
@@ -146,7 +146,7 @@ export class FriendRequestsService {
 
       Promise.resolve(activeConversations);
 
-      return chat as ConversationDetails;
+      return chat as ConversationWithRelations;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',

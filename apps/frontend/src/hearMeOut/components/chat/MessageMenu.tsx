@@ -1,7 +1,7 @@
 import { IconArrowBackUp, IconEdit, IconTrash } from '@tabler/icons-react';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import { useAccountStore, useChatStore } from '../../store';
-import type { MessageDetails } from '../../store/types/types';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import { useAccountStore, useChatStore } from '../../../store';
+import type { MessageDetails } from '../../../store/types/types';
 
 interface Props {
   message: MessageDetails;
@@ -9,7 +9,7 @@ interface Props {
   type: any;
 }
 
-export const ChatMessageMenu: React.FC<Props> = ({
+export const MessageMenu: React.FC<Props> = ({
   type,
   message,
   handleEditMessage,

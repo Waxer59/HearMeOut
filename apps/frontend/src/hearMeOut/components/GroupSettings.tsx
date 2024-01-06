@@ -17,7 +17,11 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { useAccountStore, useChatStore } from '../../store';
-import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
+import {
+  getFallbackAvatarName,
+  getBase64File,
+  getFileExtension
+} from '../helpers';
 import { ConversationTypes } from '../../store/types/types';
 import { useRef, useState } from 'react';
 import { ImageUploaderBtn } from '../../components/ImageUploaderBtn';
@@ -25,9 +29,7 @@ import { EditableTitle } from '../../components';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 import type { InputEvent } from '../../types/types';
 import { toast } from 'sonner';
-import { getFileExtension } from '../../helpers/getFileExtension';
 import { ACCEPTED_IMG_EXTENSIONS } from '../../constants/constants';
-import { getBase64File } from '../helpers/getBase64File';
 
 export const GroupSettings = () => {
   const setShowGroupSettings = useChatStore(
@@ -40,6 +42,7 @@ export const GroupSettings = () => {
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
   );
+  const { id: ownUserId } = useAccountStore((state) => state.account)!;
   const removeConversation = useChatStore((state) => state.removeConversation);
   const asideRef = useRef<HTMLElement>(null);
   const newUsers = useRef<string[]>([]);
@@ -49,14 +52,13 @@ export const GroupSettings = () => {
   )!;
   const usersNotInGroup = useChatStore((state) =>
     state.conversations.filter((el) => el.type === ConversationTypes.chat)
-  ).filter((el) => !users.find((user) => user.id === el.users[0].id));
+  ).filter((el) => {
+    const userInChat = el.users.find((user) => user.id !== ownUserId)!;
+    const isUserInGroup = users.find((user) => user.id === userInChat.id);
+    return !isUserInGroup;
+  });
   const { sendUpdateGroup, sendExitGroup, sendRemoveConversation } =
     useSocketChatEvents();
-  const {
-    id: ownUserId,
-    username,
-    avatar
-  } = useAccountStore((state) => state.account)!;
   const isAdminAccount = adminIds.includes(ownUserId);
 
   const handleAddNewUsers = () => {
@@ -191,13 +193,6 @@ export const GroupSettings = () => {
             showControls={ownUserId !== id}
           />
         ))}
-        <UserItem
-          username={username}
-          id={ownUserId}
-          avatar={avatar}
-          isUserAdmin={isAdminAccount}
-          showControls={false}
-        />
       </ul>
       <div className="flex flex-col gap-5 mt-8 items-center">
         <Button
@@ -230,28 +225,37 @@ export const GroupSettings = () => {
                       There are no users to add to the group
                     </Heading>
                   )}
-                  {usersNotInGroup.map(({ id, users }) => (
-                    <div className="flex items-center w-full gap-5" key={id}>
-                      <Avatar
-                        fallback={getFallbackAvatarName(users[0].username)}
-                        src={users[0].avatar}
-                        size="4"
-                      />
-                      <div className="flex gap-4 items-center">
-                        <Heading as="h3" className="capitalize text-md">
-                          {users[0].username}
-                        </Heading>
-                        <Checkbox
-                          color="blue"
-                          variant="surface"
-                          size="3"
-                          onCheckedChange={(check) =>
-                            handleAddUserCheckbox(check as boolean, users[0].id)
-                          }
+                  {usersNotInGroup.map(({ id, users }) => {
+                    const userInChat = users.find(
+                      (user) => user.id !== ownUserId
+                    )!;
+
+                    return (
+                      <div className="flex items-center w-full gap-5" key={id}>
+                        <Avatar
+                          fallback={getFallbackAvatarName(userInChat.username)}
+                          src={userInChat.avatar}
+                          size="4"
                         />
+                        <div className="flex gap-4 items-center">
+                          <Heading as="h3" className="capitalize text-md">
+                            {userInChat.username}
+                          </Heading>
+                          <Checkbox
+                            color="blue"
+                            variant="surface"
+                            size="3"
+                            onCheckedChange={(check) =>
+                              handleAddUserCheckbox(
+                                check as boolean,
+                                userInChat.id
+                              )
+                            }
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 {usersNotInGroup.length > 0 && (
                   <Button

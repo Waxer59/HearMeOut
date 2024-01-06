@@ -196,10 +196,7 @@ export class ConversationsService {
     }
   }
 
-  // The user requesting the group information must be
-  // excluded from the list of users to avoid sending
-  // unnecessary information.
-  async findByIdExcludingUser(id: string, userId: string) {
+  async findById(id: string): Promise<Conversation> {
     try {
       return await this.prisma.conversation.findFirst({
         where: {
@@ -207,11 +204,6 @@ export class ConversationsService {
         },
         include: {
           users: {
-            where: {
-              id: {
-                not: userId,
-              },
-            },
             select: {
               id: true,
               username: true,
@@ -219,20 +211,6 @@ export class ConversationsService {
               isOnline: true,
             },
           },
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later',
-      );
-    }
-  }
-
-  async findById(id: string): Promise<Conversation> {
-    try {
-      return await this.prisma.conversation.findFirst({
-        where: {
-          id,
         },
       });
     } catch (error) {
@@ -302,10 +280,7 @@ export class ConversationsService {
     }
   }
 
-  async updateGroup(
-    updateGroupDto: UpdateGroupDTO,
-    userId: string,
-  ): Promise<Conversation> {
+  async updateGroup(updateGroupDto: UpdateGroupDTO): Promise<Conversation> {
     const { id, icon, addUsers, kickUsers, ...rest } = updateGroupDto;
 
     if (icon) {
@@ -360,7 +335,7 @@ export class ConversationsService {
       });
     }
 
-    return await this.findByIdExcludingUser(id, userId);
+    return await this.findById(id);
   }
 
   async addGroupUser(

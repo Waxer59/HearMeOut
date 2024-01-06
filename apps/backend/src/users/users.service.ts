@@ -95,11 +95,6 @@ export class UsersService {
               icon: true,
               joinCode: true,
               users: {
-                where: {
-                  id: {
-                    not: id,
-                  },
-                },
                 select: {
                   id: true,
                   username: true,

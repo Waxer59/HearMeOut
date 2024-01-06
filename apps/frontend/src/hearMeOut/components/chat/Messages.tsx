@@ -1,6 +1,6 @@
-import { useChatStore } from '../../store';
-import type { MessageDetails } from '../../store/types/types';
-import { ChatMessage } from './';
+import { useChatStore } from '../../../store';
+import type { MessageDetails } from '../../../store/types/types';
+import { Message } from '../';
 import { useEffect, useRef } from 'react';
 import { DateDivider } from './DateDivider';
 
@@ -9,7 +9,7 @@ interface DateGroup {
   messages: MessageDetails[];
 }
 
-export const ChatMessages: React.FC = () => {
+export const Messages: React.FC = () => {
   const { currentConversationId, conversations } = useChatStore(
     (state) => state
   );
@@ -53,7 +53,7 @@ export const ChatMessages: React.FC = () => {
               <DateDivider date={new Date(date)} />
 
               {messages.map((message) => (
-                <ChatMessage
+                <Message
                   key={message.id}
                   message={message}
                   avatar={message.from.avatar}

@@ -1,10 +1,10 @@
 import { Heading, TextField } from '@radix-ui/themes';
 import { IconSearch } from '@tabler/icons-react';
-import { SidebarOptions } from '.';
-import { useChatStore } from '../../store';
-import type { InputEvent } from '../../types/types';
+import { Options } from '..';
+import { useChatStore } from '../../../store';
+import type { InputEvent } from '../../../types/types';
 
-export const SidebarHeader: React.FC = () => {
+export const Header: React.FC = () => {
   const setChatQueryFilter = useChatStore((state) => state.setChatQueryFilter);
 
   const handleInputChange = (e: InputEvent) => {
@@ -18,7 +18,7 @@ export const SidebarHeader: React.FC = () => {
         <Heading as="h3" weight="bold" className="text-lg">
           Channels
         </Heading>
-        <SidebarOptions />
+        <Options />
       </div>
       <TextField.Root size="3" variant="soft" color="gray">
         <TextField.Slot>

@@ -43,7 +43,9 @@ export class ChatWsService {
         ...sendMessageDto,
         fromId: userId,
       });
-      server.to(sendMessageDto.toId).emit(CHAT_EVENTS.message, message);
+      server
+        .to(sendMessageDto.conversationId)
+        .emit(CHAT_EVENTS.message, message);
     } catch (error) {}
   }
 
@@ -231,10 +233,8 @@ export class ChatWsService {
       return;
     }
 
-    const newGroup = await this.conversationsService.updateGroup(
-      updateGroupDto,
-      userId,
-    );
+    const newGroup =
+      await this.conversationsService.updateGroup(updateGroupDto);
 
     // Remove users from conversation room
     if (kickUsers) {
@@ -280,13 +280,10 @@ export class ChatWsService {
   ): Promise<void> {
     const { id: conversationId } = conversationActionsDto;
 
-    const newGroup = await this.conversationsService.updateGroup(
-      {
-        id: conversationId,
-        kickUsers: [userId],
-      },
-      userId,
-    );
+    const newGroup = await this.conversationsService.updateGroup({
+      id: conversationId,
+      kickUsers: [userId],
+    });
 
     // Send group update
     server.to(conversationId).emit(CHAT_EVENTS.updateGroup, newGroup);

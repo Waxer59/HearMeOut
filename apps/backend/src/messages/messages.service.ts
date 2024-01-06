@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message } from '@prisma/client';
+import { MessageWithRelations } from 'src/common/types/types';
 
 @Injectable()
 export class MessagesService {
@@ -10,7 +11,7 @@ export class MessagesService {
   async create({
     content,
     fromId,
-    toId,
+    conversationId,
     replyId,
   }: CreateMessageDto): Promise<Message> {
     const replyMsg = replyId
@@ -31,7 +32,7 @@ export class MessagesService {
             connect: { id: fromId },
           },
           conversation: {
-            connect: { id: toId },
+            connect: { id: conversationId },
           },
           createdAt: new Date(),
           ...replyMsg,
@@ -47,11 +48,14 @@ export class MessagesService {
     }
   }
 
-  async findOneById(id: string): Promise<Message> {
+  async findOneById(id: string): Promise<MessageWithRelations> {
     try {
       return await this.prisma.message.findUniqueOrThrow({
         where: {
           id,
+        },
+        include: {
+          replies: true,
         },
       });
     } catch (error) {
@@ -79,8 +83,38 @@ export class MessagesService {
     }
   }
 
-  async deleteById(id: string): Promise<Message> {
+  async removeReply(messageId: string, replyId: string): Promise<Message> {
     try {
+      return await this.prisma.message.update({
+        where: {
+          id: messageId,
+        },
+        data: {
+          replies: {
+            disconnect: {
+              id: replyId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async deleteById(id: string): Promise<Message> {
+    const msg = await this.findOneById(id);
+
+    // Delete the relation with the replies
+    const replies = msg.replies.map(async (reply) =>
+      this.removeReply(id, reply.id),
+    );
+
+    try {
+      await Promise.all(replies);
+
       return await this.prisma.message.delete({
         where: {
           id,

@@ -1,0 +1,60 @@
+import { Avatar, Button, Heading } from '@radix-ui/themes';
+import { CallLayout } from '../../layouts/CallLayout';
+import {
+  IconMicrophone,
+  IconMicrophoneOff,
+  IconPhoneOff
+} from '@tabler/icons-react';
+import { useState } from 'react';
+import { getFallbackAvatarName } from '../../helpers';
+
+export const CallInProgress = () => {
+  const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
+
+  const handleMuteMicrophone = () => {
+    setIsMicrophoneOn(!isMicrophoneOn);
+  };
+
+  return (
+    <CallLayout name="Hugo">
+      <span className="text-lg">00:00:00</span>
+      <div className="flex gap-4 items-center">
+        <Button
+          variant="ghost"
+          className="cursor-pointer"
+          onClick={handleMuteMicrophone}>
+          {isMicrophoneOn ? <IconMicrophone /> : <IconMicrophoneOff />}
+        </Button>
+        <Button color="red" variant="soft" className="cursor-pointer">
+          <IconPhoneOff />
+        </Button>
+      </div>
+      <div className="flex gap-4 items-center max-w-[200px] overflow-auto pb-2">
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+        <UserInCall name="Hugo" />
+      </div>
+    </CallLayout>
+  );
+};
+
+interface PropsUserInCall {
+  name: string;
+  avatar?: string;
+}
+
+const UserInCall: React.FC<PropsUserInCall> = ({ name, avatar }) => (
+  <div className="flex flex-col gap-2 items-center">
+    <Avatar fallback={getFallbackAvatarName(name)} src={avatar} size="4" />
+    <Heading as="h3" className="capitalize text-sm text-center">
+      {name}
+    </Heading>
+  </div>
+);

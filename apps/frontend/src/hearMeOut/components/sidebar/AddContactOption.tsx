@@ -2,13 +2,13 @@ import { Avatar, TextField, Button } from '@radix-ui/themes';
 import { IconSearch } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DEBOUNCE_SEARCH_TIME } from '../../constants/constants';
-import { searchUser } from '../../services/hearMeOutAPI';
-import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
-import { HttpStatusCodes } from '../../types/types';
+import { DEBOUNCE_SEARCH_TIME } from '../../../constants/constants';
+import { searchUser } from '../../../services/hearMeOutAPI';
+import { getFallbackAvatarName } from '../../helpers';
+import { HttpStatusCodes } from '../../../types/types';
 import { toast } from 'sonner';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import type { AccountDetails } from '../../store/types/types';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import type { AccountDetails } from '../../../store/types/types';
 
 interface PropsUserBtn {
   id: string;
@@ -39,7 +39,7 @@ const UserBtn: React.FC<PropsUserBtn> = ({ id, username, avatar }) => {
   );
 };
 
-export function SidebarAddContactOption() {
+export const AddContactOption: React.FC = () => {
   const [query, setQuery] = useState('');
   const [usersFound, setUsersFound] = useState<AccountDetails[] | null>(null);
   const [value] = useDebounce(query, DEBOUNCE_SEARCH_TIME);
@@ -80,4 +80,4 @@ export function SidebarAddContactOption() {
       </div>
     </>
   );
-}
+};

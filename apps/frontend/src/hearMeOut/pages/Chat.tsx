@@ -1,12 +1,17 @@
 import { Toaster, toast } from 'sonner';
-import { ConversationsSidebar, ChatView, GroupSettings } from '../components/';
+import {
+  Sidebar,
+  GroupSettings,
+  ChatView,
+  CallInProgress
+} from '../components/';
 import { useEffect } from 'react';
 import { useAccountStore, useChatStore } from '../../store';
-import { useSocketChat } from '../hooks/useSocketChat';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 import { ConversationTypes } from '../../store/types/types';
 import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
+import { useSocketChat } from '../hooks/useSocketChat';
 
 export const Chat: React.FC = () => {
   const { connectSocketChat, disconnectSocketChat } = useSocketChat();
@@ -85,13 +90,14 @@ export const Chat: React.FC = () => {
   return (
     <>
       <div className="flex h-screen">
-        <ConversationsSidebar />
+        <Sidebar />
         <ChatView />
         {currentConversation?.type === ConversationTypes.group && (
           <GroupSettings />
         )}
       </div>
       <Toaster position="bottom-right" />
+      <CallInProgress />
     </>
   );
 };

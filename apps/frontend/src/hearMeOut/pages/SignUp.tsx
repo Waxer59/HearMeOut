@@ -10,7 +10,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useRef, useState } from 'react';
 import { signUp } from '../../services/hearMeOutAPI';
-import { validateSignUp } from '../helpers/validateSignUpForm';
+import { validateSignUp } from '../helpers';
 import { toast } from 'sonner';
 import { HttpStatusCodes } from '../../types/types';
 import { IconEye, IconEyeClosed } from '@tabler/icons-react';

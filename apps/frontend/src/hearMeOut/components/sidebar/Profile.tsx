@@ -20,21 +20,21 @@ import {
   IconX
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import { signOut, updateUserSettings } from '../../services/hearMeOutAPI';
-import { useAccountStore } from '../../store/account';
-import { getFallbackAvatarName } from '../helpers/getFallbackAvatarName';
+import { signOut, updateUserSettings } from '../../../services/hearMeOutAPI';
+import { useAccountStore } from '../../../store/account';
+import { getFallbackAvatarName } from '../../helpers';
 import { toast } from 'sonner';
 import * as Tabs from '@radix-ui/react-tabs';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import { useChatStore } from '../../store';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { LOCAL_STORAGE_ITEMS } from '../../types/types';
-import { NotificationIndicator } from './NotificationIndicator';
+import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import { useChatStore } from '../../../store';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { LOCAL_STORAGE_ITEMS } from '../../../types/types';
+import { NotificationIndicator } from '../NotificationIndicator';
 import { useEffect } from 'react';
-import { ThemeEnum } from '../../store/types/types';
-import { TabsDivider } from '.';
+import { ThemeEnum } from '../../../store/types/types';
+import { TabsDivider } from '..';
 
-export const SidebarProfile: React.FC = () => {
+export const Profile: React.FC = () => {
   const {
     account,
     clearAccount,

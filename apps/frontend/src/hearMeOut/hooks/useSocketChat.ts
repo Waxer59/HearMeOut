@@ -156,6 +156,10 @@ export const useSocketChat = () => {
         updateConversationMessage(conversationId, messageId, content);
       }
     );
+
+    return () => {
+      socket.removeAllListeners();
+    };
   }, [socket]);
 
   return {
