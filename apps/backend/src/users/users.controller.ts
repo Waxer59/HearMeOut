@@ -20,19 +20,18 @@ import { fileFilter } from '../common/helpers/fileFilter';
 
 @ApiTags('Users')
 @UseGuards(AuthGuard('jwt'))
+@ApiCookieAuth('Authorization')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  @ApiCookieAuth('Authorization')
   async getUser(@Param('id') id: string) {
     const user = await this.usersService.findOneById(id);
     return excludeUserFields(user, ['password', 'githubId']);
   }
 
   @Patch('')
-  @ApiCookieAuth('Authorization')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('avatar', {
@@ -53,21 +52,24 @@ export class UsersController {
   }
 
   @Delete('active-conversations/:id')
-  @ApiCookieAuth('Authorization')
   async removeActiveConversations(@Req() req, @Param('id') id: string) {
     const { id: userId } = req.user;
     return await this.usersService.removeActiveConversation(userId, id);
   }
 
+  @Patch('active-conversations/:id')
+  async addActiveConversations(@Req() req, @Param('id') id: string) {
+    const { id: userId } = req.user;
+    return await this.usersService.addActiveConversation(userId, id);
+  }
+
   @Delete('')
-  @ApiCookieAuth('Authorization')
   async remove(@Req() req) {
     const { id } = req.user;
     return await this.usersService.remove(id);
   }
 
   @Get('search-username/:name')
-  @ApiCookieAuth('Authorization')
   async searchUsername(@Req() req, @Param('name') name: string) {
     const { id: userId } = req.user;
     const users = await this.usersService.findAllByUsernamesLike(userId, name);

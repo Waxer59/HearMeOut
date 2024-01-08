@@ -15,12 +15,12 @@ import { base64File } from 'src/common/helpers/base64File';
 
 @ApiTags('Conversations')
 @UseGuards(AuthGuard('jwt'))
+@ApiCookieAuth('Authorization')
 @Controller('conversations')
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
   @Patch('update-icon/:id')
-  @ApiCookieAuth('Authorization')
   @UseInterceptors(
     FileInterceptor('icon', {
       fileFilter,

@@ -193,14 +193,15 @@ export class UsersService {
   async removeActiveConversationFromAllUsers(
     conversationId: string,
   ): Promise<void> {
-    try {
-      const users = await this.prisma.user.findMany({
-        where: {
-          activeConversationIds: {
-            has: conversationId,
-          },
+    const users = await this.prisma.user.findMany({
+      where: {
+        activeConversationIds: {
+          has: conversationId,
         },
-      });
+      },
+    });
+
+    try {
       const updatedUsers = users.map((user) =>
         this.prisma.user.update({
           where: { id: user.id },

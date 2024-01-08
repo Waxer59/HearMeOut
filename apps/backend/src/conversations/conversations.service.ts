@@ -226,7 +226,7 @@ export class ConversationsService {
     }
   }
 
-  private async updateIcon(
+  async updateIcon(
     conversationId: string,
     file: string,
   ): Promise<Conversation> {

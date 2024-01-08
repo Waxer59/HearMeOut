@@ -47,6 +47,11 @@ export interface VerifyResponse extends AccountDetails {
   friendReqFroms: FriendRequestDetails[];
 }
 
+export interface IResponseData {
+  data: any;
+  status: number;
+}
+
 export enum HttpStatusCodes {
   OK = 200,
   CREATED = 201,

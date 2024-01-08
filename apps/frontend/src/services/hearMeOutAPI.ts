@@ -7,15 +7,11 @@ import {
   HttpStatusCodes,
   type VerifyResponse,
   type CreateAccount,
-  type SignInDetails
+  type SignInDetails,
+  type IResponseData
 } from '../types/types';
 
 const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
-
-interface IResponseData {
-  data: any;
-  status: number;
-}
 
 export async function signIn(
   signInDetails: SignInDetails
@@ -33,7 +29,7 @@ export async function signIn(
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -52,7 +48,7 @@ export async function signUp(
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -65,7 +61,7 @@ export async function signOut(): Promise<IResponseData> {
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -83,7 +79,7 @@ export async function verify(): Promise<IResponseData> {
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -96,7 +92,7 @@ export async function searchUser(name: string): Promise<IResponseData> {
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -109,11 +105,30 @@ export async function getFriendRequests(): Promise<IResponseData> {
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
-export async function closeActiveConversation(
+export async function addActiveConversation(
+  id: string
+): Promise<IResponseData> {
+  try {
+    const response = await fetch(
+      `${baseUrl}/users/active-conversations/${id}`,
+      {
+        credentials: 'include',
+        method: HttpMethods.PATCH
+      }
+    );
+    const data = await response.json();
+
+    return { data, status: response.status };
+  } catch (error) {
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
+  }
+}
+
+export async function removeActiveConversation(
   id: string
 ): Promise<IResponseData> {
   try {
@@ -128,7 +143,7 @@ export async function closeActiveConversation(
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -143,7 +158,7 @@ export async function getAllConversationMessages(
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -163,7 +178,7 @@ export async function updateUserAccount(
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -177,7 +192,7 @@ export async function deleteUserAccount(): Promise<IResponseData> {
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -197,7 +212,7 @@ export async function updateUserSettings(
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }
 
@@ -215,6 +230,6 @@ export async function updateUserAvatar(avatar: File): Promise<IResponseData> {
 
     return { data, status: response.status };
   } catch (error) {
-    return { data: null, status: 500 };
+    return { data: null, status: HttpStatusCodes.INTERNAL_SERVER_ERROR };
   }
 }

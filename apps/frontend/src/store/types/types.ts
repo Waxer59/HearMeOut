@@ -6,6 +6,7 @@ export interface AccountDetails {
   isGithubAccount: boolean;
   configuration?: SettingsDetails;
   conversationNotificationIds: string[];
+  activeConversationIds: string[];
 }
 
 export enum ThemeEnum {

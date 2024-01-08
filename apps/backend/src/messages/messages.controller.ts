@@ -11,13 +11,13 @@ import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 
 @ApiTags('Messages')
+@ApiCookieAuth('Authorization')
 @Controller('messages')
 @UseGuards(AuthGuard('jwt'))
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   @Get(':id')
-  @ApiCookieAuth('Authorization')
   async getMessages(@Param('id') id: string, @Req() req) {
     const { conversationIds } = req.user;
 

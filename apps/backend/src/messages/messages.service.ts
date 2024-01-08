@@ -13,7 +13,7 @@ export class MessagesService {
     fromId,
     conversationId,
     replyId,
-  }: CreateMessageDto): Promise<Message> {
+  }: CreateMessageDto): Promise<MessageWithRelations> {
     const replyMsg = replyId
       ? {
           reply: {
@@ -25,7 +25,7 @@ export class MessagesService {
       : {};
 
     try {
-      return await this.prisma.message.create({
+      return (await this.prisma.message.create({
         data: {
           content,
           from: {
@@ -39,8 +39,9 @@ export class MessagesService {
         },
         include: {
           from: true,
+          conversation: true,
         },
-      });
+      })) as unknown as MessageWithRelations;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -50,14 +51,14 @@ export class MessagesService {
 
   async findOneById(id: string): Promise<MessageWithRelations> {
     try {
-      return await this.prisma.message.findUniqueOrThrow({
+      return (await this.prisma.message.findUniqueOrThrow({
         where: {
           id,
         },
         include: {
           replies: true,
         },
-      });
+      })) as unknown as MessageWithRelations;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',

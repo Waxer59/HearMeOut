@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { getEnvVariables } from '../../helpers/getEnvVariables';
 import { useAccountStore, useChatStore } from '../../store';
+import { addActiveConversation as addActiveConversationAPI } from '../../services/hearMeOutAPI';
 import { CHAT_EVENTS } from 'ws-types';
 import {
   type DeleteMessageDetails,
@@ -72,12 +73,15 @@ export const useSocketChat = () => {
 
     socket.on(CHAT_EVENTS.message, async (message: MessageDetails) => {
       const activeConversations = getActiveConversations();
-      const conversation = activeConversations.find(
+      const activeConversation = activeConversations.find(
         (conversation) => conversation.id === message.conversationId
       );
-      if (!conversation) {
+
+      if (!activeConversation) {
         addActiveConversation(message.conversationId);
+        await addActiveConversationAPI(message.conversationId);
       }
+
       addConversationMessage(message.conversationId, message);
     });
 

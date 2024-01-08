@@ -1,11 +1,11 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
 import { getFallbackAvatarName, capitalize } from '../../helpers';
 import { useAccountStore, useChatStore } from '../../../store';
-import { closeActiveConversation } from '../../../services/hearMeOutAPI';
+import { removeActiveConversation as removeActiveConversationAPI } from '../../../services/hearMeOutAPI';
 import { ConversationTypes } from '../../../store/types/types';
 import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
 import { NotificationIndicator } from '../NotificationIndicator';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   id: string;
@@ -58,6 +58,13 @@ export const Conversation: React.FC<Props> = ({
   );
   const isActive = activeConversations.includes(id);
 
+  useEffect(() => {
+    const isInNotificationChat = currentConversationId === id;
+    setHasNewMessages(
+      account?.conversationNotificationIds.includes(id) && !isInNotificationChat
+    );
+  }, [account?.conversationNotificationIds]);
+
   const handleOpenChat = async () => {
     setCurrentConversationId(id);
     document.title = `${capitalize(name)} | HearMeOut`;
@@ -66,7 +73,7 @@ export const Conversation: React.FC<Props> = ({
   };
 
   const handleCloseChat = async () => {
-    await closeActiveConversation(id);
+    await removeActiveConversationAPI(id);
     removeActiveConversation(id);
   };
 

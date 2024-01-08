@@ -17,7 +17,6 @@ export const CallInProgress = () => {
 
   return (
     <CallLayout name="Hugo">
-      <span className="text-lg">00:00:00</span>
       <div className="flex gap-4 items-center">
         <Button
           variant="ghost"

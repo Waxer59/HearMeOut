@@ -108,7 +108,7 @@ export const Input: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col px-20">
+    <div className="flex flex-col px-20 pt-10">
       {replyMessage && (
         <div className="flex justify-between bg-secondary p-4 rounded-t-lg gap-2 text-md">
           <h3>

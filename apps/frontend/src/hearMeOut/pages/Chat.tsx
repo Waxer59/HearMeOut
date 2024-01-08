@@ -1,10 +1,5 @@
 import { Toaster, toast } from 'sonner';
-import {
-  Sidebar,
-  GroupSettings,
-  ChatView,
-  CallInProgress
-} from '../components/';
+import { Sidebar, GroupSettings, ChatView } from '../components/';
 import { useEffect } from 'react';
 import { useAccountStore, useChatStore } from '../../store';
 import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
@@ -97,7 +92,6 @@ export const Chat: React.FC = () => {
         )}
       </div>
       <Toaster position="bottom-right" />
-      <CallInProgress />
     </>
   );
 };

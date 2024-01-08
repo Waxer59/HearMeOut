@@ -140,11 +140,12 @@ export class FriendRequestsService {
         userId2,
       });
 
+      // Set conversation as active on both users
       const activeConversations = [userId1, userId2].map((userId) =>
         this.usersService.addActiveConversation(userId, chat.id),
       );
 
-      Promise.resolve(activeConversations);
+      await Promise.all(activeConversations);
 
       return chat as ConversationWithRelations;
     } catch (error) {

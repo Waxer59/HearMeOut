@@ -38,19 +38,34 @@ export class ChatWsService {
     userId: string,
     server: Server,
   ): Promise<void> {
-    try {
-      const message = await this.messageService.create({
-        ...sendMessageDto,
-        fromId: userId,
-      });
+    const { conversation, ...message } = await this.messageService.create({
+      ...sendMessageDto,
+      fromId: userId,
+    });
 
-      // TODO: Add notification to the users in the chat
-      // ...
+    const notifyUserIds = [];
+    conversation.userIds.forEach(async (userId) => {
+      const currentUserConversation = await this.cachingService.getCacheKey(
+        CACHE_PREFIXES.usersActiveChat + userId,
+      );
 
-      server
-        .to(sendMessageDto.conversationId)
-        .emit(CHAT_EVENTS.message, message);
-    } catch (error) {}
+      // If the user is not in the current conversation
+      // then notify the user that the message was sent
+      if (currentUserConversation !== sendMessageDto.conversationId) {
+        notifyUserIds.push(userId);
+        await this.usersService.addConversationNotification(
+          userId,
+          sendMessageDto.conversationId,
+        );
+      }
+    });
+
+    // Notify users that a message was sent
+    server
+      .to(notifyUserIds)
+      .emit(CHAT_EVENTS.notification, { id: sendMessageDto.conversationId });
+
+    server.to(sendMessageDto.conversationId).emit(CHAT_EVENTS.message, message);
   }
 
   async typing(
@@ -163,12 +178,12 @@ export class ChatWsService {
 
     try {
       await Promise.all(conversationUsers);
-
-      server
-        .to(deletedConversation.userIds)
-        .emit(CHAT_EVENTS.removeConversation, conversationId);
-      server.in(conversationId).socketsLeave(conversationId);
     } catch (error) {}
+
+    server
+      .to(deletedConversation.userIds)
+      .emit(CHAT_EVENTS.removeConversation, conversationId);
+    server.in(conversationId).socketsLeave(conversationId);
   }
 
   async openChat(
@@ -211,21 +226,19 @@ export class ChatWsService {
     server: Server,
     creatorId: string,
   ): Promise<void> {
-    try {
-      createGroupDto.userIds.push(creatorId);
-      const group = await this.conversationsService.createGroup(
-        createGroupDto,
-        creatorId,
-      );
+    createGroupDto.userIds.push(creatorId);
+    const group = await this.conversationsService.createGroup(
+      createGroupDto,
+      creatorId,
+    );
 
-      // Join users to conversation room & set conversation as active
-      createGroupDto.userIds.forEach(async (el) => {
-        server.in(el).socketsJoin(group.id);
-        await this.usersService.addActiveConversation(el, group.id);
-      });
+    // Join users to conversation room & set conversation as active
+    createGroupDto.userIds.forEach(async (el) => {
+      server.in(el).socketsJoin(group.id);
+      await this.usersService.addActiveConversation(el, group.id);
+    });
 
-      server.to(group.id).emit(CHAT_EVENTS.createGroup, group);
-    } catch (error) {}
+    server.to(group.id).emit(CHAT_EVENTS.createGroup, group);
   }
 
   async updateGroup(
@@ -265,20 +278,18 @@ export class ChatWsService {
     userId: string,
   ): Promise<void> {
     const { messageId, content } = updateMessageDto;
-    try {
-      const msg = await this.messageService.findOneById(messageId);
+    const msg = await this.messageService.findOneById(messageId);
 
-      if (msg.fromId !== userId) {
-        return;
-      }
+    if (msg.fromId !== userId) {
+      return;
+    }
 
-      await this.messageService.updateById(messageId, content);
-      server.to(msg.conversationId).emit(CHAT_EVENTS.updateMessage, {
-        messageId,
-        conversationId: msg.conversationId,
-        content,
-      });
-    } catch (e) {}
+    await this.messageService.updateById(messageId, content);
+    server.to(msg.conversationId).emit(CHAT_EVENTS.updateMessage, {
+      messageId,
+      conversationId: msg.conversationId,
+      content,
+    });
   }
 
   async exitGroup(

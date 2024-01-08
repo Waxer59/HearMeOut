@@ -17,18 +17,20 @@ export enum CONVERSATION_TYPE {
 }
 
 export interface ConversationWithRelations extends Conversation {
-  users: User[];
+  users?: User[];
 }
 
 export interface MessageWithRelations extends Message {
-  replies: Message[];
+  from?: User;
+  replies?: Message[];
+  conversation?: Conversation;
 }
 
 export interface UserWithRelations extends User {
-  conversations: ConversationWithRelations[];
-  configuration: Configuration;
-  friendReqFroms: FriendRequest[];
-  friendReqTos: FriendRequest[];
+  conversations?: ConversationWithRelations[];
+  configuration?: Configuration;
+  friendReqFroms?: FriendRequest[];
+  friendReqTos?: FriendRequest[];
 }
 
 export interface ICloudinaryUploadResponse {
@@ -42,7 +44,6 @@ export interface ICloudinaryUploadResponse {
   format: string;
   resource_type: string;
   created_at: string;
-  tags: any[];
   pages: number;
   bytes: number;
   type: string;
