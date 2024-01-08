@@ -5,6 +5,7 @@ export interface AccountDetails {
   isOnline: boolean;
   isGithubAccount: boolean;
   configuration?: SettingsDetails;
+  conversationNotificationIds: string[];
 }
 
 export enum ThemeEnum {
@@ -22,7 +23,6 @@ export interface MessageDetails {
   conversationId: string;
   content: string;
   viewedByAll: boolean;
-  viewedByIds: string[];
   createdAt: Date;
   replyId?: string;
   from: AccountDetails;

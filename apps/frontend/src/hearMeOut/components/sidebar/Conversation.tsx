@@ -32,23 +32,29 @@ export const Conversation: React.FC<Props> = ({
   isOnline,
   type
 }) => {
-  const {
-    setCurrentConversationId,
-    removeActiveConversation,
-    conversations,
-    removeConversation,
-    currentConversationId,
-    activeConversations,
-    setShowGroupSettings
-  } = useChatStore((state: any) => state);
+  const setShowGroupSettings = useChatStore(
+    (state) => state.setShowGroupSettings
+  );
+  const setCurrentConversationId = useChatStore(
+    (state) => state.setCurrentConversationId
+  );
+  const removeActiveConversation = useChatStore(
+    (state) => state.removeActiveConversation
+  );
+  const removeConversationNotification = useAccountStore(
+    (state) => state.removeConversationNotification
+  );
+  const removeConversation = useChatStore((state) => state.removeConversation);
+  const currentConversationId = useChatStore(
+    (state) => state.currentConversationId
+  );
+  const activeConversations = useChatStore(
+    (state) => state.activeConversations
+  );
   const account = useAccountStore((state) => state.account);
   const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
   const [hasNewMessages, setHasNewMessages] = useState(
-    conversations
-      .find((conversation: any) => conversation.id === id)
-      ?.messages?.some(
-        (message: any) => !message.viewedByIds.includes(account!.id)
-      )
+    account?.conversationNotificationIds.includes(id)
   );
   const isActive = activeConversations.includes(id);
 
@@ -56,6 +62,7 @@ export const Conversation: React.FC<Props> = ({
     setCurrentConversationId(id);
     document.title = `${capitalize(name)} | HearMeOut`;
     setHasNewMessages(false);
+    removeConversationNotification(id);
   };
 
   const handleCloseChat = async () => {

@@ -31,6 +31,8 @@ interface Actions {
   removeFriendRequestOutgoing: (friendRequestId: string) => void;
   clearFriendRequestsOutgoing: () => void;
   clearAccountState: () => void;
+  removeConversationNotification: (conversationId: string) => void;
+  addConversationNotification: (conversationId: string) => void;
 }
 
 export const useAccountStore = create<State & Actions>()(
@@ -104,6 +106,26 @@ export const useAccountStore = create<State & Actions>()(
         account: {
           ...state.account,
           ...(a as AccountDetails)
+        }
+      })),
+    removeConversationNotification: (conversationId) =>
+      set((state) => ({
+        account: {
+          ...state.account!,
+          conversationNotificationIds:
+            state.account!.conversationNotificationIds?.filter(
+              (id) => id !== conversationId
+            )
+        }
+      })),
+    addConversationNotification: (conversationId) =>
+      set((state) => ({
+        account: {
+          ...state.account!,
+          conversationNotificationIds: [
+            ...(state.account?.conversationNotificationIds ?? []),
+            conversationId
+          ]
         }
       }))
   }))

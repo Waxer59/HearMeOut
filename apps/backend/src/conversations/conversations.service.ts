@@ -154,7 +154,11 @@ export class ConversationsService {
     }
   }
 
-  async makeAdmin(userId, conversationId, adminId): Promise<Conversation> {
+  async makeAdmin(
+    userId: string,
+    conversationId: string,
+    adminId: string,
+  ): Promise<Conversation> {
     try {
       const { adminIds } = await this.findById(conversationId);
 
@@ -175,7 +179,9 @@ export class ConversationsService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
     }
   }
 
@@ -220,31 +226,7 @@ export class ConversationsService {
     }
   }
 
-  async markAsRead(conversationId: string, userId: string): Promise<void> {
-    try {
-      await this.prisma.message.updateMany({
-        where: {
-          conversationId,
-          NOT: {
-            viewedByIds: {
-              has: userId,
-            },
-          },
-        },
-        data: {
-          viewedByIds: {
-            push: userId,
-          },
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later',
-      );
-    }
-  }
-
-  async updateIcon(
+  private async updateIcon(
     conversationId: string,
     file: string,
   ): Promise<Conversation> {
@@ -364,30 +346,36 @@ export class ConversationsService {
   }
 
   async remove(id: string): Promise<Conversation> {
+    let deletedConversation;
     try {
-      const deletedConversation = await this.prisma.conversation.delete({
+      deletedConversation = await this.prisma.conversation.delete({
         where: {
           id,
         },
       });
-
-      // Remove active conversation from users
-      await this.usersService.removeActiveConversationFromAllUsers(id);
-
-      const existsGroupIcon =
-        deletedConversation.type === CONVERSATION_TYPE.group &&
-        deletedConversation.icon_public_id;
-
-      // Delete group icon if exists
-      if (existsGroupIcon) {
-        this.cloudinaryService.deleteImage(deletedConversation.icon_public_id);
-      }
-
-      return deletedConversation;
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
     }
+
+    // Remove active conversation from users
+    await this.usersService.removeActiveConversationFromAllUsers(id);
+
+    // Remove conversation notification from users
+    await this.usersService.removeConversationNotificationFromAllUsers(id);
+
+    const existsGroupIcon =
+      deletedConversation.type === CONVERSATION_TYPE.group &&
+      deletedConversation.icon_public_id;
+
+    // Delete group icon if exists
+    if (existsGroupIcon) {
+      await this.cloudinaryService.deleteImage(
+        deletedConversation.icon_public_id,
+      );
+    }
+
+    return deletedConversation;
   }
 }

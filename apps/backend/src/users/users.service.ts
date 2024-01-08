@@ -222,6 +222,100 @@ export class UsersService {
     }
   }
 
+  private async getConversationNotificationFromAllUsers(
+    conversationId: string,
+  ): Promise<User[]> {
+    try {
+      return await this.prisma.user.findMany({
+        where: {
+          conversationNotificationIds: {
+            has: conversationId,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async removeConversationNotificationFromAllUsers(
+    conversationId: string,
+  ): Promise<void> {
+    const users =
+      await this.getConversationNotificationFromAllUsers(conversationId);
+    try {
+      const updatedUsers = users.map((user) =>
+        this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            conversationNotificationIds: {
+              set: user.conversationNotificationIds.filter(
+                (notificationId) => notificationId !== conversationId,
+              ),
+            },
+          },
+        }),
+      );
+      await Promise.all(updatedUsers);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async addConversationNotification(
+    userId: string,
+    conversationId: string,
+  ): Promise<User> {
+    try {
+      return await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          conversationNotificationIds: {
+            push: conversationId,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async removeConversationNotification(
+    userId: string,
+    conversationId: string,
+  ): Promise<User> {
+    const { conversationNotificationIds } = await this.findOneById(userId);
+    const updatedConversationNotificationIds =
+      conversationNotificationIds.filter(
+        (notificationId) => notificationId !== conversationId,
+      );
+
+    try {
+      return await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          conversationNotificationIds: {
+            set: updatedConversationNotificationIds,
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async findAllByUsernamesLike(
     finderUserId: string,
     username: string,

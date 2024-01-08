@@ -38,7 +38,8 @@ export const useSocketChat = () => {
     addFriendRequest,
     addFriendRequestOutgoing,
     removeFriendRequest,
-    removeFriendRequestOutgoing
+    removeFriendRequestOutgoing,
+    addConversationNotification
   } = useAccountStore();
 
   const connectSocketChat = useCallback(() => {
@@ -156,6 +157,10 @@ export const useSocketChat = () => {
         updateConversationMessage(conversationId, messageId, content);
       }
     );
+
+    socket.on(CHAT_EVENTS.notification, ({ id }) => {
+      addConversationNotification(id);
+    });
 
     return () => {
       socket.removeAllListeners();

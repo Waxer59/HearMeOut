@@ -43,6 +43,10 @@ export class ChatWsService {
         ...sendMessageDto,
         fromId: userId,
       });
+
+      // TODO: Add notification to the users in the chat
+      // ...
+
       server
         .to(sendMessageDto.conversationId)
         .emit(CHAT_EVENTS.message, message);
@@ -172,12 +176,16 @@ export class ChatWsService {
     userId: string,
   ): Promise<void> {
     const { id: conversationId } = conversationActionsDto;
+
     this.cachingService.setCacheKey(
       CACHE_PREFIXES.usersActiveChat + userId,
       conversationId,
     );
 
-    return this.conversationsService.markAsRead(conversationId, userId);
+    await this.usersService.removeConversationNotification(
+      userId,
+      conversationId,
+    );
   }
 
   async getUserIdAuth(client: Socket): Promise<User> {
