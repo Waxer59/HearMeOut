@@ -154,6 +154,8 @@ export class ConversationsService {
     userId: string,
     conversationId: string,
   ): Promise<Conversation> {
+    const conversation = await this.findById(conversationId);
+
     try {
       await this.usersService.removeActiveConversation(userId, conversationId);
       return await this.prisma.conversation.update({
@@ -165,6 +167,9 @@ export class ConversationsService {
             disconnect: {
               id: userId,
             },
+          },
+          adminIds: {
+            set: conversation.adminIds.filter((id) => id !== userId),
           },
         },
       });

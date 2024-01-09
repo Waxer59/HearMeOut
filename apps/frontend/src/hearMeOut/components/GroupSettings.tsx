@@ -6,7 +6,8 @@ import {
   ContextMenu,
   Dialog,
   Checkbox,
-  Tooltip
+  Tooltip,
+  TextField
 } from '@radix-ui/themes';
 import {
   IconCrown,
@@ -61,6 +62,7 @@ export const GroupSettings = () => {
   });
   const { sendUpdateGroup, sendExitGroup, sendRemoveConversation } =
     useSocketChatEvents();
+  const [newUserSearch, setNewUserSearch] = useState('');
   const isAdminAccount = adminIds.includes(ownUserId);
 
   const handleAddNewUsers = () => {
@@ -275,30 +277,56 @@ export const GroupSettings = () => {
                   <IconUsersPlus size={18} />
                 </Button>
               </Dialog.Trigger>
-              <Dialog.Content>
+              <Dialog.Content className="w-80">
                 <Dialog.Title>Add users to group</Dialog.Title>
-                <div className="flex flex-col gap-6 mt-10 items-center">
-                  {usersNotInGroup.length === 0 && (
-                    <Heading as="h3">
+                <div className="flex flex-col gap-6 max-h-52 overflow-auto mt-10 items-center">
+                  {usersNotInGroup.length === 0 ? (
+                    <Heading as="h3" className="text-xl">
                       There are no users to add to the group
                     </Heading>
+                  ) : (
+                    <TextField.Root className="w-full">
+                      <TextField.Input
+                        placeholder="Search for a user"
+                        onChange={(ev) => setNewUserSearch(ev.target.value)}
+                      />
+                    </TextField.Root>
                   )}
-                  {usersNotInGroup.map(({ id, users }) => {
-                    const userInChat = users.find(
-                      (user) => user.id !== ownUserId
-                    )!;
+                  {usersNotInGroup
+                    .filter(({ users }) => {
+                      const userInChat = users.find(
+                        (user) => user.id !== ownUserId
+                      )!;
 
-                    return (
-                      <div className="flex items-center w-full gap-5" key={id}>
-                        <Avatar
-                          fallback={getFallbackAvatarName(userInChat.username)}
-                          src={userInChat.avatar}
-                          size="4"
-                        />
-                        <div className="flex gap-4 items-center">
-                          <Heading as="h3" className="capitalize text-md">
-                            {userInChat.username}
-                          </Heading>
+                      console.log(newUserSearch.length);
+
+                      return (
+                        userInChat.username
+                          .toLowerCase()
+                          .includes(newUserSearch) && newUserSearch.length >= 0
+                      );
+                    })
+                    .map(({ id, users }) => {
+                      const userInChat = users.find(
+                        (user) => user.id !== ownUserId
+                      )!;
+
+                      return (
+                        <div
+                          className="flex justify-between gap-5 items-center w-full"
+                          key={id}>
+                          <div className="flex gap-5 items-center">
+                            <Avatar
+                              fallback={getFallbackAvatarName(
+                                userInChat.username
+                              )}
+                              src={userInChat.avatar}
+                              size="4"
+                            />
+                            <Heading as="h3" className="capitalize text-md">
+                              {userInChat.username}
+                            </Heading>
+                          </div>
                           <Checkbox
                             color="blue"
                             variant="surface"
@@ -311,9 +339,8 @@ export const GroupSettings = () => {
                             }
                           />
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
                 {usersNotInGroup.length > 0 && (
                   <Button

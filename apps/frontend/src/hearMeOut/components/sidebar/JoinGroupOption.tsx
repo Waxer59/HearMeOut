@@ -28,6 +28,7 @@ export const JoinGroupOption: React.FC<Props> = ({ closeDialog }) => {
 
     sendJoinGroup(code);
     closeDialog();
+    toast.success('Joined group');
   };
 
   return (
