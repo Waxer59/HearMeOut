@@ -100,4 +100,8 @@ export interface UpdateGroupOptions {
   addUsers?: string[];
   makeAdmins?: string[];
   removeAdmins?: string[];
+
+  // 'true': generate a new join code
+  // 'false': remove join code from the group
+  joinCode?: boolean;
 }

@@ -6,11 +6,11 @@ import {
 import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { CreateGroupDto } from './dto/create-group.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { UpdateGroupDTO } from './dto/update-group.dto';
+import { UpdateGroupDTO, CreateGroupDto, CreateChatDto } from './dto';
 import { UsersService } from 'src/users/users.service';
+import { nanoid } from 'nanoid';
+import { JOIN_CODE_LENGTH } from 'src/common/constants/constants';
 
 @Injectable()
 export class ConversationsService {
@@ -41,6 +41,54 @@ export class ConversationsService {
             },
           },
           type: CONVERSATION_TYPE.group,
+        },
+        include: {
+          users: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              isOnline: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async joinGroupWithJoinCode(
+    userId: string,
+    joinCode: string,
+  ): Promise<Conversation> {
+    const conversation = await this.prisma.conversation.findFirst({
+      where: {
+        joinCode,
+      },
+    });
+
+    if (!conversation) {
+      throw new BadRequestException('Invalid join code');
+    }
+
+    if (conversation.userIds.includes(userId)) {
+      throw new BadRequestException('You are already in this conversation');
+    }
+
+    try {
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversation.id,
+        },
+        data: {
+          users: {
+            connect: {
+              id: userId,
+            },
+          },
         },
         include: {
           users: {
@@ -226,6 +274,41 @@ export class ConversationsService {
     }
   }
 
+  async removeJoinCode(conversationId: string): Promise<Conversation> {
+    try {
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          joinCode: null,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
+  async generateJoinCode(conversationId: string): Promise<Conversation> {
+    const newCode = nanoid(JOIN_CODE_LENGTH);
+    try {
+      return await this.prisma.conversation.update({
+        where: {
+          id: conversationId,
+        },
+        data: {
+          joinCode: newCode,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Something went wrong, please try again later',
+      );
+    }
+  }
+
   async updateIcon(
     conversationId: string,
     file: string,
@@ -263,7 +346,7 @@ export class ConversationsService {
   }
 
   async updateGroup(updateGroupDto: UpdateGroupDTO): Promise<Conversation> {
-    const { id, icon, addUsers, kickUsers, ...rest } = updateGroupDto;
+    const { id, icon, addUsers, kickUsers, joinCode, ...rest } = updateGroupDto;
 
     if (icon) {
       await this.updateIcon(id, icon);
@@ -282,9 +365,16 @@ export class ConversationsService {
       const kickUsersPromises = kickUsers.map((kickUserId) =>
         this.kickGroupUser(kickUserId, id),
       );
+
       try {
         await Promise.all(kickUsersPromises);
       } catch (error) {}
+    }
+
+    if (joinCode) {
+      await this.generateJoinCode(id);
+    } else {
+      await this.removeJoinCode(id);
     }
 
     // Update the rest of the parameters that

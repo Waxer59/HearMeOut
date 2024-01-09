@@ -53,6 +53,7 @@ export interface ConversationDetails {
   messages: MessageDetails[];
   adminIds: any[];
   users: AccountDetails[];
+  joinCode?: string;
 }
 
 export interface UserTyping {

@@ -125,7 +125,7 @@ export const Options: React.FC = () => {
           <CreateGroupOption closeDialog={closeDialog} />
         )}
         {dialogSelection === DialogSelectionEnum.JOIN_GROUP && (
-          <JoinGroupOption />
+          <JoinGroupOption closeDialog={closeDialog} />
         )}
       </Dialog.Content>
     </Dialog.Root>

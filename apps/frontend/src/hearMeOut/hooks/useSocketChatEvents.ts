@@ -67,6 +67,10 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.exitGroup, { id });
   };
 
+  const sendJoinGroup = (joinCode: string) => {
+    socket?.emit(CHAT_EVENTS.joinGroup, { joinCode });
+  };
+
   return {
     sendMessage,
     sendTyping,
@@ -80,6 +84,7 @@ export const useSocketChatEvents = () => {
     sendDeleteMessage,
     sendUpdateMessage,
     sendUpdateGroup,
-    sendExitGroup
+    sendExitGroup,
+    sendJoinGroup
   };
 };

@@ -21,6 +21,7 @@ import { UpdateGroupDTO } from 'src/conversations/dto/update-group.dto';
 import { RemoveFriendRequestDto } from 'src/friend-requests/dto/remove-friend-request.dto';
 import { AcceptFriendRequestDto } from 'src/friend-requests/dto/accept-friend-request.dto';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
+import { JoinGroupDto } from 'src/conversations/dto/join-group.dto';
 
 @Injectable()
 export class ChatWsService {
@@ -343,6 +344,29 @@ export class ChatWsService {
 
     // Notify conversation rooms that the user is online
     client.to(user?.conversationIds).emit(CHAT_EVENTS.userConnect, user?.id);
+  }
+
+  async joinGroup(
+    joinGroupDto: JoinGroupDto,
+    userId: string,
+    server: Server,
+  ): Promise<void> {
+    const { joinCode } = joinGroupDto;
+    const conversation = await this.conversationsService.joinGroupWithJoinCode(
+      userId,
+      joinCode,
+    );
+
+    if (!conversation) {
+      return;
+    }
+
+    // Update group for the users in the group
+    server.in(conversation.id).emit(CHAT_EVENTS.updateGroup, conversation);
+
+    // Join user to conversation room
+    server.in(userId).socketsJoin(conversation.id);
+    server.to(userId).emit(CHAT_EVENTS.newConversation, conversation);
   }
 
   async disconnectUser(client: Socket, user: User): Promise<void> {

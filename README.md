@@ -29,3 +29,4 @@
 - [Cloudinary](https://cloudinary.com/)
 - [Prisma](https://www.prisma.io/)
 - [MongoDB](https://www.mongodb.com/)
+- [NanoID](https://www.npmjs.com/package/nanoid/v/3.3.4)

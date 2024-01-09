@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class UpdateGroupDTO {
   @IsString()
@@ -30,4 +30,8 @@ export class UpdateGroupDTO {
   @IsString({ each: true })
   @IsOptional()
   addUsers?: string[];
+
+  @IsBoolean()
+  @IsOptional()
+  joinCode?: boolean;
 }

@@ -5,16 +5,18 @@ import {
   Badge,
   ContextMenu,
   Dialog,
-  Checkbox
+  Checkbox,
+  Tooltip
 } from '@radix-ui/themes';
 import {
   IconCrown,
   IconCrownOff,
   IconDoorExit,
-  IconTrash,
+  IconRefresh,
   IconUserMinus,
   IconUsersPlus,
-  IconX
+  IconX,
+  IconTrash
 } from '@tabler/icons-react';
 import { useAccountStore, useChatStore } from '../../store';
 import {
@@ -47,8 +49,8 @@ export const GroupSettings = () => {
   const asideRef = useRef<HTMLElement>(null);
   const newUsers = useRef<string[]>([]);
   const [isNewUsersDialogOpen, setIsNewUsersDialogOpen] = useState(false);
-  const { name, icon, users, adminIds, type } = useChatStore((state) =>
-    state.conversations.find((c) => c.id === currentConversationId)
+  const { name, icon, users, adminIds, type, joinCode } = useChatStore(
+    (state) => state.conversations.find((c) => c.id === currentConversationId)
   )!;
   const usersNotInGroup = useChatStore((state) =>
     state.conversations.filter((el) => el.type === ConversationTypes.chat)
@@ -131,6 +133,17 @@ export const GroupSettings = () => {
     removeConversation(currentConversationId);
   };
 
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!');
+  };
+
+  const handleNewJoinId = (joinCode = true) => {
+    sendUpdateGroup(currentConversationId, {
+      joinCode
+    });
+  };
+
   const handleClose = () => {
     setShowGroupSettings(false);
   };
@@ -138,7 +151,6 @@ export const GroupSettings = () => {
   if (type !== ConversationTypes.group) {
     return null;
   }
-
   return (
     <aside
       className={`bg-secondary w-80 rounded-tl-3xl rounded-bl-3xl overflow-auto absolute right-0 h-full ease-in-out duration-300 ${
@@ -154,28 +166,74 @@ export const GroupSettings = () => {
       </Button>
       <div className="flex flex-col items-center gap-5 mt-5 w-full">
         {isAdminAccount ? (
-          <ImageUploaderBtn
-            handleChangeImage={handleChangeImage}
-            imageURL={icon}
-            size="9"
-            title={name}
-          />
+          <>
+            <ImageUploaderBtn
+              handleChangeImage={handleChangeImage}
+              imageURL={icon}
+              size="9"
+              title={name}
+            />
+            <EditableTitle
+              as="h3"
+              title={name}
+              onChangeTitle={handleChangeGroupName}
+              dialogTitle="Change group name"
+            />
+            {!joinCode && (
+              <Button
+                variant="soft"
+                className="cursor-pointer"
+                onClick={() => handleNewJoinId()}>
+                Create Join Code
+              </Button>
+            )}
+          </>
         ) : (
-          <Avatar fallback={getFallbackAvatarName(name)} src={icon} size="9" />
+          <>
+            <Avatar
+              fallback={getFallbackAvatarName(name)}
+              src={icon}
+              size="9"
+            />
+            <Heading
+              as="h3"
+              className="mx-auto max-w-[10ch] capitalize text-center">
+              {name}
+            </Heading>
+          </>
         )}
-        {isAdminAccount ? (
-          <EditableTitle
-            as="h3"
-            title={name}
-            onChangeTitle={handleChangeGroupName}
-            dialogTitle="Change group name"
-          />
-        ) : (
-          <Heading
-            as="h3"
-            className="mx-auto max-w-[10ch] capitalize text-center">
-            {name}
-          </Heading>
+        {joinCode && (
+          <div className="flex items-center gap-4">
+            <Tooltip content="Click to copy!">
+              <Button
+                className="cursor-pointer transition-[background]"
+                variant="ghost"
+                onClick={() => handleCopyToClipboard(joinCode)}>
+                {joinCode}
+              </Button>
+            </Tooltip>
+            {isAdminAccount && (
+              <>
+                <Tooltip content="Refresh join id">
+                  <Button
+                    className="cursor-pointer"
+                    variant="ghost"
+                    onClick={() => handleNewJoinId()}>
+                    <IconRefresh />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Delete join id">
+                  <Button
+                    className="cursor-pointer"
+                    variant="ghost"
+                    color="red"
+                    onClick={() => handleNewJoinId(false)}>
+                    <IconTrash />
+                  </Button>
+                </Tooltip>
+              </>
+            )}
+          </div>
         )}
       </div>
       <ul className="mt-7 px-5 max-h-96 overflow-auto">

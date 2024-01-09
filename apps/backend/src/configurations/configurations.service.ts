@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { UpdateConfigurationDto } from './dto/update-configuration.dto';
-import { CreateConfigurationDto } from './dto/create-configuration.dto';
+import { UpdateConfigurationDto, CreateConfigurationDto } from './dto';
 import { Configuration } from '@prisma/client';
 
 @Injectable()

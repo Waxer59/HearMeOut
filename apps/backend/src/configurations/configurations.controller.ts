@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Patch, Req, UseGuards } from '@nestjs/common';
 import { ConfigurationsService } from './configurations.service';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateConfigurationDto } from './dto/update-configuration.dto';
+import { UpdateConfigurationDto } from './dto';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Configuration')

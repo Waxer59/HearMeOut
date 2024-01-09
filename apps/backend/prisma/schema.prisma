@@ -84,7 +84,7 @@ model Conversation {
   type           ConversationType
   icon           String?
   icon_public_id String?
-  joinCode       String?
+  joinCode       String?          @unique
 
   users    User[]    @relation("conversations", fields: [userIds], references: [id])
   admins   User[]    @relation("adminConversations", fields: [adminIds], references: [id])
