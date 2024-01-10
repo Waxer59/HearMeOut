@@ -45,16 +45,16 @@ export const Profile: React.FC = () => {
     settings,
     updateSettings
   } = useAccountStore((state) => state);
-  const { clearChatState } = useChatStore((state) => state);
+  const clearChatState = useChatStore((state) => state.clearChatState);
   const { sendAcceptFriendRequest, sendRemoveFriendRequest } =
     useSocketChatEvents();
   const { setLocalStorageItem } = useLocalStorage();
 
   useEffect(() => {
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
+    if (settings.theme === ThemeEnum.DARK) {
+      document.documentElement.classList.add(ThemeEnum.DARK);
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove(ThemeEnum.DARK);
     }
   }, [settings.theme]);
 

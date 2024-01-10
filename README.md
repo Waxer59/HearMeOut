@@ -1,5 +1,35 @@
 # Hear Me Out
 
+## How to run the project
+
+1. Install all the dependencies.
+
+```bash
+yarn install
+```
+
+2. Follow the steps for the [Backend](#backend) and [Frontend](#frontend).
+
+3. Start the project with the following command:
+
+```bash
+yarn dev
+```
+
+### Backend
+
+1. Rename the file **.template.env** to **.env** and fill all the fields.
+
+2. Open docker and run the following command to create the databases:
+
+```bash
+yarn dev:db
+```
+
+### Frontend
+
+1. Rename the file **.template.env** to **.env** and fill all the fields.
+
 ## Technologies
 
 ### Frontend

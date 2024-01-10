@@ -1,5 +1,5 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
-import { getFallbackAvatarName, capitalize } from '../../helpers';
+import { getFallbackAvatarName } from '../../helpers';
 import { useAccountStore, useChatStore } from '../../../store';
 import { removeActiveConversation as removeActiveConversationAPI } from '../../../services/hearMeOutAPI';
 import { ConversationTypes } from '../../../store/types/types';
@@ -32,6 +32,16 @@ export const Conversation: React.FC<Props> = ({
   isOnline,
   type
 }) => {
+  const account = useAccountStore((state) => state.account)!;
+  const [hasNewMessages, setHasNewMessages] = useState(
+    account.conversationNotificationIds.includes(id)
+  );
+  const currentConversationId = useChatStore(
+    (state) => state.currentConversationId
+  );
+  const isInActiveConversationsTab = useChatStore(
+    (state) => state.isInActiveConversationsTab
+  );
   const setShowGroupSettings = useChatStore(
     (state) => state.setShowGroupSettings
   );
@@ -45,29 +55,14 @@ export const Conversation: React.FC<Props> = ({
     (state) => state.removeConversationNotification
   );
   const removeConversation = useChatStore((state) => state.removeConversation);
-  const currentConversationId = useChatStore(
-    (state) => state.currentConversationId
-  );
-  const activeConversations = useChatStore(
-    (state) => state.activeConversations
-  );
-  const account = useAccountStore((state) => state.account);
   const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
-  const [hasNewMessages, setHasNewMessages] = useState(
-    account?.conversationNotificationIds.includes(id)
-  );
-  const isActive = activeConversations.includes(id);
 
   useEffect(() => {
-    const isInNotificationChat = currentConversationId === id;
-    setHasNewMessages(
-      account?.conversationNotificationIds.includes(id) && !isInNotificationChat
-    );
-  }, [account?.conversationNotificationIds]);
+    setHasNewMessages(account.conversationNotificationIds.includes(id));
+  }, [account.conversationNotificationIds]);
 
   const handleOpenChat = async () => {
     setCurrentConversationId(id);
-    document.title = `${capitalize(name)} | HearMeOut`;
     setHasNewMessages(false);
     removeConversationNotification(id);
   };
@@ -118,7 +113,7 @@ export const Conversation: React.FC<Props> = ({
         </Button>
       </ContextMenu.Trigger>
       <ContextMenu.Content>
-        {isActive && (
+        {isInActiveConversationsTab && (
           <>
             <ContextMenu.Item
               className="cursor-pointer"

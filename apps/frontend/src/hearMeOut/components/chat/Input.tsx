@@ -11,11 +11,11 @@ import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
 import Draggable from 'react-draggable';
 
 export const Input: React.FC = () => {
-  const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [message, setMessage] = useState('');
-  const messageInputRef = useRef<HTMLInputElement | null>(null);
+  const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
+  const messageInputRef = useRef<HTMLInputElement>(null);
   const selectionStartRef = useRef<number | null>(null);
   const settings = useAccountStore((state) => state.settings);
   const replyMessage = useChatStore((state) => state.replyMessage);

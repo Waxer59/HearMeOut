@@ -7,18 +7,15 @@ interface Props {
 }
 
 export const TypingIndicator: React.FC<Props> = ({ usersTyping }) => {
-  const { currentConversationId, conversations } = useChatStore(
-    (state) => state
+  const currentConversationId = useChatStore(
+    (state) => state.currentConversationId
   );
-
-  const conversation = conversations.find(
+  const conversation = useChatStore((state) => state.conversations).find(
     (el) => el.id === currentConversationId
   );
-
   const currentConversationUsersTyping = usersTyping.filter(
     (el) => el.conversationId === currentConversationId
   );
-
   const usernames = currentConversationUsersTyping.map(
     (el) => conversation?.users.find((user) => user.id === el.userId)?.username
   );

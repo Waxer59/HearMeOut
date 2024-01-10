@@ -38,12 +38,14 @@ interface Actions {
 export const useAccountStore = create<State & Actions>()(
   devtools((set) => ({
     account: null,
-    setAccount: (a) => set({ account: a, isAuthenticated: true }),
-    clearAccount: () => set({ account: null, isAuthenticated: false }),
+    friendRequests: [],
     isAuthenticated: false,
     settings: {
       theme: ThemeEnum.DARK
     },
+    friendRequestsOutgoing: [],
+    setAccount: (a) => set({ account: a, isAuthenticated: true }),
+    clearAccount: () => set({ account: null, isAuthenticated: false }),
     clearSettings: () =>
       set({
         settings: {
@@ -58,7 +60,6 @@ export const useAccountStore = create<State & Actions>()(
         }
       })),
     setSettings: (s) => set({ settings: s }),
-    friendRequests: [],
     setFriendRequests: (friendRequests) => set({ friendRequests }),
     addFriendRequest: (friendRequest) =>
       set((state) => ({
@@ -73,7 +74,6 @@ export const useAccountStore = create<State & Actions>()(
           : []
       })),
     clearFriendRequests: () => set({ friendRequests: [] }),
-    friendRequestsOutgoing: [],
     setFriendRequestsOutgoing: (friendRequestsOutgoing) =>
       set({ friendRequestsOutgoing }),
     addFriendRequestOutgoing: (friendRequest) =>

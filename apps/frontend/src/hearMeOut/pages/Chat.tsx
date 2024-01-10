@@ -7,6 +7,7 @@ import { ConversationTypes } from '../../store/types/types';
 import { getAllConversationMessages } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 import { useSocketChat } from '../hooks/useSocketChat';
+import { capitalize } from '../helpers';
 
 export const Chat: React.FC = () => {
   const { connectSocketChat, disconnectSocketChat } = useSocketChat();
@@ -18,6 +19,7 @@ export const Chat: React.FC = () => {
   const setConversationMessages = useChatStore(
     (state) => state.setConversationMessages
   );
+  const { id: ownUserId } = useAccountStore((state) => state.account!);
   const clearReplyMessage = useChatStore((state) => state.clearReplyMessage);
   const currentConversation = useChatStore((state) => state.conversations).find(
     (el) => el.id === currentConversationId
@@ -29,16 +31,27 @@ export const Chat: React.FC = () => {
   );
 
   useEffect(() => {
-    document.title = 'Chat | HearMeOut';
-  }, []);
-
-  useEffect(() => {
     if (!currentConversationId) {
       return;
     }
 
     sendOpenChat(currentConversationId);
   }, [currentConversationId, socket]);
+
+  useEffect(() => {
+    if (!currentConversation) {
+      return;
+    }
+    const { username } = currentConversation.users.find(
+      ({ id }) => id !== ownUserId
+    )!;
+    const title =
+      currentConversation.type === ConversationTypes.chat
+        ? username
+        : currentConversation.name;
+
+    document.title = `${capitalize(title)} | HearMeOut`;
+  }, [currentConversation]);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -56,9 +69,11 @@ export const Chat: React.FC = () => {
 
       setConversationMessages(currentConversationId, data);
     }
+
     const doesConversationMessagesExists = Boolean(
       conversations.find((el) => currentConversationId === el.id)?.messages
     );
+
     // clear replying message when navigating between chats
     clearReplyMessage();
 
@@ -67,6 +82,7 @@ export const Chat: React.FC = () => {
       setShowGroupSettings(false);
     }
 
+    // Fetch all the messages only if they don't exist already
     if (!doesConversationMessagesExists) {
       fetchMessages();
     }

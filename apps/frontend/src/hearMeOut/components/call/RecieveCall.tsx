@@ -2,7 +2,7 @@ import { Button } from '@radix-ui/themes';
 import { IconPhone, IconPhoneOff } from '@tabler/icons-react';
 import { CallLayout } from '../../layouts/CallLayout';
 
-export const Call = () => {
+export const RecieveCall: React.FC = () => {
   return (
     <CallLayout name="Hugo">
       <div className="flex gap-4 items-center">

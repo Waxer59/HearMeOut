@@ -9,6 +9,11 @@ export interface AccountDetails {
   activeConversationIds: string[];
 }
 
+export enum TabsEnum {
+  ACTIVE = 'active',
+  ALL = 'all'
+}
+
 export enum ThemeEnum {
   LIGHT = 'light',
   DARK = 'dark'

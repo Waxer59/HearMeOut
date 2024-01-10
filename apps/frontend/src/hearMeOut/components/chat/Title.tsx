@@ -11,19 +11,17 @@ export const Title: React.FC = () => {
   const setShowGroupSettings = useChatStore(
     (state) => state.setShowGroupSettings
   );
-  const currentUserId = useAccountStore((state) => state.account?.id);
-
+  const currentUserId = useAccountStore((state) => state.account)!.id;
   const conversation = conversations.find(
     (el) => el.id === currentConversationId
-  );
+  )!;
+  const userInChat = conversation.users.find(
+    (user) => user.id !== currentUserId
+  )!;
 
   const handleShowGroupSettings = () => {
     setShowGroupSettings(true);
   };
-
-  const userInChat = conversation!.users.find(
-    (user) => user.id !== currentUserId
-  )!;
 
   return (
     <div className="flex justify-end items-center px-20 pt-5 py-4 shadow-[0px_4px_4px_0px_#00000040]">

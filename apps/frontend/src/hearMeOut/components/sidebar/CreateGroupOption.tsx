@@ -23,11 +23,11 @@ interface Props {
 }
 
 export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
+  const [groupName, setGroupName] = useState('');
   const { conversations } = useChatStore();
   const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
-  const [groupName, setGroupName] = useState('');
   const { sendCreateGroup } = useSocketChatEvents();
-  const ownUserId = useAccountStore((state) => state.account?.id);
+  const ownUserId = useAccountStore((state) => state.account)!.id;
 
   const chatConversations = conversations.filter(
     (el) => el.type === ConversationTypes.chat

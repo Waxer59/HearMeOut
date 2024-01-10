@@ -8,7 +8,7 @@ import {
 import { useState } from 'react';
 import { getFallbackAvatarName } from '../../helpers';
 
-export const CallInProgress = () => {
+export const CallInProgress: React.FC = () => {
   const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
 
   const handleMuteMicrophone = () => {

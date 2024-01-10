@@ -4,7 +4,8 @@ import { useAccountStore, useChatStore } from '../../../store';
 import { VoidIcon } from '../Icons';
 import {
   ConversationTypes,
-  type ConversationDetails
+  type ConversationDetails,
+  TabsEnum
 } from '../../../store/types/types';
 
 const getConversationName = (
@@ -29,20 +30,10 @@ export const Sidebar: React.FC = () => {
   const getActiveConversations = useChatStore(
     (state) => state.getActiveConversations
   );
-  const ownUserId = useAccountStore((state) => state.account?.id);
-
-  if (conversations.length === 0) {
-    return (
-      <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
-        <Header />
-        <div className="h-[calc(100vh-224px)] max-h-[calc(100vh-224px)] flex flex-col  justify-center items-center gap-12">
-          <VoidIcon className="w-52" />
-          <h2 className="font-bold">Add a friend to start talking here</h2>
-        </div>
-        <Profile />
-      </div>
-    );
-  }
+  const ownUserId = useAccountStore((state) => state.account)!.id;
+  const setIsInActiveConversationsTab = useChatStore(
+    (state) => state.setIsInActiveConversationsTab
+  );
 
   const getSidebarConversations = (conversations: ConversationDetails[]) =>
     conversations.map((c) => {
@@ -59,13 +50,30 @@ export const Sidebar: React.FC = () => {
       );
     });
 
+  const handleTabChange = (tab: string) => {
+    setIsInActiveConversationsTab(tab === TabsEnum.ACTIVE);
+  };
+
+  if (conversations.length === 0) {
+    return (
+      <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
+        <Header />
+        <div className="h-[calc(100vh-224px)] max-h-[calc(100vh-224px)] flex flex-col  justify-center items-center gap-12">
+          <VoidIcon className="w-52" />
+          <h2 className="font-bold">Add a friend to start talking here</h2>
+        </div>
+        <Profile />
+      </div>
+    );
+  }
   return (
     <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
       <Header />
       <div className="flex flex-col gap-2">
         <Tabs.Root
           className="h-[calc(100vh-224px)] max-h-[calc(100vh-224px)]"
-          defaultValue="active">
+          defaultValue={TabsEnum.ACTIVE}
+          onValueChange={handleTabChange}>
           {chatQueryFilter ? (
             <ConversationsLayout>
               {getSidebarConversations(
@@ -80,19 +88,19 @@ export const Sidebar: React.FC = () => {
             <>
               <Tabs.List className="flex justify-evenly mb-4">
                 <Tabs.Trigger
-                  value="active"
+                  value={TabsEnum.ACTIVE}
                   className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
                   Active chats
                   <TabsDivider />
                 </Tabs.Trigger>
                 <Tabs.Trigger
-                  value="all"
+                  value={TabsEnum.ALL}
                   className="data-[state=active]:opacity-70 transition uppercase font-bold flex flex-col gap-2 group">
                   All chats
                   <TabsDivider />
                 </Tabs.Trigger>
               </Tabs.List>
-              <Tabs.Content value="active" className="h-full">
+              <Tabs.Content value={TabsEnum.ACTIVE} className="h-full">
                 <ConversationsLayout>
                   {getSidebarConversations(getActiveConversations())}
                   {getActiveConversations().length <= 0 && (
@@ -102,7 +110,7 @@ export const Sidebar: React.FC = () => {
                   )}
                 </ConversationsLayout>
               </Tabs.Content>
-              <Tabs.Content value="all" className="h-full">
+              <Tabs.Content value={TabsEnum.ALL} className="h-full">
                 <ConversationsLayout>
                   {getSidebarConversations(conversations)}
                 </ConversationsLayout>

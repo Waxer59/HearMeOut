@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { SignUp, SignIn, Chat, Profile } from '../pages';
+import { SignUp, SignIn } from '../pages';
 import { PrivateRoutes, PublicRoutes } from '../../router';
 import { useAccountStore, useChatStore } from '../../store';
 import { LOCAL_STORAGE_ITEMS, type VerifyResponse } from '../../types/types';
@@ -7,8 +7,9 @@ import { verify } from '../../services/hearMeOutAPI';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useEffect, useState } from 'react';
 import { BounceLoader } from 'react-spinners';
+import { ChatRoutes } from './ChatRoutes';
 
-const HearMeOutRoutes = () => {
+const AppRoutes = () => {
   const {
     setAccount,
     setFriendRequests,
@@ -32,19 +33,14 @@ const HearMeOutRoutes = () => {
 
       setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, true);
 
-      const {
-        conversations,
-        activeConversationIds,
-        friendReqTos,
-        friendReqFroms,
-        ...account
-      } = data;
+      const { conversations, friendReqTos, friendReqFroms, ...account } = data;
 
       setCurrentConversationId(
-        conversations.filter((el) => activeConversationIds.includes(el.id))?.[0]
-          ?.id ?? null
+        conversations.filter((el) =>
+          account.activeConversationIds.includes(el.id)
+        )?.[0]?.id ?? null
       );
-      setActiveConversations(activeConversationIds);
+      setActiveConversations(account.activeConversationIds);
       setConversations(conversations);
       setFriendRequestsOutgoing(friendReqFroms);
 
@@ -112,13 +108,4 @@ const HearMeOutRoutes = () => {
   );
 };
 
-const ChatRoutes = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<Chat />} />
-      <Route path="/profile" element={<Profile />} />
-    </Routes>
-  );
-};
-
-export default HearMeOutRoutes;
+export default AppRoutes;

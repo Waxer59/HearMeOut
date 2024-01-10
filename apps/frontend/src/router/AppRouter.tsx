@@ -1,10 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
-import HearMeOutRoutes from '../hearMeOut/routes/HearMeOutRoutes';
+import AppRoutes from '../hearMeOut/routes/AppRoutes';
 
 export const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/*" element={<HearMeOutRoutes />} />
+      <Route path="/*" element={<AppRoutes />} />
     </Routes>
   );
 };

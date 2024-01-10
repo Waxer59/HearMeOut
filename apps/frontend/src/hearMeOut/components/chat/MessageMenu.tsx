@@ -16,11 +16,10 @@ export const MessageMenu: React.FC<Props> = ({
   ...props
 }) => {
   const { id, fromId } = message;
-  const MenuType = type;
   const { sendDeleteMessage } = useSocketChatEvents();
-  const userId = useAccountStore((state) => state.account?.id);
+  const userId = useAccountStore((state) => state.account)!.id;
   const setReplyMessage = useChatStore((state) => state.setReplyMessage);
-
+  const MenuType = type;
   const isOwnMessage = userId === fromId;
 
   const handleDeleteMessage = () => {

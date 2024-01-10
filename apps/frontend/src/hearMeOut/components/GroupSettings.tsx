@@ -35,6 +35,12 @@ import { toast } from 'sonner';
 import { ACCEPTED_IMG_EXTENSIONS } from '../../constants/constants';
 
 export const GroupSettings = () => {
+  const [newUserSearch, setNewUserSearch] = useState('');
+  const [isNewUsersDialogOpen, setIsNewUsersDialogOpen] = useState(false);
+  const asideRef = useRef<HTMLElement>(null);
+  const newUsers = useRef<string[]>([]);
+  const { sendUpdateGroup, sendExitGroup, sendRemoveConversation } =
+    useSocketChatEvents();
   const setShowGroupSettings = useChatStore(
     (state) => state.setShowGroupSettings
   );
@@ -47,22 +53,16 @@ export const GroupSettings = () => {
   );
   const { id: ownUserId } = useAccountStore((state) => state.account)!;
   const removeConversation = useChatStore((state) => state.removeConversation);
-  const asideRef = useRef<HTMLElement>(null);
-  const newUsers = useRef<string[]>([]);
-  const [isNewUsersDialogOpen, setIsNewUsersDialogOpen] = useState(false);
   const { name, icon, users, adminIds, type, joinCode } = useChatStore(
-    (state) => state.conversations.find((c) => c.id === currentConversationId)
-  )!;
-  const usersNotInGroup = useChatStore((state) =>
-    state.conversations.filter((el) => el.type === ConversationTypes.chat)
-  ).filter((el) => {
-    const userInChat = el.users.find((user) => user.id !== ownUserId)!;
-    const isUserInGroup = users.find((user) => user.id === userInChat.id);
-    return !isUserInGroup;
-  });
-  const { sendUpdateGroup, sendExitGroup, sendRemoveConversation } =
-    useSocketChatEvents();
-  const [newUserSearch, setNewUserSearch] = useState('');
+    (state) => state.conversations
+  ).find((c) => c.id === currentConversationId)!;
+  const usersNotInGroup = useChatStore((state) => state.conversations).filter(
+    (el) => {
+      const userInChat = el.users.find((user) => user.id !== ownUserId)!;
+      const isUserInGroup = users.find((user) => user.id === userInChat.id);
+      return !isUserInGroup && el.type === ConversationTypes.chat;
+    }
+  );
   const isAdminAccount = adminIds.includes(ownUserId);
 
   const handleAddNewUsers = () => {
@@ -297,8 +297,6 @@ export const GroupSettings = () => {
                       const userInChat = users.find(
                         (user) => user.id !== ownUserId
                       )!;
-
-                      console.log(newUserSearch.length);
 
                       return (
                         userInChat.username

@@ -17,9 +17,11 @@ interface State {
   chatQueryFilter: string | null;
   replyMessage: MessageDetails | null;
   showGroupSettings: boolean;
+  isInActiveConversationsTab: boolean;
 }
 
 interface Actions {
+  setIsInActiveConversationsTab: (isInActiveConversationsTab: boolean) => void;
   setConversations: (conversations: ConversationDetails[]) => void;
   addConversation: (conversations: ConversationDetails) => void;
   setReplyMessage: (replyMessage: MessageDetails | null) => void;
@@ -65,6 +67,15 @@ interface Actions {
 export const useChatStore = create<State & Actions>()(
   devtools((set, get) => ({
     conversations: [],
+    activeConversations: [],
+    socket: null,
+    currentConversationId: null,
+    friendRequests: null,
+    replyMessage: null,
+    showGroupSettings: false,
+    isInActiveConversationsTab: true,
+    chatQueryFilter: null,
+    usersTyping: [],
     setConversations: (conversations) => set({ conversations }),
     addConversation: (conversations) =>
       set((state) => ({
@@ -73,11 +84,9 @@ export const useChatStore = create<State & Actions>()(
           : [conversations]
       })),
     clearConversations: () => set({ conversations: [] }),
-    activeConversations: [],
     setActiveConversations: (activeConversations) =>
       set({ activeConversations }),
     clearActive: () => set({ activeConversations: [] }),
-    socket: null,
     setSocket: (socket) => set({ socket }),
     clearSocket: () => set({ socket: null }),
     getActiveConversations: () =>
@@ -98,7 +107,6 @@ export const useChatStore = create<State & Actions>()(
           )
         }))
       })),
-    currentConversationId: null,
     setCurrentConversationId: (currentConversationId) =>
       set({ currentConversationId }),
     clearCurrentConversationId: () => set({ currentConversationId: null }),
@@ -124,7 +132,6 @@ export const useChatStore = create<State & Actions>()(
             : el
         )
       })),
-    usersTyping: [],
     addUserTyping: (userTyping) =>
       set((state) => {
         if (
@@ -168,7 +175,6 @@ export const useChatStore = create<State & Actions>()(
           ? [...state.activeConversations, id]
           : [id]
       })),
-    friendRequests: null,
     clearChatState: () =>
       set({
         conversations: [],
@@ -178,7 +184,8 @@ export const useChatStore = create<State & Actions>()(
         usersTyping: [],
         chatQueryFilter: null,
         replyMessage: null,
-        showGroupSettings: false
+        showGroupSettings: false,
+        isInActiveConversationsTab: true
       }),
     removeConversation: (id) =>
       set((state) => ({
@@ -187,7 +194,6 @@ export const useChatStore = create<State & Actions>()(
           : [],
         activeConversations: state.activeConversations.filter((el) => el !== id)
       })),
-    chatQueryFilter: null,
     setChatQueryFilter: (query) => set({ chatQueryFilter: query }),
     deleteConversationMessage: (conversationId, messageId) =>
       set((state) => ({
@@ -213,16 +219,18 @@ export const useChatStore = create<State & Actions>()(
             : el
         )
       })),
-    replyMessage: null,
     setReplyMessage: (replyMessage) => set({ replyMessage }),
     clearReplyMessage: () => set({ replyMessage: null }),
-    showGroupSettings: false,
     setShowGroupSettings: (showGroupSettings) => set({ showGroupSettings }),
     updateConversation: (conversation) =>
       set((state) => ({
         conversations: state.conversations.map((el) =>
           el.id === conversation.id ? { ...el, ...conversation } : el
         )
-      }))
+      })),
+    setIsInActiveConversationsTab: (isInActiveConversationsTab) =>
+      set({
+        isInActiveConversationsTab
+      })
   }))
 );

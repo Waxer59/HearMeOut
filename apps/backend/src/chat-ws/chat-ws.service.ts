@@ -36,35 +36,36 @@ export class ChatWsService {
 
   async sendMessage(
     sendMessageDto: SendMessageDto,
-    userId: string,
+    senderId: string,
     server: Server,
   ): Promise<void> {
     const { conversation, ...message } = await this.messageService.create({
       ...sendMessageDto,
-      fromId: userId,
+      fromId: senderId,
     });
 
-    const notifyUserIds = [];
     conversation.userIds.forEach(async (userId) => {
-      const currentUserConversation = await this.cachingService.getCacheKey(
-        CACHE_PREFIXES.usersActiveChat + userId,
-      );
+      const currentUserActiveConversation =
+        await this.cachingService.getCacheKey(
+          CACHE_PREFIXES.userActiveChat + userId,
+        );
 
       // If the user is not in the current conversation
       // then notify the user that the message was sent
-      if (currentUserConversation !== sendMessageDto.conversationId) {
-        notifyUserIds.push(userId);
+      if (
+        currentUserActiveConversation !== sendMessageDto.conversationId &&
+        senderId !== userId
+      ) {
+        // Notify user that a message was sent
+        server.to(userId).emit(CHAT_EVENTS.notification, {
+          id: sendMessageDto.conversationId,
+        });
         await this.usersService.addConversationNotification(
           userId,
           sendMessageDto.conversationId,
         );
       }
     });
-
-    // Notify users that a message was sent
-    server
-      .to(notifyUserIds)
-      .emit(CHAT_EVENTS.notification, { id: sendMessageDto.conversationId });
 
     server.to(sendMessageDto.conversationId).emit(CHAT_EVENTS.message, message);
   }
@@ -194,7 +195,7 @@ export class ChatWsService {
     const { id: conversationId } = conversationActionsDto;
 
     this.cachingService.setCacheKey(
-      CACHE_PREFIXES.usersActiveChat + userId,
+      CACHE_PREFIXES.userActiveChat + userId,
       conversationId,
     );
 
@@ -379,7 +380,7 @@ export class ChatWsService {
 
     // Delete active chat from cache
     await this.cachingService.deleteCacheKey(
-      CACHE_PREFIXES.usersActiveChat + user.id,
+      CACHE_PREFIXES.userActiveChat + user.id,
     );
 
     // Notify conversation rooms that the user is offline

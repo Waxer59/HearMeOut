@@ -3,7 +3,7 @@ export * from './NotificationIndicator';
 export * from './Icons';
 export * from './GroupSettings';
 export * from './FurtherProfileUpdates';
-export * from './call/Call';
+export * from './call/RecieveCall';
 export * from './chat';
 export * from './sidebar';
 export * from './call';

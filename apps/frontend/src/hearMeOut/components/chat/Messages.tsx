@@ -10,11 +10,11 @@ interface DateGroup {
 }
 
 export const Messages: React.FC = () => {
-  const { currentConversationId, conversations } = useChatStore(
-    (state) => state
-  );
   const messageEl = useRef<HTMLDivElement>(null);
-
+  const currentConversationId = useChatStore(
+    (state) => state.currentConversationId
+  );
+  const conversations = useChatStore((state) => state.conversations);
   const conversation = conversations.find(
     (el) => el.id === currentConversationId
   );

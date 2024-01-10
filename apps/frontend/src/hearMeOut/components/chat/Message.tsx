@@ -23,15 +23,15 @@ interface Props {
 
 export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
   const { id, isEdited, content } = message;
-  const { sendUpdateMessage } = useSocketChatEvents();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newMessage, setNewMessage] = useState(content);
+  const editInput = useRef<HTMLInputElement>(null);
+  const { sendUpdateMessage } = useSocketChatEvents();
   const conversations = useChatStore((state) => state.conversations);
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
-  const editInput = useRef<HTMLInputElement>(null);
   const isReplying = Boolean(message.replyId);
   const replyMsg = conversations
     .find((e) => e.id === currentConversationId)!
