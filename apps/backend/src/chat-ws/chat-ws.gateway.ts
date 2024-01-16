@@ -219,7 +219,6 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Protect route with JWT cookie auth
     client.use(async (client: any, next: any) => {
       const user = await this.chatWsService.getUserIdAuth(client);
-
       if (!user) {
         next(new Error('Unauthorized'));
       }

@@ -18,12 +18,13 @@ import type {
 
 export const useSocketChat = () => {
   const {
+    currentConversationId,
+    socket,
     addActiveConversation,
     addConversation,
     addConversationMessage,
     addUserTyping,
     clearSocket,
-    currentConversationId,
     getActiveConversations,
     deleteConversationMessage,
     updateConversationMessage,
@@ -32,16 +33,17 @@ export const useSocketChat = () => {
     setConversationIsOnline,
     setCurrentConversationId,
     updateConversation,
-    setSocket,
-    socket
+    setSocket
   } = useChatStore((state) => state);
   const {
+    account,
     addFriendRequest,
     addFriendRequestOutgoing,
     removeFriendRequest,
     removeFriendRequestOutgoing,
     addConversationNotification
-  } = useAccountStore();
+  } = useAccountStore((state) => state);
+  const { id: ownUserId } = account!;
 
   const connectSocketChat = useCallback(() => {
     const socketTmp = io(`${getEnvVariables().VITE_HEARMEOUT_API}`, {
@@ -85,12 +87,18 @@ export const useSocketChat = () => {
       addConversationMessage(message.conversationId, message);
     });
 
-    socket.on(CHAT_EVENTS.typing, (typing: UserTyping) => {
-      addUserTyping(typing);
+    socket.on(CHAT_EVENTS.typing, (userTyping: UserTyping) => {
+      // The user can have multiple tabs
+      if (userTyping.userId !== ownUserId) {
+        addUserTyping(userTyping);
+      }
     });
 
     socket.on(CHAT_EVENTS.typingOff, (userTyping: UserTyping) => {
-      removeUserTyping(userTyping);
+      // The user can have multiple tabs
+      if (userTyping.userId !== ownUserId) {
+        removeUserTyping(userTyping);
+      }
     });
 
     socket.on(

@@ -9,16 +9,6 @@ export interface AccountDetails {
   activeConversationIds: string[];
 }
 
-export enum TabsEnum {
-  ACTIVE = 'active',
-  ALL = 'all'
-}
-
-export enum ThemeEnum {
-  LIGHT = 'light',
-  DARK = 'dark'
-}
-
 export interface SettingsDetails {
   theme: ThemeEnum;
 }
@@ -43,11 +33,6 @@ export interface FriendRequestDetails {
   to: AccountDetails;
 }
 
-export enum ConversationTypes {
-  chat = 'chat',
-  group = 'group'
-}
-
 export interface ConversationDetails {
   id: string;
   name: string;
@@ -64,4 +49,19 @@ export interface ConversationDetails {
 export interface UserTyping {
   userId: string;
   conversationId: string;
+}
+
+export enum TabsEnum {
+  ACTIVE = 'active',
+  ALL = 'all'
+}
+
+export enum ThemeEnum {
+  LIGHT = 'light',
+  DARK = 'dark'
+}
+
+export enum ConversationTypes {
+  chat = 'chat',
+  group = 'group'
 }

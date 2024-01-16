@@ -1,6 +1,6 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
 import { getFallbackAvatarName } from '../../helpers';
-import { useAccountStore, useChatStore } from '../../../store';
+import { useAccountStore, useChatStore, useUiStore } from '../../../store';
 import { removeActiveConversation as removeActiveConversationAPI } from '../../../services/hearMeOutAPI';
 import { ConversationTypes } from '../../../store/types/types';
 import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
@@ -39,10 +39,10 @@ export const Conversation: React.FC<Props> = ({
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
-  const isInActiveConversationsTab = useChatStore(
+  const isInActiveConversationsTab = useUiStore(
     (state) => state.isInActiveConversationsTab
   );
-  const setShowGroupSettings = useChatStore(
+  const setShowGroupSettings = useUiStore(
     (state) => state.setShowGroupSettings
   );
   const setCurrentConversationId = useChatStore(

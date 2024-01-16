@@ -9,6 +9,7 @@ import { compareHash } from 'src/common/helpers/bcrypt';
 import { SignUpDto } from './dto/sign-up.dto';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+import { JwtPayloadDetails } from 'src/common/types/types';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +46,7 @@ export class AuthService {
   }
 
   async verify(jwt: string): Promise<User> {
-    let payload;
+    let payload: JwtPayloadDetails;
 
     try {
       payload = this.jwtService.verify(jwt);

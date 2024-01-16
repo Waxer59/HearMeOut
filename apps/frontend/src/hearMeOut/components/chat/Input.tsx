@@ -108,7 +108,7 @@ export const Input: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col px-20 pt-10">
+    <div className="flex flex-col px-10 md:px-20 pt-10">
       {replyMessage && (
         <div className="flex justify-between bg-secondary p-4 rounded-t-lg gap-2 text-md">
           <h3>
@@ -156,7 +156,7 @@ export const Input: React.FC = () => {
               <IconButton
                 size="2"
                 variant="ghost"
-                className="transition"
+                className="transition hidden sm:block"
                 color="indigo"
                 onClick={onEmojiPickerClick}>
                 <IconMoodSmile />

@@ -8,6 +8,16 @@ import type {
 } from './types/types';
 import type { Socket } from 'socket.io-client';
 
+const initialState: State = {
+  conversations: [],
+  activeConversations: [],
+  socket: null,
+  currentConversationId: null,
+  replyMessage: null,
+  chatQueryFilter: null,
+  usersTyping: []
+};
+
 interface State {
   conversations: ConversationDetails[];
   activeConversations: string[];
@@ -16,12 +26,9 @@ interface State {
   usersTyping: UserTyping[];
   chatQueryFilter: string | null;
   replyMessage: MessageDetails | null;
-  showGroupSettings: boolean;
-  isInActiveConversationsTab: boolean;
 }
 
 interface Actions {
-  setIsInActiveConversationsTab: (isInActiveConversationsTab: boolean) => void;
   setConversations: (conversations: ConversationDetails[]) => void;
   addConversation: (conversations: ConversationDetails) => void;
   setReplyMessage: (replyMessage: MessageDetails | null) => void;
@@ -60,22 +67,12 @@ interface Actions {
   removeUserTyping: (userTyping: UserTyping) => void;
   clearUserTyping: () => void;
   clearChatState: () => void;
-  setShowGroupSettings: (showGroupSettings: boolean) => void;
   updateConversation: (conversation: ConversationDetails) => void;
 }
 
 export const useChatStore = create<State & Actions>()(
   devtools((set, get) => ({
-    conversations: [],
-    activeConversations: [],
-    socket: null,
-    currentConversationId: null,
-    friendRequests: null,
-    replyMessage: null,
-    showGroupSettings: false,
-    isInActiveConversationsTab: true,
-    chatQueryFilter: null,
-    usersTyping: [],
+    ...initialState,
     setConversations: (conversations) => set({ conversations }),
     addConversation: (conversations) =>
       set((state) => ({
@@ -175,18 +172,7 @@ export const useChatStore = create<State & Actions>()(
           ? [...state.activeConversations, id]
           : [id]
       })),
-    clearChatState: () =>
-      set({
-        conversations: [],
-        activeConversations: [],
-        socket: null,
-        currentConversationId: null,
-        usersTyping: [],
-        chatQueryFilter: null,
-        replyMessage: null,
-        showGroupSettings: false,
-        isInActiveConversationsTab: true
-      }),
+    clearChatState: () => set(initialState),
     removeConversation: (id) =>
       set((state) => ({
         conversations: state.conversations
@@ -221,16 +207,11 @@ export const useChatStore = create<State & Actions>()(
       })),
     setReplyMessage: (replyMessage) => set({ replyMessage }),
     clearReplyMessage: () => set({ replyMessage: null }),
-    setShowGroupSettings: (showGroupSettings) => set({ showGroupSettings }),
     updateConversation: (conversation) =>
       set((state) => ({
         conversations: state.conversations.map((el) =>
           el.id === conversation.id ? { ...el, ...conversation } : el
         )
-      })),
-    setIsInActiveConversationsTab: (isInActiveConversationsTab) =>
-      set({
-        isInActiveConversationsTab
-      })
+      }))
   }))
 );

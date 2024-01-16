@@ -11,9 +11,8 @@ export type SocketIOMiddleware = {
   (client: Socket, next: (err?: any) => void);
 };
 
-export enum CONVERSATION_TYPE {
-  chat = 'chat',
-  group = 'group',
+export interface JwtPayloadDetails {
+  id: string;
 }
 
 export interface ConversationWithRelations extends Conversation {
@@ -54,4 +53,9 @@ export interface ICloudinaryUploadResponse {
   folder: string;
   access_mode: string;
   api_key: string;
+}
+
+export enum CONVERSATION_TYPE {
+  chat = 'chat',
+  group = 'group',
 }

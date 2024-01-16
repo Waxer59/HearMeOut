@@ -113,7 +113,9 @@ export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
                 <div className="flex items-center justify-between w-full opacity-60">
                   <div className="flex items-center gap-3">
                     <span className="font-bold capitalize">{name}</span>
-                    <span className="lowecase">{date.toDateString()}</span>
+                    <span className="hidden md:block">
+                      {date.toDateString()}
+                    </span>
                     {isEdited && (
                       <span className="text-sm opacity-70">(edited)</span>
                     )}

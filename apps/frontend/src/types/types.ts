@@ -52,6 +52,39 @@ export interface IResponseData {
   status: number;
 }
 
+export interface DeleteMessageDetails {
+  conversationId: string;
+  messageId: string;
+}
+
+export interface RemoveFriendRequestDetails {
+  id: string;
+  isOutgoing: boolean;
+}
+
+export interface UpdateMessageDetails {
+  conversationId: string;
+  messageId: string;
+  content: string;
+}
+
+export interface UpdateGroupOptions {
+  icon?: any;
+  name?: string;
+  kickUsers?: string[];
+  addUsers?: string[];
+  makeAdmins?: string[];
+  removeAdmins?: string[];
+
+  // 'true': generate a new join code
+  // 'false': remove join code from the group
+  joinCode?: boolean;
+}
+
+export enum LOCAL_STORAGE_ITEMS {
+  isAuth = 'isAuth'
+}
+
 export enum HttpStatusCodes {
   OK = 200,
   CREATED = 201,
@@ -73,35 +106,6 @@ export enum HttpMethods {
   DELETE = 'DELETE'
 }
 
-export interface DeleteMessageDetails {
-  conversationId: string;
-  messageId: string;
-}
-
-export interface RemoveFriendRequestDetails {
-  id: string;
-  isOutgoing: boolean;
-}
-
-export interface UpdateMessageDetails {
-  conversationId: string;
-  messageId: string;
-  content: string;
-}
-
-export enum LOCAL_STORAGE_ITEMS {
-  isAuth = 'isAuth'
-}
-
-export interface UpdateGroupOptions {
-  icon?: any;
-  name?: string;
-  kickUsers?: string[];
-  addUsers?: string[];
-  makeAdmins?: string[];
-  removeAdmins?: string[];
-
-  // 'true': generate a new join code
-  // 'false': remove join code from the group
-  joinCode?: boolean;
+export enum BROADCAST_CHANEL_KEY {
+  currentConversationId = 'currentConversationId'
 }

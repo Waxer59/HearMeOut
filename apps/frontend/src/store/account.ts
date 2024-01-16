@@ -7,6 +7,16 @@ import {
 } from './types/types';
 import { devtools } from 'zustand/middleware';
 
+const initialState: State = {
+  account: null,
+  isAuthenticated: false,
+  settings: {
+    theme: ThemeEnum.DARK
+  },
+  friendRequests: [],
+  friendRequestsOutgoing: []
+};
+
 interface State {
   account: AccountDetails | null;
   isAuthenticated: boolean;
@@ -37,13 +47,7 @@ interface Actions {
 
 export const useAccountStore = create<State & Actions>()(
   devtools((set) => ({
-    account: null,
-    friendRequests: [],
-    isAuthenticated: false,
-    settings: {
-      theme: ThemeEnum.DARK
-    },
-    friendRequestsOutgoing: [],
+    ...initialState,
     setAccount: (a) => set({ account: a, isAuthenticated: true }),
     clearAccount: () => set({ account: null, isAuthenticated: false }),
     clearSettings: () =>
@@ -91,16 +95,7 @@ export const useAccountStore = create<State & Actions>()(
           : []
       })),
     clearFriendRequestsOutgoing: () => set({ friendRequestsOutgoing: [] }),
-    clearAccountState: () =>
-      set({
-        account: null,
-        isAuthenticated: false,
-        settings: {
-          theme: ThemeEnum.DARK
-        },
-        friendRequests: [],
-        friendRequestsOutgoing: []
-      }),
+    clearAccountState: () => set(initialState),
     updateAccount: (a) =>
       set((state) => ({
         account: {

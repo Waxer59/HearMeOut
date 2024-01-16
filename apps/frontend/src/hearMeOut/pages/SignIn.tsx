@@ -16,8 +16,8 @@ import { signIn } from '../../services/hearMeOutAPI';
 import { HttpStatusCodes } from '../../types/types';
 
 export const SignIn: React.FC = () => {
-  const form = useRef<HTMLFormElement | null>(null);
-  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const form = useRef<HTMLFormElement>(null);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const navigate = useNavigate();
 
   const handleSignIn = async (e: any) => {

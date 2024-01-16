@@ -194,11 +194,10 @@ export class ChatWsService {
   ): Promise<void> {
     const { id: conversationId } = conversationActionsDto;
 
-    this.cachingService.setCacheKey(
+    await this.cachingService.setCacheKey(
       CACHE_PREFIXES.userActiveChat + userId,
       conversationId,
     );
-
     await this.usersService.removeConversationNotification(
       userId,
       conversationId,
@@ -332,21 +331,6 @@ export class ChatWsService {
     });
   }
 
-  async connectUser(client: Socket, user: User): Promise<void> {
-    try {
-      await this.usersService.setIsOnline(user?.id, true);
-    } catch (error) {
-      this.disconnectUser(client, user);
-      return;
-    }
-
-    // Join user to conversation rooms
-    client.join([user?.id, ...user?.conversationIds]);
-
-    // Notify conversation rooms that the user is online
-    client.to(user?.conversationIds).emit(CHAT_EVENTS.userConnect, user?.id);
-  }
-
   async joinGroup(
     joinGroupDto: JoinGroupDto,
     userId: string,
@@ -370,22 +354,67 @@ export class ChatWsService {
     server.to(userId).emit(CHAT_EVENTS.newConversation, conversation);
   }
 
-  async disconnectUser(client: Socket, user: User): Promise<void> {
-    try {
-      await this.usersService.setIsOnline(user?.id, false);
-    } catch (error) {
+  async connectUser(client: Socket, user: User): Promise<void> {
+    if (!user) {
       client.disconnect();
       return;
     }
 
+    const { id, conversationIds } = user;
+    await this.usersService.setIsOnline(id, true);
+
+    const connectedClients =
+      +(await this.cachingService.getCacheKey(
+        CACHE_PREFIXES.connectedClients + id,
+      )) ?? 0;
+
+    await this.cachingService.setCacheKey(
+      CACHE_PREFIXES.connectedClients + id,
+      connectedClients + 1,
+    );
+
+    // Join user to conversation rooms
+    client.join([id, ...conversationIds]);
+
+    // Notify conversation rooms that the user is online
+    client.to(conversationIds).emit(CHAT_EVENTS.userConnect, id);
+  }
+
+  async disconnectUser(client: Socket, user: User): Promise<void> {
+    if (!user) {
+      client.disconnect();
+      return;
+    }
+    const { id, conversationIds } = user;
+
+    const connectedClients = +(await this.cachingService.getCacheKey(
+      CACHE_PREFIXES.connectedClients + id,
+    ));
+
+    // A user can have multiple tabs
+    // if the user have multiple tabs
+    // then decrement the connected clients count
+    // else delete the connected clients count from cache
+    // and set the user as offline in the database.
+    if (connectedClients > 1) {
+      await this.cachingService.setCacheKey(
+        CACHE_PREFIXES.connectedClients + id,
+        `${connectedClients - 1}`,
+      );
+      return;
+    }
+
+    await this.cachingService.deleteCacheKey(
+      CACHE_PREFIXES.connectedClients + id,
+    );
+    await this.usersService.setIsOnline(id, false);
+
     // Delete active chat from cache
     await this.cachingService.deleteCacheKey(
-      CACHE_PREFIXES.userActiveChat + user.id,
+      CACHE_PREFIXES.userActiveChat + client.id,
     );
 
     // Notify conversation rooms that the user is offline
-    client.broadcast
-      .to(user?.conversationIds)
-      .emit(CHAT_EVENTS.userDisconnect, user?.id);
+    client.broadcast.to(conversationIds).emit(CHAT_EVENTS.userDisconnect, id);
   }
 }

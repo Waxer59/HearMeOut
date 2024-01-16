@@ -1,21 +1,36 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, OnApplicationBootstrap } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
-export class CachingService {
+export class CachingService implements OnApplicationBootstrap {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
-  async getCacheKey(key: string): Promise<string> {
-    const value = await this.cacheManager.get(key);
-    return value as string;
+  async getCacheKey(key: string): Promise<unknown> {
+    try {
+      const value = await this.cacheManager.get(key);
+      return value;
+    } catch (error) {
+      return null;
+    }
   }
-  async setCacheKey(key: string, value: string): Promise<void> {
-    await this.cacheManager.set(key, value);
+  async setCacheKey(key: string, value: unknown): Promise<void> {
+    try {
+      await this.cacheManager.set(key, value);
+    } catch (error) {}
   }
   async deleteCacheKey(key: string): Promise<void> {
-    await this.cacheManager.del(key);
+    try {
+      await this.cacheManager.del(key);
+    } catch (error) {}
   }
   async resetCache(): Promise<void> {
-    await this.cacheManager.reset();
+    try {
+      await this.cacheManager.reset();
+    } catch (error) {}
+  }
+  async onApplicationBootstrap(): Promise<void> {
+    // Reset the cache on bootstrap
+    // to avoid unexpected behaviour
+    await this.resetCache();
   }
 }

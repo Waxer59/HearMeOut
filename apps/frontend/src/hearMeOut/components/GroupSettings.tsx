@@ -19,7 +19,7 @@ import {
   IconX,
   IconTrash
 } from '@tabler/icons-react';
-import { useAccountStore, useChatStore } from '../../store';
+import { useAccountStore, useChatStore, useUiStore } from '../../store';
 import {
   getFallbackAvatarName,
   getBase64File,
@@ -41,10 +41,10 @@ export const GroupSettings = () => {
   const newUsers = useRef<string[]>([]);
   const { sendUpdateGroup, sendExitGroup, sendRemoveConversation } =
     useSocketChatEvents();
-  const setShowGroupSettings = useChatStore(
+  const setShowGroupSettings = useUiStore(
     (state) => state.setShowGroupSettings
   );
-  const showGroupSettings = useChatStore((state) => state.showGroupSettings);
+  const showGroupSettings = useUiStore((state) => state.showGroupSettings);
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   )!;

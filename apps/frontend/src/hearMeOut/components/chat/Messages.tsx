@@ -27,7 +27,7 @@ export const Messages: React.FC = () => {
 
   return (
     <div
-      className="px-20 flex-1 pt-10 flex flex-col gap-6 overflow-auto"
+      className="px-10 md:px-20 flex-1 pt-10 flex flex-col gap-6 overflow-auto"
       ref={messageEl}>
       {conversation?.messages &&
         conversation.messages

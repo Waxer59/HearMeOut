@@ -1,6 +1,6 @@
 import * as Tabs from '@radix-ui/react-tabs';
 import { Profile, Header, Conversation, TabsDivider } from '..';
-import { useAccountStore, useChatStore } from '../../../store';
+import { useAccountStore, useChatStore, useUiStore } from '../../../store';
 import { VoidIcon } from '../Icons';
 import {
   ConversationTypes,
@@ -31,9 +31,10 @@ export const Sidebar: React.FC = () => {
     (state) => state.getActiveConversations
   );
   const ownUserId = useAccountStore((state) => state.account)!.id;
-  const setIsInActiveConversationsTab = useChatStore(
+  const setIsInActiveConversationsTab = useUiStore(
     (state) => state.setIsInActiveConversationsTab
   );
+  const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
 
   const getSidebarConversations = (conversations: ConversationDetails[]) =>
     conversations.map((c) => {
@@ -67,7 +68,10 @@ export const Sidebar: React.FC = () => {
     );
   }
   return (
-    <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
+    <div
+      className={`w-80 bg-secondary h-full px-5 pt-5 absolute md:relative flex flex-col gap-8 z-10 md:translate-x-0 transition-transform ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
       <Header />
       <div className="flex flex-col gap-2">
         <Tabs.Root
