@@ -88,10 +88,10 @@ export class AuthController {
   }
 
   @ApiProperty()
-  @Get('/verify')
+  @Get('verify')
   @ApiCookieAuth('Authorization')
   @UseGuards(AuthGuard('jwt'))
-  async verify(@Req() req) {
+  async verify(@Req() req: Request) {
     return excludeUserFields(req.user as User, [
       'password',
       'githubId',

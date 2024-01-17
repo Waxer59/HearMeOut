@@ -5,8 +5,8 @@ export const setAuthCookie = (res: Response, token: string): void => {
   res.cookie(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: true,
-    expires: new Date(Date.now() + AUTH_COOKIE_EXPIRATION),
     signed: true,
+    expires: new Date(Date.now() + AUTH_COOKIE_EXPIRATION),
   });
 };
 
