@@ -51,9 +51,6 @@ export const Conversation: React.FC<Props> = ({
   const removeActiveConversation = useChatStore(
     (state) => state.removeActiveConversation
   );
-  const removeConversationNotification = useAccountStore(
-    (state) => state.removeConversationNotification
-  );
   const removeConversation = useChatStore((state) => state.removeConversation);
   const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
 
@@ -64,7 +61,6 @@ export const Conversation: React.FC<Props> = ({
   const handleOpenChat = async () => {
     setCurrentConversationId(id);
     setHasNewMessages(false);
-    removeConversationNotification(id);
   };
 
   const handleCloseChat = async () => {

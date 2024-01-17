@@ -32,6 +32,9 @@ export const Chat: React.FC = () => {
   const setShowGroupSettings = useUiStore(
     (state) => state.setShowGroupSettings
   );
+  const removeConversationNotification = useAccountStore(
+    (state) => state.removeConversationNotification
+  );
 
   useEffect(() => {
     if (!currentConversationId || !socket) {
@@ -90,6 +93,10 @@ export const Chat: React.FC = () => {
 
     // clear replying message when navigating between chats
     clearReplyMessage();
+
+    if (currentConversationId) {
+      removeConversationNotification(currentConversationId);
+    }
 
     // close group settings when navigating between chats
     if (currentConversation?.type === ConversationTypes.group) {

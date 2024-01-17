@@ -32,10 +32,10 @@ export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
-  const isReplying = Boolean(message.replyId);
   const replyMsg = conversations
     .find((e) => e.id === currentConversationId)!
     .messages.find((e) => e.id === message.replyId);
+  const isReplying = Boolean(replyMsg);
 
   useEffect(() => {
     if (!isEditing) {
@@ -91,14 +91,16 @@ export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
             {isReplying && (
               <div className="justify-start w-full pt-2 border-gray-700 flex items-center gap-2 pl-[60px] before:content-[''] before:absolute before:border-t-2 before:border-l-2 before:border-gray-500 before:w-10 before:h-6 before:rounded-tl before:left-4 before:-bottom-2 relative">
                 <Avatar
-                  fallback={getFallbackAvatarName(replyMsg!.from.username)}
+                  fallback={getFallbackAvatarName(
+                    replyMsg?.from.username ?? ''
+                  )}
                   src={replyMsg?.from.avatar}
                   size="1"
                 />
                 <span className="font-bold capitalize opacity-70">
-                  {replyMsg!.from.username}
+                  {replyMsg?.from.username}
                 </span>
-                <p className="opacity-70">{replyMsg!.content}</p>
+                <p className="opacity-70">{replyMsg?.content}</p>
               </div>
             )}
             <div className="flex items-center gap-5 w-full">
