@@ -1,11 +1,11 @@
 import { Button, Heading, TextField, Tooltip } from '@radix-ui/themes';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { Options } from '..';
-import { useChatStore, useUiStore } from '../../../store';
+import { useUiStore } from '../../../store';
 import type { InputEvent } from '../../../types/types';
 
 export const Header: React.FC = () => {
-  const setChatQueryFilter = useChatStore((state) => state.setChatQueryFilter);
+  const setChatQueryFilter = useUiStore((state) => state.setChatQueryFilter);
   const setIsSidebarOpen = useUiStore((state) => state.setIsSidebarOpen);
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
 

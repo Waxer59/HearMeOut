@@ -4,13 +4,15 @@ import { devtools } from 'zustand/middleware';
 const initialState: State = {
   isSidebarOpen: false,
   isInActiveConversationsTab: true,
-  showGroupSettings: false
+  showGroupSettings: false,
+  chatQueryFilter: null
 };
 
 interface State {
   isSidebarOpen: boolean;
   isInActiveConversationsTab: boolean;
   showGroupSettings: boolean;
+  chatQueryFilter: string | null;
 }
 
 interface Actions {
@@ -18,6 +20,7 @@ interface Actions {
   setIsInActiveConversationsTab: (value: boolean) => void;
   setShowGroupSettings: (value: boolean) => void;
   clearUiState: () => void;
+  setChatQueryFilter: (query: string | null) => void;
 }
 
 export const useUiStore = create<State & Actions>()(
@@ -27,6 +30,7 @@ export const useUiStore = create<State & Actions>()(
     setIsInActiveConversationsTab: (value) =>
       set({ isInActiveConversationsTab: value }),
     setShowGroupSettings: (value) => set({ showGroupSettings: value }),
-    clearUiState: () => set(initialState)
+    clearUiState: () => set(initialState),
+    setChatQueryFilter: (query) => set({ chatQueryFilter: query })
   }))
 );

@@ -14,7 +14,6 @@ const initialState: State = {
   socket: null,
   currentConversationId: null,
   replyMessage: null,
-  chatQueryFilter: null,
   usersTyping: []
 };
 
@@ -24,7 +23,6 @@ interface State {
   socket: Socket | null;
   currentConversationId: string | null;
   usersTyping: UserTyping[];
-  chatQueryFilter: string | null;
   replyMessage: MessageDetails | null;
 }
 
@@ -63,7 +61,6 @@ interface Actions {
     message: MessageDetails
   ) => void;
   addUserTyping: (userTyping: UserTyping) => void;
-  setChatQueryFilter: (query: string | null) => void;
   removeUserTyping: (userTyping: UserTyping) => void;
   clearUserTyping: () => void;
   clearChatState: () => void;
@@ -180,7 +177,6 @@ export const useChatStore = create<State & Actions>()(
           : [],
         activeConversations: state.activeConversations.filter((el) => el !== id)
       })),
-    setChatQueryFilter: (query) => set({ chatQueryFilter: query }),
     deleteConversationMessage: (conversationId, messageId) =>
       set((state) => ({
         conversations: state.conversations.map((el) =>

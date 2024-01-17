@@ -25,7 +25,7 @@ const getConversationIsOnline = (
 ): boolean => (c.type === ConversationTypes.group ? false : userInChatIsOnline);
 
 export const Sidebar: React.FC = () => {
-  const chatQueryFilter = useChatStore((state) => state.chatQueryFilter);
+  const chatQueryFilter = useUiStore((state) => state.chatQueryFilter);
   const conversations = useChatStore((state) => state.conversations);
   const getActiveConversations = useChatStore(
     (state) => state.getActiveConversations
@@ -82,7 +82,10 @@ export const Sidebar: React.FC = () => {
             <ConversationsLayout>
               {getSidebarConversations(
                 conversations?.filter((c) =>
-                  getConversationName(c)
+                  getConversationName(
+                    c,
+                    c.users.find((u) => u.id !== ownUserId)?.username
+                  )
                     .toLowerCase()
                     .includes(chatQueryFilter.toLowerCase())
                 )
