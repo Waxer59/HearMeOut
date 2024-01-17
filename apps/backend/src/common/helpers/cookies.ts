@@ -1,11 +1,12 @@
-import { AUTH_COOKIE } from '../constants/constants';
+import { AUTH_COOKIE, AUTH_COOKIE_EXPIRATION } from '../constants/constants';
 import { Response } from 'express';
 
 export const setAuthCookie = (res: Response, token: string): void => {
   res.cookie(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: true,
-    expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h
+    expires: new Date(Date.now() + AUTH_COOKIE_EXPIRATION),
+    signed: true,
   });
 };
 
