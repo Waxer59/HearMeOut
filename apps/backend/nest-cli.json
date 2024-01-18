@@ -2,18 +2,6 @@
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
-  "monorepo": true,
-  "projects": {
-    "ws-types": {
-      "type": "library",
-      "root": "../../packages/ws-types",
-      "entryFile": "index",
-      "sourceRoot": "../../packages/ws-types/src",
-      "compilerOptions": {
-        "tsConfigPath": "../../packages/ws-types/tsconfig-cjs.json"
-      }
-    }
-  },
   "compilerOptions": {
     "deleteOutDir": true
   }
