@@ -21,8 +21,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
-import { clearAuthCookie, setAuthCookie } from 'src/common/helpers/cookies';
 import { User } from '@prisma/client';
+import {
+  AUTH_COOKIE,
+  AUTH_COOKIE_EXPIRATION,
+} from 'src/common/constants/constants';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -48,7 +51,7 @@ export class AuthController {
   async signIn(@Body() sigInDto: SignInDto, @Res() res: Response) {
     const token = await this.authService.signIn(sigInDto);
 
-    setAuthCookie(res, token);
+    this.setAuthCookie(res, token);
 
     return res.status(HttpStatus.OK).json({
       message: 'Signed in successfully',
@@ -60,7 +63,7 @@ export class AuthController {
   @ApiCookieAuth('Authorization')
   @Get('sign-out')
   async signOut(@Res() res) {
-    clearAuthCookie(res);
+    res.clearCookie(AUTH_COOKIE);
 
     return res.status(HttpStatus.OK).json({
       message: 'Signed out successfully',
@@ -82,7 +85,7 @@ export class AuthController {
 
     const token = await this.authService.github(user);
 
-    setAuthCookie(res, token);
+    this.setAuthCookie(res, token);
 
     return res.redirect(this.configService.get('FRONTEND_URL'));
   }
@@ -97,5 +100,15 @@ export class AuthController {
       'githubId',
       'avatar_public_id',
     ]);
+  }
+
+  private setAuthCookie(res: Response, token: string) {
+    res.cookie(AUTH_COOKIE, token, {
+      httpOnly: true,
+      secure: true,
+      signed: true,
+      sameSite: 'none',
+      expires: new Date(Date.now() + AUTH_COOKIE_EXPIRATION),
+    });
   }
 }

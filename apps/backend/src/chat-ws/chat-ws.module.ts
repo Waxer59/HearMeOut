@@ -7,6 +7,7 @@ import { MessagesModule } from 'src/messages/messages.module';
 import { FriendRequestsModule } from 'src/friend-requests/friend-requests.module';
 import { ConversationsModule } from 'src/conversations/conversations.module';
 import { CachingModule } from 'src/caching/caching.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   providers: [ChatWsGateway, ChatWsService],
@@ -17,6 +18,7 @@ import { CachingModule } from 'src/caching/caching.module';
     MessagesModule,
     FriendRequestsModule,
     ConversationsModule,
+    ConfigModule,
   ],
 })
 export class ChatWsModule {}

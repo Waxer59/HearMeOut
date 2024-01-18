@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AUTH_COOKIE, CACHE_PREFIXES } from 'src/common/constants/constants';
 import { CHAT_EVENTS } from 'ws-types';
-import { parseCookies } from 'src/common/helpers/cookies';
 import type { Socket, Server } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
@@ -22,6 +21,9 @@ import { RemoveFriendRequestDto } from 'src/friend-requests/dto/remove-friend-re
 import { AcceptFriendRequestDto } from 'src/friend-requests/dto/accept-friend-request.dto';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
 import { JoinGroupDto } from 'src/conversations/dto/join-group.dto';
+import * as cookieParser from 'cookie-parser';
+import { ConfigService } from '@nestjs/config';
+import { parseCookies } from 'src/common/helpers/parseCookies';
 
 @Injectable()
 export class ChatWsService {
@@ -32,6 +34,7 @@ export class ChatWsService {
     private readonly friendRequestsService: FriendRequestsService,
     private readonly conversationsService: ConversationsService,
     private readonly cachingService: CachingService,
+    private readonly configService: ConfigService,
   ) {}
 
   async sendMessage(
@@ -198,6 +201,7 @@ export class ChatWsService {
       CACHE_PREFIXES.userActiveChat + userId,
       conversationId,
     );
+
     await this.usersService.removeConversationNotification(
       userId,
       conversationId,
@@ -205,15 +209,23 @@ export class ChatWsService {
   }
 
   async getUserIdAuth(client: Socket): Promise<User> {
-    const rawCookies = client.request.headers.cookie;
-    const parsedCookies = parseCookies(rawCookies);
+    const cookies = parseCookies(client.handshake.headers.cookie);
+    const authCookie = cookies?.[AUTH_COOKIE];
 
-    if (!parseCookies) {
+    if (!authCookie) {
       client.disconnect();
       return;
     }
 
-    const token = parsedCookies?.[AUTH_COOKIE];
+    const token = cookieParser.signedCookie(
+      decodeURIComponent(authCookie),
+      this.configService.get('COOKIE_SECRET'),
+    );
+
+    if (!token) {
+      client.disconnect();
+      return;
+    }
 
     try {
       return await this.authService.verify(token);
