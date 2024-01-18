@@ -7,7 +7,7 @@
     "ws-types": {
       "type": "library",
       "root": "../../packages/ws-types",
-      "entryFile": "src/index",
+      "entryFile": "index",
       "sourceRoot": "../../packages/ws-types/src",
       "compilerOptions": {
         "tsConfigPath": "../../packages/ws-types/tsconfig-cjs.json"
