@@ -17,6 +17,7 @@ import { MessagesModule } from './messages/messages.module';
 import { CachingModule } from './caching/caching.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import * as Joi from 'joi';
+import { NodeEnvironment } from './common/types/types';
 
 @Module({
   imports: [
@@ -37,6 +38,9 @@ import * as Joi from 'joi';
         CLOUDINARY_CLOUD_NAME: Joi.string().required(),
         CLOUDINARY_API_KEY: Joi.string().required(),
         CLOUDINARY_API_SECRET: Joi.string().required(),
+        NODE_ENV: Joi.string()
+          .valid(...Object.values(NodeEnvironment))
+          .required(),
       }),
     }),
     CacheModule.registerAsync<CacheModuleAsyncOptions>({
@@ -47,6 +51,7 @@ import * as Joi from 'joi';
           socket: {
             host: configService.get('REDIS_HOST'),
             port: +configService.get('REDIS_PORT'),
+            tls: configService.get('NODE_ENV') === NodeEnvironment.PROD,
           },
           username: configService.get('REDIS_USERNAME'),
           password: configService.get('REDIS_PASSWORD'),

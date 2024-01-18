@@ -59,3 +59,9 @@ export enum CONVERSATION_TYPE {
   chat = 'chat',
   group = 'group',
 }
+
+export enum NodeEnvironment {
+  DEV = 'DEV',
+  PROD = 'PROD',
+  TEST = 'TEST',
+}
