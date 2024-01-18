@@ -16,9 +16,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: configService.get('JWT_SECRET'),
       jwtFromRequest: (req: Request): string | null => {
         let token = null;
-        if (req && req.signedCookies) {
+        if (req?.signedCookies) {
           token = req.signedCookies[AUTH_COOKIE];
         }
+        console.log(token);
         return token;
       },
     });
