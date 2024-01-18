@@ -6,6 +6,7 @@ export const setAuthCookie = (res: Response, token: string): void => {
     httpOnly: true,
     secure: true,
     signed: true,
+    sameSite: 'none',
     expires: new Date(Date.now() + AUTH_COOKIE_EXPIRATION),
   });
 };

@@ -19,7 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         if (req?.signedCookies) {
           token = req.signedCookies[AUTH_COOKIE];
         }
-        console.log(token);
         return token;
       },
     });
