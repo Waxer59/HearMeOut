@@ -66,6 +66,7 @@ const AppRoutes = () => {
         if (getLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth)) {
           window.location.reload();
         } else {
+          document.title = 'HearMeOut';
           clearState();
           navigate('/');
         }

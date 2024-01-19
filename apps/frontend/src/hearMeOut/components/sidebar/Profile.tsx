@@ -79,6 +79,7 @@ export const Profile: React.FC = () => {
 
     setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
     clearState();
+    document.title = 'HearMeOut';
 
     navigate('/');
   };
