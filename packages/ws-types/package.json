@@ -8,8 +8,7 @@
   "scripts": {
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "build": "npx rimraf dist/ && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
-    "postinstall": "yarn build"
+    "build": "npx rimraf dist/ && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json"
   },
   "exports": {
     ".": {

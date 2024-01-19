@@ -19,14 +19,14 @@ import {
   IconUserPlus,
   IconX
 } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { signOut, updateUserSettings } from '../../../services/hearMeOutAPI';
 import { useAccountStore } from '../../../store/account';
 import { getFallbackAvatarName } from '../../helpers';
 import { toast } from 'sonner';
 import * as Tabs from '@radix-ui/react-tabs';
 import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
-import { useChatStore } from '../../../store';
+import { useChatStore, useUiStore } from '../../../store';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { LOCAL_STORAGE_ITEMS } from '../../../types/types';
 import { NotificationIndicator } from '../NotificationIndicator';
@@ -35,17 +35,23 @@ import { ThemeEnum } from '../../../store/types/types';
 import { TabsDivider } from '..';
 
 export const Profile: React.FC = () => {
-  const {
-    account,
-    clearAccount,
-    friendRequests,
-    removeFriendRequest,
-    friendRequestsOutgoing,
-    removeFriendRequestOutgoing,
-    settings,
-    updateSettings
-  } = useAccountStore((state) => state);
+  const navigate = useNavigate();
+  const account = useAccountStore((state) => state.account);
+  const friendRequests = useAccountStore((state) => state.friendRequests);
+  const friendRequestsOutgoing = useAccountStore(
+    (state) => state.friendRequestsOutgoing
+  );
+  const settings = useAccountStore((state) => state.settings);
+  const updateSettings = useAccountStore((state) => state.updateSettings);
+  const clearAccount = useAccountStore((state) => state.clearAccount);
+  const removeFriendRequest = useAccountStore(
+    (state) => state.removeFriendRequest
+  );
+  const removeFriendRequestOutgoing = useAccountStore(
+    (state) => state.removeFriendRequestOutgoing
+  );
   const clearChatState = useChatStore((state) => state.clearChatState);
+  const clearUiState = useUiStore((state) => state.clearUiState);
   const { sendAcceptFriendRequest, sendRemoveFriendRequest } =
     useSocketChatEvents();
   const { setLocalStorageItem } = useLocalStorage();
@@ -73,10 +79,12 @@ export const Profile: React.FC = () => {
   const handleSignOut = async () => {
     await signOut();
 
-    window.location.reload();
     setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
+    clearUiState();
     clearAccount();
     clearChatState();
+
+    navigate('/');
   };
 
   const handleAcceptFriendRequest = async (id: string): Promise<void> => {
