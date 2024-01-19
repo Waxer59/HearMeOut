@@ -26,13 +26,13 @@ import { getFallbackAvatarName } from '../../helpers';
 import { toast } from 'sonner';
 import * as Tabs from '@radix-ui/react-tabs';
 import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
-import { useChatStore, useUiStore } from '../../../store';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { LOCAL_STORAGE_ITEMS } from '../../../types/types';
 import { NotificationIndicator } from '../NotificationIndicator';
 import { useEffect } from 'react';
 import { ThemeEnum } from '../../../store/types/types';
 import { TabsDivider } from '..';
+import { useClearState } from '../../hooks/useClearState';
 
 export const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -43,15 +43,13 @@ export const Profile: React.FC = () => {
   );
   const settings = useAccountStore((state) => state.settings);
   const updateSettings = useAccountStore((state) => state.updateSettings);
-  const clearAccount = useAccountStore((state) => state.clearAccount);
+  const clearState = useClearState();
   const removeFriendRequest = useAccountStore(
     (state) => state.removeFriendRequest
   );
   const removeFriendRequestOutgoing = useAccountStore(
     (state) => state.removeFriendRequestOutgoing
   );
-  const clearChatState = useChatStore((state) => state.clearChatState);
-  const clearUiState = useUiStore((state) => state.clearUiState);
   const { sendAcceptFriendRequest, sendRemoveFriendRequest } =
     useSocketChatEvents();
   const { setLocalStorageItem } = useLocalStorage();
@@ -80,9 +78,7 @@ export const Profile: React.FC = () => {
     await signOut();
 
     setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
-    clearUiState();
-    clearAccount();
-    clearChatState();
+    clearState();
 
     navigate('/');
   };

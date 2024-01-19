@@ -8,6 +8,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useEffect, useState } from 'react';
 import { BounceLoader } from 'react-spinners';
 import { ChatRoutes } from './ChatRoutes';
+import { useClearState } from '../hooks/useClearState';
 
 const AppRoutes = () => {
   const setAccount = useAccountStore((state) => state.setAccount);
@@ -24,7 +25,8 @@ const AppRoutes = () => {
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
   );
-  const { setLocalStorageItem } = useLocalStorage();
+  const clearState = useClearState();
+  const { setLocalStorageItem, getLocalStorageItem } = useLocalStorage();
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
 
@@ -61,7 +63,12 @@ const AppRoutes = () => {
 
     function handleStorage(e: StorageEvent) {
       if (e.key === LOCAL_STORAGE_ITEMS.isAuth) {
-        navigate('/');
+        if (getLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth)) {
+          window.location.reload();
+        } else {
+          clearState();
+          navigate('/');
+        }
       }
     }
 
