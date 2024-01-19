@@ -9,7 +9,7 @@
     "lint": "eslint --fix",
     "format": "prettier --write",
     "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
-    "postinstall": "yarn build"
+    "postinstall": "pnpm build"
   },
   "exports": {
     ".": {
