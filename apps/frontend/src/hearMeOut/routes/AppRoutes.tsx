@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { SignUp, SignIn } from '../pages';
 import { PrivateRoutes, PublicRoutes } from '../../router';
 import { useAccountStore, useChatStore } from '../../store';
@@ -10,14 +10,20 @@ import { BounceLoader } from 'react-spinners';
 import { ChatRoutes } from './ChatRoutes';
 
 const AppRoutes = () => {
-  const {
-    setAccount,
-    setFriendRequests,
-    setFriendRequestsOutgoing,
-    setSettings
-  } = useAccountStore((state) => state);
-  const { setConversations, setActiveConversations, setCurrentConversationId } =
-    useChatStore((state) => state);
+  const setAccount = useAccountStore((state) => state.setAccount);
+  const setFriendRequests = useAccountStore((state) => state.setFriendRequests);
+  const setFriendRequestsOutgoing = useAccountStore(
+    (state) => state.setFriendRequestsOutgoing
+  );
+  const setSettings = useAccountStore((state) => state.setSettings);
+  const navigate = useNavigate();
+  const setConversations = useChatStore((state) => state.setConversations);
+  const setActiveConversations = useChatStore(
+    (state) => state.setActiveConversations
+  );
+  const setCurrentConversationId = useChatStore(
+    (state) => state.setCurrentConversationId
+  );
   const { setLocalStorageItem } = useLocalStorage();
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
@@ -55,7 +61,7 @@ const AppRoutes = () => {
 
     function handleStorage(e: StorageEvent) {
       if (e.key === LOCAL_STORAGE_ITEMS.isAuth) {
-        window.location.reload();
+        navigate('/');
       }
     }
 
