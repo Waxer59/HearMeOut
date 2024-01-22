@@ -18,7 +18,10 @@
 
 body {
   background-color: var(--primary-color);
-  font-family: 'Noto Sans', sans-serif;
+}
+
+.radix-themes {
+  --default-font-family: 'Inter', sans-serif, Arial, Helvetica;
 }
 
 /* width */
