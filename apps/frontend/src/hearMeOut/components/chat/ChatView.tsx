@@ -24,7 +24,7 @@ export const ChatView: React.FC = () => {
           <Input />
         </div>
       ) : (
-        <div className="flex justify-center w-full items-center flex-col">
+        <div className="flex justify-center flex-1 items-center flex-col">
           <div className="md:hidden flex w-full px-10 md:px-20 pt-5 py-4 shadow-[0px_4px_4px_0px_#00000040] uppercase">
             <Button
               variant="ghost"
