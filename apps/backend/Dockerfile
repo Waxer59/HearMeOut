@@ -19,16 +19,17 @@ FROM base AS builder
 RUN apk add --no-cache libc6-compat
 RUN apk update
 WORKDIR /app
+COPY --from=prune /app/out/full/ .
 COPY --from=prune /app/out/json/ .
+COPY --from=prune /app/out/pnpm-lock.yaml /app/out/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # Build the project
-COPY --from=builder /app/out/full/ .
 RUN pnpm build --filter=backend
 
 FROM base AS runner
 WORKDIR /app
-COPY --from=builder /app/apps/backend/package.json pnpm-lock.yaml ./
+COPY --from=builder /app/apps/backend/package.json /app/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/backend/dist ./dist
 
 CMD pnpm start:prod
