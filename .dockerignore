@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/.turbo
+**/redis
+**/mongo
+**/Dockerfile
+.git
+.husky
+out

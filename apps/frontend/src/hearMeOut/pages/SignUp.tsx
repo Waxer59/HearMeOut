@@ -115,6 +115,7 @@ export const SignUp: React.FC = () => {
             type="button"
             className="absolute right-2
           bottom-1 cursor-pointer opacity-70"
+            aria-label="Toggle password visibility"
             onClick={handleTogglePassword}>
             {isPasswordVisible ? <IconEyeClosed /> : <IconEye />}
           </button>

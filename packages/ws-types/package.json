@@ -8,8 +8,7 @@
   "scripts": {
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
-    "postinstall": "pnpm build"
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json"
   },
   "exports": {
     ".": {

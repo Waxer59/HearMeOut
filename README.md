@@ -5,7 +5,7 @@
 1. Install all the dependencies.
 
 ```bash
-yarn install
+pnpm install
 ```
 
 2. Follow the steps for the [Backend](#backend) and [Frontend](#frontend).
@@ -13,7 +13,7 @@ yarn install
 3. Start the project with the following command:
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
 ### Backend
@@ -23,7 +23,7 @@ yarn dev
 2. Open docker and run the following command to create the databases:
 
 ```bash
-yarn dev:db
+pnpm dev:db
 ```
 
 ### Frontend
