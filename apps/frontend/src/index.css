@@ -20,10 +20,6 @@ body {
   background-color: var(--primary-color);
 }
 
-.radix-themes {
-  --default-font-family: 'Inter', sans-serif, Arial, Helvetica;
-}
-
 /* width */
 ::-webkit-scrollbar {
   width: 6px;
