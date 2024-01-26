@@ -57,7 +57,10 @@ export const Sidebar: React.FC = () => {
 
   if (conversations.length === 0) {
     return (
-      <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
+      <div
+        className={`w-80 bg-secondary h-full px-5 pt-5 absolute md:relative flex flex-col gap-8 z-10 md:translate-x-0 transition-transform ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
         <Header />
         <div className="h-[calc(100dvh-224px)] max-h-[calc(100dvh-224px)] flex flex-col  justify-center items-center gap-12">
           <VoidIcon className="w-52" />
