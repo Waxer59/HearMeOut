@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
     return (
       <div className="w-80 bg-secondary h-full px-5 pt-5 flex flex-col gap-8">
         <Header />
-        <div className="h-[calc(100vh-224px)] max-h-[calc(100vh-224px)] flex flex-col  justify-center items-center gap-12">
+        <div className="h-[calc(100dvh-224px)] max-h-[calc(100dvh-224px)] flex flex-col  justify-center items-center gap-12">
           <VoidIcon className="w-52" />
           <h2 className="font-bold">Add a friend to start talking here</h2>
         </div>
@@ -75,7 +75,7 @@ export const Sidebar: React.FC = () => {
       <Header />
       <div className="flex flex-col gap-2">
         <Tabs.Root
-          className="h-[calc(100vh-224px)] max-h-[calc(100vh-224px)]"
+          className="h-[calc(100dvh-224px)] max-h-[calc(100dvh-224px)]"
           defaultValue={TabsEnum.ACTIVE}
           onValueChange={handleTabChange}>
           {chatQueryFilter ? (
