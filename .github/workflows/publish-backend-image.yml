@@ -31,5 +31,4 @@ jobs:
           context: .
           file: ./apps/backend/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: waxer59/hearmeout-backend:latest
