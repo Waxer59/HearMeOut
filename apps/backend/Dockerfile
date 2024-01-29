@@ -29,7 +29,7 @@ RUN pnpm build --filter=backend
 
 FROM base AS runner
 WORKDIR /app
-COPY --from=builder /app/apps/backend/package.json /app/pnpm-lock.yaml ./
+COPY --from=builder /app/apps/backend/package.json /app/pnpm-lock.yaml /app/node_modules ./
 COPY --from=builder /app/apps/backend/dist ./dist
 
 CMD pnpm start:prod
