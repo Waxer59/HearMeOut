@@ -14,7 +14,6 @@ COPY . .
 RUN turbo prune backend --docker
 
 FROM base AS builder
-
 # First install the dependencies (as they change less often)
 RUN apk add --no-cache libc6-compat
 RUN apk update
@@ -30,7 +29,8 @@ RUN pnpm build --filter=backend
 FROM base AS runner
 WORKDIR /app
 COPY --from=builder /app/apps/backend/package.json /app/pnpm-lock.yaml ./
-COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/backend/dist ./dist
+
+RUN pnpm install -P --frozen-lockfile
 
 CMD pnpm start:prod
