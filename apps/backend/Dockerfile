@@ -28,9 +28,11 @@ RUN pnpm build --filter=backend
 
 FROM base AS runner
 WORKDIR /app
-COPY --from=builder /app/apps/backend/package.json /app/pnpm-lock.yaml ./
+COPY --from=builder /app/apps/backend/package.json /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/backend/dist ./dist
-
-RUN pnpm install -P --frozen-lockfile
+# Copy Prisma folder to generate types
+COPY --from=builder /app/apps/backend/prisma ./prisma
+COPY --from=builder /app/packages ./packages
+RUN pnpm install
 
 CMD pnpm start:prod
