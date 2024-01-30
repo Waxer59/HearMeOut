@@ -94,7 +94,7 @@ export const Conversation: React.FC<Props> = ({
           className="flex items-center justify-start gap-3 font-bold uppercase text-lg w-full transition cursor-pointer relative"
           onClick={handleOpenChat}>
           <Avatar fallback={getFallbackAvatarName(name)} src={imageURL} />
-          {name}
+          <span className="max-w-[14ch] truncate">{name}</span>
           {type === ConversationTypes.chat &&
             (isOnline ? (
               <Badge color="green" className="ml-auto">
