@@ -18,7 +18,7 @@ pnpm dev
 
 ### Backend
 
-1. Rename the file **.template.env** to **.env** and fill all the fields.
+1. Rename the file **.template.env** to **.env** and fill all the environment variables.
 
 2. Open docker and run the following command to create the databases:
 
@@ -28,7 +28,7 @@ pnpm dev:db
 
 ### Frontend
 
-1. Rename the file **.template.env** to **.env** and fill all the fields.
+1. Rename the file **.template.env** to **.env** and fill all the environment variables.
 
 ## Technologies
 
