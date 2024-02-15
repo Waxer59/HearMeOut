@@ -26,6 +26,8 @@ RUN pnpm install --frozen-lockfile
 # Build the project
 RUN pnpm build --filter=backend
 
+ENV PORT=8080
+
 FROM base AS runner
 WORKDIR /app
 COPY --from=builder /app/apps/backend/package.json /app/pnpm-workspace.yaml ./
@@ -35,4 +37,4 @@ COPY --from=builder /app/apps/backend/prisma ./prisma
 COPY --from=builder /app/packages ./packages
 RUN pnpm install
 
-CMD pnpm start:prod
+ENTRYPOINT [ "pnpm start:prod" ]
