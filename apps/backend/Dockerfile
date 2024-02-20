@@ -26,10 +26,12 @@ RUN pnpm install --frozen-lockfile
 # Build the project
 RUN pnpm build --filter=backend
 
+FROM base AS runner
+
+WORKDIR /app
+
 ENV PORT=8080
 
-FROM base AS runner
-WORKDIR /app
 COPY --from=builder /app/apps/backend/package.json /app/pnpm-workspace.yaml ./
 COPY --from=builder /app/apps/backend/dist ./dist
 # Copy Prisma folder to generate types
