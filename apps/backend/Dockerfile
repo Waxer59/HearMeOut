@@ -39,4 +39,4 @@ COPY --from=builder /app/apps/backend/prisma ./prisma
 COPY --from=builder /app/packages ./packages
 RUN pnpm install
 
-CMD [ "pnpm start:prod" ]
+CMD pnpm start:prod
