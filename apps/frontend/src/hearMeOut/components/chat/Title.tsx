@@ -1,5 +1,5 @@
 import { Badge, Button, Heading, Tooltip } from '@radix-ui/themes';
-import { IconMenu2, IconUsersGroup } from '@tabler/icons-react';
+import { IconMenu2, IconPhone, IconUsersGroup } from '@tabler/icons-react';
 import { useAccountStore, useChatStore, useUiStore } from '../../../store';
 import { ConversationTypes } from '../../../store/types/types';
 
@@ -42,22 +42,27 @@ export const Title: React.FC = () => {
           {conversation?.name ?? userInChat.username}
         </Heading>
       </div>
-      {conversation?.type === ConversationTypes.chat &&
-        (userInChat.isOnline ? (
-          <Badge color="green">online</Badge>
-        ) : (
-          <Badge color="gray">offline</Badge>
-        ))}
-      {conversation?.type === ConversationTypes.group && (
-        <Tooltip content="Members">
-          <Button
-            variant="ghost"
-            className="transition cursor-pointer"
-            onClick={handleShowGroupSettings}>
-            <IconUsersGroup />
-          </Button>
-        </Tooltip>
-      )}
+      <div className="flex items-center gap-5">
+        {conversation?.type === ConversationTypes.chat &&
+          (userInChat.isOnline ? (
+            <Badge color="green">online</Badge>
+          ) : (
+            <Badge color="gray">offline</Badge>
+          ))}
+        {conversation?.type === ConversationTypes.group && (
+          <Tooltip content="Members">
+            <Button
+              variant="ghost"
+              className="transition cursor-pointer"
+              onClick={handleShowGroupSettings}>
+              <IconUsersGroup />
+            </Button>
+          </Tooltip>
+        )}
+        <Button className="cursor-pointer" variant="ghost">
+          <IconPhone />
+        </Button>
+      </div>
     </div>
   );
 };
