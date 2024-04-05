@@ -57,6 +57,8 @@
     "@nestjs/cli": "^10.1.17",
     "@nestjs/schematics": "^10.0.2",
     "@nestjs/testing": "^10.2.4",
+    "@swc/cli": "^0.3.12",
+    "@swc/core": "^1.4.12",
     "@types/bcrypt": "^5.0.0",
     "@types/cache-manager": "^4.0.4",
     "@types/cookie-parser": "^1.4.4",
