@@ -9,7 +9,7 @@ export class CreateMessageDto {
   conversationId: string;
 
   @IsString()
-  @IsNotBlank('content')
+  @IsNotBlank()
   content: string;
 
   @IsString()

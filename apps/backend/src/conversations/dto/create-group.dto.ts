@@ -10,7 +10,7 @@ import { IsNotBlank } from 'src/common/validators/isNotBlank';
 export class CreateGroupDto {
   @IsString()
   @MinLength(3)
-  @IsNotBlank('name')
+  @IsNotBlank()
   @MaxLength(24)
   name: string;
 

@@ -7,7 +7,7 @@ export class SignUpDto {
   @ApiProperty()
   @IsString()
   @MinLength(3)
-  @IsNotBlank('username')
+  @IsNotBlank()
   @MaxLength(39)
   @Transform(({ value }) => value.toLowerCase().trim())
   username: string;
@@ -15,6 +15,6 @@ export class SignUpDto {
   @ApiProperty()
   @IsString()
   @MinLength(8)
-  @IsNotBlank('password')
+  @IsNotBlank()
   password: string;
 }

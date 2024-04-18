@@ -6,13 +6,13 @@ export class CreateUserDto {
   @IsString()
   @MinLength(3)
   @MaxLength(39)
-  @IsNotBlank('username')
+  @IsNotBlank()
   @Transform(({ value }) => value.toLowerCase().trim())
   username: string;
 
   @IsString()
   @MinLength(8)
-  @IsNotBlank('password')
+  @IsNotBlank()
   @IsOptional()
   password?: string;
 

@@ -6,6 +6,6 @@ export class UpdateMessageDto {
   messageId: string;
 
   @IsString()
-  @IsNotBlank('content')
+  @IsNotBlank()
   content: string;
 }
