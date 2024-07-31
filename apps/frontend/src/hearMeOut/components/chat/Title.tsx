@@ -21,6 +21,8 @@ export const Title: React.FC = () => {
     (user) => user.id !== currentUserId
   )!;
 
+  const handleCall = () => {};
+
   const handleShowGroupSettings = () => {
     setShowGroupSettings(true);
   };
@@ -59,7 +61,7 @@ export const Title: React.FC = () => {
             </Button>
           </Tooltip>
         )}
-        <Button className="cursor-pointer" variant="ghost">
+        <Button className="cursor-pointer" variant="ghost" onClick={handleCall}>
           <IconPhone />
         </Button>
       </div>

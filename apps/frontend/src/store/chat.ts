@@ -14,7 +14,10 @@ const initialState: State = {
   socket: null,
   currentConversationId: null,
   replyMessage: null,
-  usersTyping: []
+  usersTyping: [],
+  localStream: null,
+  peerConnection: null,
+  remoteStream: null
 };
 
 interface State {
@@ -24,6 +27,9 @@ interface State {
   currentConversationId: string | null;
   usersTyping: UserTyping[];
   replyMessage: MessageDetails | null;
+  localStream: MediaStream | null;
+  peerConnection: RTCPeerConnection | null;
+  remoteStream: MediaStream | null;
 }
 
 interface Actions {
@@ -65,6 +71,12 @@ interface Actions {
   clearUserTyping: () => void;
   clearChatState: () => void;
   updateConversation: (conversation: ConversationDetails) => void;
+  setLocalStream: (stream: MediaStream) => void;
+  clearLocalStream: () => void;
+  setPeerConnection: (peerConnection: RTCPeerConnection) => void;
+  clearPeerConnection: () => void;
+  setRemoteStream: (stream: MediaStream) => void;
+  clearRemoteStream: () => void;
 }
 
 export const useChatStore = create<State & Actions>()(
@@ -208,6 +220,12 @@ export const useChatStore = create<State & Actions>()(
         conversations: state.conversations.map((el) =>
           el.id === conversation.id ? { ...el, ...conversation } : el
         )
-      }))
+      })),
+    setLocalStream: (stream) => set({ localStream: stream }),
+    clearLocalStream: () => set({ localStream: null }),
+    setPeerConnection: (peerConnection) => set({ peerConnection }),
+    clearPeerConnection: () => set({ peerConnection: null }),
+    setRemoteStream: (stream) => set({ remoteStream: stream }),
+    clearRemoteStream: () => set({ remoteStream: null })
   }))
 );
