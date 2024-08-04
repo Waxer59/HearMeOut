@@ -11,12 +11,12 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto';
 import { ApiConsumes, ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { excludeUserFields } from 'src/common/helpers/excludeUserFields';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../common/helpers/fileFilter';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')
 @UseGuards(AuthGuard('jwt'))

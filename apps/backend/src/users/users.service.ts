@@ -6,10 +6,11 @@ import {
 import { PrismaService } from 'src/common/db/prisma.service';
 import { User } from '@prisma/client';
 import { generateHash } from 'src/common/helpers/bcrypt';
-import { CreateUserDto, UpdateUserDto } from './dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { base64File } from 'src/common/helpers/base64File';
 import { CONVERSATION_TYPE, UserWithRelations } from 'src/common/types/types';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {

@@ -10,21 +10,19 @@ import {
 import { ChatWsService } from './chat-ws.service';
 import type { Server, Socket } from 'socket.io';
 import { CHAT_EVENTS } from 'ws-types';
-import { SendMessageDto, TypingDto } from './dto';
-import {
-  CreateFriendRequestDto,
-  RemoveFriendRequestDto,
-  AcceptFriendRequestDto,
-} from '../friend-requests/dto';
-import {
-  CreateGroupDto,
-  UpdateGroupDTO,
-  ConversationActionsDto,
-  JoinGroupDto,
-} from 'src/conversations/dto';
-import { DeleteMessageDto, UpdateMessageDto } from '../messages/dto';
 import { ValidationPipe, UsePipes, UseFilters } from '@nestjs/common';
 import { WsExceptionFilterFilter } from './filters/ws-exception-filter.filter';
+import { ConversationActionsDto } from 'src/conversations/dto/conversation-actions.dto';
+import { CreateGroupDto } from 'src/conversations/dto/create-group.dto';
+import { JoinGroupDto } from 'src/conversations/dto/join-group.dto';
+import { UpdateGroupDTO } from 'src/conversations/dto/update-group.dto';
+import { AcceptFriendRequestDto } from 'src/friend-requests/dto/accept-friend-request.dto';
+import { CreateFriendRequestDto } from 'src/friend-requests/dto/create-friend-request.dto';
+import { RemoveFriendRequestDto } from 'src/friend-requests/dto/remove-friend-request.dto';
+import { DeleteMessageDto } from 'src/messages/dto/delete-message.dto';
+import { UpdateMessageDto } from 'src/messages/dto/update-message.dto';
+import { SendMessageDto } from './dto/send-message.dto';
+import { TypingDto } from './dto/typing.dto';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @UseFilters(WsExceptionFilterFilter)

@@ -7,10 +7,12 @@ import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { UpdateGroupDTO, CreateGroupDto, CreateChatDto } from './dto';
 import { UsersService } from 'src/users/users.service';
 import { nanoid } from 'nanoid';
 import { JOIN_CODE_LENGTH } from 'src/common/constants/constants';
+import { CreateChatDto } from './dto/create-chat.dto';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDTO } from './dto/update-group.dto';
 
 @Injectable()
 export class ConversationsService {
