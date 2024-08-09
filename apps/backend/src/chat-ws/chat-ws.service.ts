@@ -375,10 +375,9 @@ export class ChatWsService {
     const { id, conversationIds } = user;
     await this.usersService.setIsOnline(id, true);
 
-    const connectedClients =
-      +(await this.cachingService.getCacheKey(
-        CACHE_PREFIXES.connectedClients + id,
-      )) ?? 0;
+    const connectedClients = +(await this.cachingService.getCacheKey(
+      CACHE_PREFIXES.connectedClients + id,
+    ));
 
     await this.cachingService.setCacheKey(
       CACHE_PREFIXES.connectedClients + id,
