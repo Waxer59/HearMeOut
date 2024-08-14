@@ -19,7 +19,7 @@ import {
   IconUserPlus,
   IconX
 } from '@tabler/icons-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { signOut, updateUserSettings } from '@services//hearMeOutAPI';
 import { useAccountStore } from '@store/account';
 import { toast } from 'sonner';
@@ -30,12 +30,10 @@ import { LOCAL_STORAGE_ITEMS } from '@/types/types';
 import { NotificationIndicator } from '@hearmeout/components/NotificationIndicator';
 import { useEffect } from 'react';
 import { ThemeEnum } from '@store/types/types';
-import { useClearState } from '@hearmeout/hooks/useClearState';
 import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
 import { TabsDivider } from '@hearmeout/components/TabsDivider';
 
 export const Profile: React.FC = () => {
-  const navigate = useNavigate();
   const account = useAccountStore((state) => state.account);
   const friendRequests = useAccountStore((state) => state.friendRequests);
   const friendRequestsOutgoing = useAccountStore(
@@ -43,7 +41,6 @@ export const Profile: React.FC = () => {
   );
   const settings = useAccountStore((state) => state.settings);
   const updateSettings = useAccountStore((state) => state.updateSettings);
-  const clearState = useClearState();
   const removeFriendRequest = useAccountStore(
     (state) => state.removeFriendRequest
   );
@@ -78,10 +75,8 @@ export const Profile: React.FC = () => {
     await signOut();
 
     setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
-    clearState();
-    document.title = 'HearMeOut';
 
-    navigate('/');
+    window.location.replace('/');
   };
 
   const handleAcceptFriendRequest = async (id: string): Promise<void> => {

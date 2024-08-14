@@ -1,6 +1,7 @@
 import { BeatLoader } from 'react-spinners';
 import type { UserTyping } from '@store/types/types';
 import { useChatStore } from '@store/chat';
+import { useConversation } from '@hearmeout/hooks/useConversation';
 
 interface Props {
   usersTyping: UserTyping[];
@@ -10,9 +11,7 @@ export const TypingIndicator: React.FC<Props> = ({ usersTyping }) => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
-  const conversation = useChatStore((state) => state.conversations).find(
-    (el) => el.id === currentConversationId
-  );
+  const { conversation } = useConversation(currentConversationId!);
   const currentConversationUsersTyping = usersTyping.filter(
     (el) => el.conversationId === currentConversationId
   );

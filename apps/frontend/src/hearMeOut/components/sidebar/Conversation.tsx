@@ -38,14 +38,8 @@ export const Conversation: React.FC<Props> = ({
   const [hasNewMessages, setHasNewMessages] = useState(
     account.conversationNotificationIds.includes(id)
   );
-  const currentConversationId = useChatStore(
-    (state) => state.currentConversationId
-  );
   const isInActiveConversationsTab = useUiStore(
     (state) => state.isInActiveConversationsTab
-  );
-  const setShowGroupSettings = useUiStore(
-    (state) => state.setShowGroupSettings
   );
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
@@ -53,7 +47,6 @@ export const Conversation: React.FC<Props> = ({
   const removeActiveConversation = useChatStore(
     (state) => state.removeActiveConversation
   );
-  const removeConversation = useChatStore((state) => state.removeConversation);
   const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
 
   useEffect(() => {
@@ -71,20 +64,14 @@ export const Conversation: React.FC<Props> = ({
   };
 
   const handleExitConversation = async () => {
-    if (currentConversationId === id) {
-      setCurrentConversationId(null);
-    }
-
     switch (type) {
       case ConversationTypes.group:
         sendExitGroup(id);
-        setShowGroupSettings(false);
         break;
       case ConversationTypes.chat:
         sendRemoveConversation(id);
         break;
     }
-    removeConversation(id);
   };
 
   return (

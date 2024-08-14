@@ -45,14 +45,7 @@ export class ConversationsService {
           type: CONVERSATION_TYPE.group,
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -93,14 +86,7 @@ export class ConversationsService {
           },
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -135,14 +121,7 @@ export class ConversationsService {
           type: CONVERSATION_TYPE.chat,
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -264,14 +243,7 @@ export class ConversationsService {
           id,
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -380,7 +352,7 @@ export class ConversationsService {
 
     if (joinCode) {
       await this.generateJoinCode(id);
-    } else {
+    } else if (joinCode !== undefined) {
       await this.removeJoinCode(id);
     }
 
@@ -443,14 +415,18 @@ export class ConversationsService {
   }
 
   async remove(id: string): Promise<Conversation> {
-    let deletedConversation;
+    let deletedConversation: Conversation;
     try {
       deletedConversation = await this.prisma.conversation.delete({
+        omit: {
+          icon_public_id: false,
+        },
         where: {
           id,
         },
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

@@ -1,33 +1,15 @@
 import * as Tabs from '@radix-ui/react-tabs';
 import { VoidIcon } from '@hearmeout/components/Icons';
-import {
-  ConversationTypes,
-  type ConversationDetails,
-  TabsEnum
-} from '@store/types/types';
-import { useAccountStore } from '@store/account';
+import { type ConversationDetails, TabsEnum } from '@store/types/types';
 import { useChatStore } from '@store/chat';
 import { useUiStore } from '@store/ui';
 import { TabsDivider } from '@hearmeout/components/TabsDivider';
 import { Conversation } from '@hearmeout/components/sidebar/Conversation';
 import { Header } from '@hearmeout/components/sidebar/Header';
 import { Profile } from '@hearmeout/components/sidebar/Profile';
-
-const getConversationName = (
-  c: ConversationDetails,
-  userInChatName = ''
-): string => (c.type === ConversationTypes.group ? c.name : userInChatName);
-
-const getConversationAvatar = (
-  c: ConversationDetails,
-  userInChatAvatar: string | undefined
-): string | undefined =>
-  c.type === ConversationTypes.group ? c.icon : userInChatAvatar;
-
-const getConversationIsOnline = (
-  c: ConversationDetails,
-  userInChatIsOnline = false
-): boolean => (c.type === ConversationTypes.group ? false : userInChatIsOnline);
+import { getConversationName } from '@hearmeout/helpers/getConversationName';
+import { getConversationAvatar } from '@hearmeout/helpers/getConversationAvatar';
+import { getConversationIsOnline } from '@hearmeout/helpers/getConversationIsOnline';
 
 export const Sidebar: React.FC = () => {
   const chatQueryFilter = useUiStore((state) => state.chatQueryFilter);
@@ -35,7 +17,6 @@ export const Sidebar: React.FC = () => {
   const getActiveConversations = useChatStore(
     (state) => state.getActiveConversations
   );
-  const ownUserId = useAccountStore((state) => state.account)!.id;
   const setIsInActiveConversationsTab = useUiStore(
     (state) => state.setIsInActiveConversationsTab
   );
@@ -43,14 +24,13 @@ export const Sidebar: React.FC = () => {
 
   const getSidebarConversations = (conversations: ConversationDetails[]) =>
     conversations.map((c) => {
-      const userInChat = c.users.find((c) => c.id !== ownUserId)!;
       return (
         <Conversation
           key={c.id}
           id={c.id}
-          name={getConversationName(c, userInChat.username)}
-          imageURL={getConversationAvatar(c, userInChat.avatar)}
-          isOnline={getConversationIsOnline(c, userInChat.isOnline)}
+          name={getConversationName(c)}
+          imageURL={getConversationAvatar(c)}
+          isOnline={getConversationIsOnline(c)}
           type={c.type}
         />
       );
@@ -75,6 +55,7 @@ export const Sidebar: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div
       className={`w-80 bg-secondary h-full px-5 pt-5 absolute md:relative flex flex-col gap-8 z-10 md:translate-x-0 transition-transform ${
@@ -90,10 +71,7 @@ export const Sidebar: React.FC = () => {
             <ConversationsLayout>
               {getSidebarConversations(
                 conversations?.filter((c) =>
-                  getConversationName(
-                    c,
-                    c.users.find((u) => u.id !== ownUserId)?.username
-                  )
+                  getConversationName(c)
                     .toLowerCase()
                     .includes(chatQueryFilter.toLowerCase())
                 )

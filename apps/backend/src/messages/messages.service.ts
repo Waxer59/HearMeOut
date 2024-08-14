@@ -138,13 +138,7 @@ export class MessagesService {
           conversationId,
         },
         include: {
-          from: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-            },
-          },
+          from: true,
         },
       });
     } catch (error) {

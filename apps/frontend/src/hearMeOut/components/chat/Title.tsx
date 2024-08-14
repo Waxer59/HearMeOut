@@ -1,29 +1,67 @@
 import { Badge, Button, Heading, Tooltip } from '@radix-ui/themes';
 import { IconMenu2, IconPhone, IconUsersGroup } from '@tabler/icons-react';
 import { ConversationTypes } from '@store/types/types';
-import { useAccountStore } from '@store/account';
 import { useChatStore } from '@store/chat';
 import { useUiStore } from '@store/ui';
+import { CALLING_TONES, CALLING_TONES_TIME_INTERVAL } from '@constants';
+import { useAudio } from '@hearmeout/hooks/useAudio';
+import { useCallStore } from '@store/call';
+import { useEffect, useRef } from 'react';
 
-export const Title: React.FC = () => {
+interface Props {
+  name: string;
+  isOnline: boolean;
+  conversationType: ConversationTypes;
+}
+
+export const Title: React.FC<Props> = ({
+  name,
+  isOnline,
+  conversationType
+}) => {
   const setShowGroupSettings = useUiStore(
     (state) => state.setShowGroupSettings
   );
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
+  const { playAudio, stopAudio } = useAudio({ data: '/sounds/calling.mp3' });
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const setIsSidebarOpen = useUiStore((state) => state.setIsSidebarOpen);
-  const conversations = useChatStore((state) => state.conversations);
-  const currentUserId = useAccountStore((state) => state.account)!.id;
-  const conversation = conversations.find(
-    (el) => el.id === currentConversationId
-  )!;
-  const userInChat = conversation.users.find(
-    (user) => user.id !== currentUserId
-  )!;
+  const setCallingId = useCallStore((state) => state.setCallingId);
+  const isCalling = useCallStore((state) => state.isCalling);
+  const callIntervalRef = useRef<number | null>(null);
 
-  const handleCall = () => {};
+  useEffect(() => {
+    if (!isCalling) {
+      stopAudio();
+      clearInterval(callIntervalRef.current!);
+    }
+  }, [isCalling]);
+
+  const emitCallingSound = () => {
+    let currentCallingTones = 0;
+
+    callIntervalRef.current = setInterval(() => {
+      if (CALLING_TONES === currentCallingTones) {
+        clearInterval(callIntervalRef.current!);
+        callIntervalRef.current = null;
+        return;
+      }
+
+      currentCallingTones++;
+      playAudio();
+    }, CALLING_TONES_TIME_INTERVAL);
+  };
+
+  const handleCall = () => {
+    if (!currentConversationId) {
+      return;
+    }
+
+    emitCallingSound();
+    setCallingId(currentConversationId);
+  };
 
   const handleShowGroupSettings = () => {
     setShowGroupSettings(true);
@@ -43,17 +81,17 @@ export const Title: React.FC = () => {
           <IconMenu2 />
         </Button>
         <Heading as="h2" weight="bold" className="text-lg">
-          {conversation?.name ?? userInChat.username}
+          {name}
         </Heading>
       </div>
       <div className="flex items-center gap-5">
-        {conversation?.type === ConversationTypes.chat &&
-          (userInChat.isOnline ? (
+        {conversationType === ConversationTypes.chat &&
+          (isOnline ? (
             <Badge color="green">online</Badge>
           ) : (
             <Badge color="gray">offline</Badge>
           ))}
-        {conversation?.type === ConversationTypes.group && (
+        {conversationType === ConversationTypes.group && (
           <Tooltip content="Members">
             <Button
               variant="ghost"

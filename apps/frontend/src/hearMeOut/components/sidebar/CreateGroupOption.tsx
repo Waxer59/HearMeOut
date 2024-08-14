@@ -22,10 +22,10 @@ interface Props {
 
 export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
   const [groupName, setGroupName] = useState('');
-  const { conversations } = useChatStore();
+  const conversations = useChatStore((state) => state.conversations);
   const [selectedUsers, setSelectedUsers] = useState<AccountDetails[]>([]);
   const { sendCreateGroup } = useSocketChatEvents();
-  const ownUserId = useAccountStore((state) => state.account)!.id;
+  const ownUserId = useAccountStore((state) => state.account!.id);
 
   const chatConversations = conversations.filter(
     (el) => el.type === ConversationTypes.chat
@@ -50,7 +50,6 @@ export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
       groupName,
       selectedUsers.map((el) => el.id)
     );
-    toast.success('Group created successfully!');
     closeDialog();
   };
 
@@ -63,7 +62,7 @@ export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
     const user = chatConversations
       .find((el) => {
         const userInChat = el.users.find((user) => user.id !== ownUserId)!;
-        return userInChat.id === userId;
+        return userInChat?.id === userId;
       })
       ?.users.find((user) => user.id !== ownUserId);
     if (!user) {
@@ -95,7 +94,7 @@ export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
                   (user) => user.id !== ownUserId
                 )!;
                 const isUserSelected = selectedUsers.find(
-                  (user) => user.id === userInChat.id
+                  (user) => user.id === userInChat?.id
                 );
                 return !isUserSelected;
               })
@@ -106,9 +105,9 @@ export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
                 return (
                   <Select.Item
                     key={el.id}
-                    value={userInChat.id}
+                    value={userInChat?.id}
                     className="capitalize">
-                    {userInChat.username}
+                    {userInChat?.username}
                   </Select.Item>
                 );
               })}

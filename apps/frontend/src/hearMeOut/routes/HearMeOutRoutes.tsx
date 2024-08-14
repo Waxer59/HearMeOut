@@ -1,11 +1,10 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { LOCAL_STORAGE_ITEMS, type VerifyResponse } from '@/types/types';
 import { verify } from '@services/hearMeOutAPI';
 import { useLocalStorage } from '@hearmeout/hooks/useLocalStorage';
 import { useEffect, useState } from 'react';
 import { BounceLoader } from 'react-spinners';
 import { ChatRoutes } from '@hearmeout/routes/ChatRoutes';
-import { useClearState } from '@hearmeout/hooks/useClearState';
 import { PrivateRoutes } from '@/router/PrivateRoutes';
 import { PublicRoutes } from '@/router/PublicRoutes';
 import { useAccountStore } from '@store/account';
@@ -20,7 +19,6 @@ const HearMeOutRoutes = () => {
     (state) => state.setFriendRequestsOutgoing
   );
   const setSettings = useAccountStore((state) => state.setSettings);
-  const navigate = useNavigate();
   const setConversations = useChatStore((state) => state.setConversations);
   const setActiveConversations = useChatStore(
     (state) => state.setActiveConversations
@@ -28,7 +26,6 @@ const HearMeOutRoutes = () => {
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
   );
-  const clearState = useClearState();
   const { setLocalStorageItem, getLocalStorageItem } = useLocalStorage();
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
@@ -46,14 +43,14 @@ const HearMeOutRoutes = () => {
 
       const { conversations, friendReqTos, friendReqFroms, ...account } = data;
 
+      setActiveConversations(account.activeConversationIds);
+      setConversations(conversations);
+      setFriendRequestsOutgoing(friendReqFroms);
       setCurrentConversationId(
         conversations.filter((el) =>
           account.activeConversationIds.includes(el.id)
         )?.[0]?.id ?? null
       );
-      setActiveConversations(account.activeConversationIds);
-      setConversations(conversations);
-      setFriendRequestsOutgoing(friendReqFroms);
 
       if (account.configuration) {
         setSettings(account.configuration);
@@ -69,9 +66,7 @@ const HearMeOutRoutes = () => {
         if (getLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth)) {
           window.location.reload();
         } else {
-          document.title = 'HearMeOut';
-          clearState();
-          navigate('/');
+          window.location.replace('/');
         }
       }
     }

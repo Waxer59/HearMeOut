@@ -16,10 +16,10 @@ import type {
 } from '@store/types/types';
 import { useChatStore } from '@store/chat';
 import { useAccountStore } from '@store/account';
+import { toast } from 'sonner';
 
 export const useSocketChat = () => {
   const {
-    currentConversationId,
     socket,
     addActiveConversation,
     addConversation,
@@ -32,7 +32,6 @@ export const useSocketChat = () => {
     removeConversation,
     removeUserTyping,
     setConversationIsOnline,
-    setCurrentConversationId,
     updateConversation,
     setSocket
   } = useChatStore((state) => state);
@@ -107,6 +106,7 @@ export const useSocketChat = () => {
       async (conversation: ConversationDetails) => {
         addConversation(conversation);
         addActiveConversation(conversation.id);
+        toast.info(`New conversation: ${conversation.name}`);
       }
     );
 
@@ -123,10 +123,6 @@ export const useSocketChat = () => {
     );
 
     socket.on(CHAT_EVENTS.removeConversation, (id: string) => {
-      if (currentConversationId === id) {
-        setCurrentConversationId(null);
-      }
-
       removeConversation(id);
     });
 
@@ -140,11 +136,6 @@ export const useSocketChat = () => {
         addFriendRequestOutgoing(friendRequest);
       }
     );
-
-    socket.on(CHAT_EVENTS.createGroup, (group: ConversationDetails) => {
-      addConversation(group);
-      addActiveConversation(group.id);
-    });
 
     socket.on(
       CHAT_EVENTS.removeFriendRequest,

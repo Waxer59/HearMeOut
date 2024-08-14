@@ -51,6 +51,15 @@ export class UsersService {
   async findOneByUsername(username: string): Promise<User> {
     try {
       return await this.prisma.user.findFirst({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
         where: {
           username: {
             equals: username,
@@ -67,7 +76,18 @@ export class UsersService {
 
   async findOneByGithubId(githubId: string): Promise<User> {
     try {
-      return await this.prisma.user.findFirst({ where: { githubId } });
+      return await this.prisma.user.findFirst({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
+        where: { githubId },
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -77,59 +97,52 @@ export class UsersService {
 
   async findOneById(id: string): Promise<UserWithRelations> {
     try {
-      return (await this.prisma.user.findFirst({
+      const user = (await this.prisma.user.findFirst({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
         where: { id },
         include: {
-          configuration: {
-            select: {
-              theme: true,
-            },
-          },
+          configuration: true,
           conversations: {
-            select: {
-              id: true,
-              creatorId: true,
-              adminIds: true,
-              name: true,
-              type: true,
-              icon: true,
-              joinCode: true,
-              users: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatar: true,
-                  isOnline: true,
-                },
-              },
+            include: {
+              users: true,
             },
           },
           friendReqFroms: {
             include: {
-              to: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatar: true,
-                  isOnline: true,
-                },
-              },
+              to: true,
             },
           },
           friendReqTos: {
             include: {
-              from: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatar: true,
-                  isOnline: true,
-                },
-              },
+              from: true,
             },
           },
         },
       })) as unknown as UserWithRelations;
+
+      // Post-process to omit the requesting user from the conversations users
+      // if the conversation is of the chat type
+      if (user && user.conversations) {
+        user.conversations = user.conversations.map((conversation) => {
+          if (conversation.type === CONVERSATION_TYPE.chat) {
+            conversation.users = conversation.users.filter(
+              (user) => user.id !== id,
+            );
+          }
+
+          return conversation;
+        });
+      }
+
+      return user;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(
@@ -202,8 +215,12 @@ export class UsersService {
     });
 
     try {
-      const updatedUsers = users.map((user) =>
-        this.prisma.user.update({
+      const updatedUsers = users.map((user) => {
+        if (!user.activeConversationIds) {
+          return;
+        }
+
+        return this.prisma.user.update({
           where: { id: user.id },
           data: {
             activeConversationIds: {
@@ -213,10 +230,11 @@ export class UsersService {
               ),
             },
           },
-        }),
-      );
+        });
+      });
       await Promise.all(updatedUsers);
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -247,8 +265,12 @@ export class UsersService {
     const users =
       await this.getConversationNotificationFromAllUsers(conversationId);
     try {
-      const updatedUsers = users.map((user) =>
-        this.prisma.user.update({
+      const updatedUsers = users.map((user) => {
+        if (!user.conversationNotificationIds) {
+          return;
+        }
+
+        return this.prisma.user.update({
           where: { id: user.id },
           data: {
             conversationNotificationIds: {
@@ -257,10 +279,11 @@ export class UsersService {
               ),
             },
           },
-        }),
-      );
+        });
+      });
       await Promise.all(updatedUsers);
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -349,11 +372,6 @@ export class UsersService {
               in: excludeUsersIds,
             },
           },
-        },
-        select: {
-          id: true,
-          username: true,
-          avatar: true,
         },
       });
     } catch (error) {

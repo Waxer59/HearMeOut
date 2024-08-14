@@ -251,7 +251,7 @@ export class ChatWsService {
       await this.usersService.addActiveConversation(el, group.id);
     });
 
-    server.to(group.id).emit(CHAT_EVENTS.createGroup, group);
+    server.to(group.id).emit(CHAT_EVENTS.newConversation, group);
   }
 
   async updateGroup(
@@ -312,16 +312,37 @@ export class ChatWsService {
   ): Promise<void> {
     const { id: conversationId } = conversationActionsDto;
 
+    const currentGroup =
+      await this.conversationsService.findById(conversationId);
+    const haveAdminsLeft = currentGroup?.adminIds.length > 1;
+    const filteredUsers = currentGroup.userIds.filter((el) => el !== userId);
+    const newAdmin = [];
+
+    // If the group have no admins, assign one
+    if (!haveAdminsLeft && filteredUsers.length > 0) {
+      newAdmin.push(filteredUsers[0]);
+    }
+
     const newGroup = await this.conversationsService.updateGroup({
       id: conversationId,
       kickUsers: [userId],
+      makeAdmins: newAdmin,
     });
+
+    // Leave socket room
+    server.in(userId).socketsLeave(conversationId);
+
+    // If the group have no users then delete the group
+    if (newGroup.userIds.length === 0) {
+      await this.conversationsService.remove(conversationId);
+      return;
+    }
 
     // Send group update
     server.to(conversationId).emit(CHAT_EVENTS.updateGroup, newGroup);
 
-    // Leave socket room
-    server.in(userId).socketsLeave(conversationId);
+    // Notify user that the user has left the group
+    server.to(userId).emit(CHAT_EVENTS.removeConversation, conversationId);
   }
 
   async deleteMessage(
