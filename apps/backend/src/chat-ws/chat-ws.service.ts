@@ -318,8 +318,14 @@ export class ChatWsService {
     const filteredUsers = currentGroup.userIds.filter((el) => el !== userId);
     const newAdmin = [];
 
+    // If the group have no users delete it
+    if (filteredUsers.length === 0) {
+      this.removeConversation(conversationActionsDto, server, userId);
+      return;
+    }
+
     // If the group have no admins, assign one
-    if (!haveAdminsLeft && filteredUsers.length > 0) {
+    if (!haveAdminsLeft) {
       newAdmin.push(filteredUsers[0]);
     }
 
@@ -332,17 +338,11 @@ export class ChatWsService {
     // Leave socket room
     server.in(userId).socketsLeave(conversationId);
 
-    // If the group have no users then delete the group
-    if (newGroup.userIds.length === 0) {
-      await this.conversationsService.remove(conversationId);
-      return;
-    }
+    // Notify user that has left the group
+    server.to(userId).emit(CHAT_EVENTS.removeConversation, conversationId);
 
     // Send group update
     server.to(conversationId).emit(CHAT_EVENTS.updateGroup, newGroup);
-
-    // Notify user that the user has left the group
-    server.to(userId).emit(CHAT_EVENTS.removeConversation, conversationId);
   }
 
   async deleteMessage(
