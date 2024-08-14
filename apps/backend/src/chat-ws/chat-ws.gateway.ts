@@ -181,6 +181,12 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
+  @SubscribeMessage(CHAT_EVENTS.deleteAccount)
+  async deleteAccount(@ConnectedSocket() client: Socket) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.deleteAccount(userId, this.server);
+  }
+
   @SubscribeMessage(CHAT_EVENTS.openChat)
   async openChat(
     @MessageBody() conversationActionsDto: ConversationActionsDto,

@@ -63,12 +63,6 @@ export class UsersController {
     return await this.usersService.addActiveConversation(userId, id);
   }
 
-  @Delete('')
-  async remove(@Req() req) {
-    const { id } = req.user;
-    return await this.usersService.remove(id);
-  }
-
   @Get('search-username/:name')
   async searchUsername(@Req() req, @Param('name') name: string) {
     const { id: userId } = req.user;

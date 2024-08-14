@@ -191,6 +191,42 @@ export class ChatWsService {
     server.in(conversationId).socketsLeave(conversationId);
   }
 
+  async deleteAccount(userId: string, server: Server): Promise<void> {
+    const { incominReqs, outgoingReqs } =
+      await this.friendRequestsService.findAllUserReq(userId);
+    const deletedUser = await this.usersService.remove(userId);
+
+    // Exit conversations
+    deletedUser.conversationIds.forEach(async (conversationId) => {
+      // Leave socket
+      server.in(userId).socketsLeave(conversationId);
+
+      const conversation =
+        await this.conversationsService.findById(conversationId);
+
+      if (conversation.type === CONVERSATION_TYPE.group) {
+        await this.exitGroup({ id: conversationId }, userId, server);
+      } else {
+        await this.removeConversation({ id: conversationId }, server, userId);
+      }
+    });
+
+    // Notify friend request users
+    incominReqs.forEach(({ id, fromId }) => {
+      server
+        .to(fromId)
+        .emit(CHAT_EVENTS.removeFriendRequest, { id, isOutgoing: true });
+    });
+
+    outgoingReqs.forEach(({ id, toId }) => {
+      server
+        .to(toId)
+        .emit(CHAT_EVENTS.removeFriendRequest, { id, isOutgoing: false });
+    });
+
+    server.to(userId).emit(CHAT_EVENTS.deleteAccount);
+  }
+
   async openChat(
     conversationActionsDto: ConversationActionsDto,
     userId: string,

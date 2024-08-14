@@ -38,8 +38,8 @@ model FriendRequest {
   fromId String @db.ObjectId
   toId   String @db.ObjectId
 
-  from User @relation("friendReqFrom", fields: [fromId], references: [id])
-  to   User @relation("friendReqTo", fields: [toId], references: [id])
+  from User @relation("friendReqFrom", fields: [fromId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  to   User @relation("friendReqTo", fields: [toId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum Theme {
@@ -65,7 +65,7 @@ model Message {
   viewedByAll    Boolean  @default(false)
   isEdited       Boolean  @default(false)
 
-  from         User         @relation("messageFroms", fields: [fromId], references: [id])
+  from         User         @relation("messageFroms", fields: [fromId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   reply        Message?     @relation("messageReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies      Message[]    @relation("messageReply")
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: Cascade)

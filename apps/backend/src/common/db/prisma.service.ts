@@ -9,7 +9,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         user: {
           password: true,
           githubId: true,
-          isGithubAccount: true,
           activeConversationIds: true,
           adminConversationIds: true,
           avatar_public_id: true,

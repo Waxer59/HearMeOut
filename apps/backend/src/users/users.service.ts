@@ -175,6 +175,13 @@ export class UsersService {
       });
     }
 
+    if (updateUserDto.username) {
+      const findUser = await this.findOneByUsername(updateUserDto.username);
+      if (findUser) {
+        throw new BadRequestException('Username already exists');
+      }
+    }
+
     try {
       return await this.prisma.user.update({
         where: { id },
@@ -189,7 +196,18 @@ export class UsersService {
 
   async remove(id: string): Promise<User> {
     try {
-      const user = await this.prisma.user.delete({ where: { id } });
+      const user = await this.prisma.user.delete({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
+        where: { id },
+      });
 
       // If the image is uploaded to cloudinary, delete it
       if (user.avatar_public_id) {
@@ -197,6 +215,7 @@ export class UsersService {
       }
       return user;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -294,6 +313,14 @@ export class UsersService {
     userId: string,
     conversationId: string,
   ): Promise<User> {
+    const user = await this.findOneById(userId);
+    const hasAlreadyBeenNotified =
+      user.conversationNotificationIds.includes(conversationId);
+
+    if (hasAlreadyBeenNotified) {
+      return user;
+    }
+
     try {
       return await this.prisma.user.update({
         where: {
