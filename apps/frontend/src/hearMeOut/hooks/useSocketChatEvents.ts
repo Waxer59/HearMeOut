@@ -19,6 +19,10 @@ export const useSocketChatEvents = () => {
     });
   };
 
+  const sendDeleteAccount = () => {
+    socket?.emit(CHAT_EVENTS.deleteAccount);
+  };
+
   const sendTypingOff = () => {
     socket?.emit(CHAT_EVENTS.typingOff, {
       conversationId: currentConversationId
@@ -85,6 +89,7 @@ export const useSocketChatEvents = () => {
     sendUpdateMessage,
     sendUpdateGroup,
     sendExitGroup,
-    sendJoinGroup
+    sendJoinGroup,
+    sendDeleteAccount
   };
 };

@@ -4,6 +4,7 @@ import { getEnvVariables } from '@helpers/getEnvVariables';
 import { addActiveConversation as addActiveConversationAPI } from '@services/hearMeOutAPI';
 import { CHAT_EVENTS } from 'ws-types';
 import {
+  LOCAL_STORAGE_ITEMS,
   type DeleteMessageDetails,
   type RemoveFriendRequestDetails,
   type UpdateMessageDetails
@@ -17,6 +18,7 @@ import type {
 import { useChatStore } from '@store/chat';
 import { useAccountStore } from '@store/account';
 import { toast } from 'sonner';
+import { useLocalStorage } from './useLocalStorage';
 
 export const useSocketChat = () => {
   const {
@@ -35,6 +37,7 @@ export const useSocketChat = () => {
     updateConversation,
     setSocket
   } = useChatStore((state) => state);
+  const { setLocalStorageItem } = useLocalStorage();
   const {
     account,
     addFriendRequest,
@@ -154,6 +157,11 @@ export const useSocketChat = () => {
         deleteConversationMessage(conversationId, messageId);
       }
     );
+
+    socket.on(CHAT_EVENTS.deleteAccount, () => {
+      setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
+      window.location.reload();
+    });
 
     socket.on(
       CHAT_EVENTS.updateMessage,

@@ -44,16 +44,7 @@ export const CallInProgress: React.FC = () => {
           <IconPhoneOff />
         </Button>
       </div>
-      <div className="flex gap-4 items-center max-w-[200px] overflow-auto pb-2">
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
-        <UserInCall name="Hugo" />
+      <div className="flex gap-4 items-center w-[200px] max-w-[200px] overflow-auto pb-2">
         <UserInCall name="Hugo" />
       </div>
     </CallLayout>

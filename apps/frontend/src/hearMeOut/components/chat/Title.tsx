@@ -42,6 +42,8 @@ export const Title: React.FC<Props> = ({
   const emitCallingSound = () => {
     let currentCallingTones = 0;
 
+    playAudio();
+
     callIntervalRef.current = setInterval(() => {
       if (CALLING_TONES === currentCallingTones) {
         clearInterval(callIntervalRef.current!);

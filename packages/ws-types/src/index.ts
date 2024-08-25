@@ -1,4 +1,5 @@
 export enum CHAT_EVENTS {
+  deleteAccount = 'deleteAccount',
   userConnect = 'userConnect',
   userDisconnect = 'userDisconnect',
   friendRequest = 'friendRequest',

@@ -4,7 +4,6 @@ import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
 import { ConversationTypes } from '@store/types/types';
 import { getAllConversationMessages } from '@services/hearMeOutAPI';
 import { BROADCAST_CHANEL_KEY, HttpStatusCodes } from '@/types/types';
-import { useSocketChat } from '@hearmeout/hooks/useSocketChat';
 import { useAccountStore } from '@store/account';
 import { useChatStore } from '@store/chat';
 import { useUiStore } from '@store/ui';
@@ -17,11 +16,11 @@ import { Calling } from '@hearmeout/components/call/Calling';
 import { getConversationName } from '../helpers/getConversationName';
 
 export const Chat: React.FC = () => {
-  const { connectSocketChat } = useSocketChat();
   const { sendOpenChat } = useSocketChatEvents();
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
+  const socket = useChatStore((state) => state.socket);
   const conversation = useChatStore((state) => state.conversations).find(
     (c) => c.id === currentConversationId
   );
@@ -47,7 +46,7 @@ export const Chat: React.FC = () => {
     }
 
     sendOpenChat(currentConversationId);
-  }, [currentConversationId]);
+  }, [currentConversationId, socket]);
 
   useEffect(() => {
     if (!conversation) {
@@ -109,10 +108,6 @@ export const Chat: React.FC = () => {
       bc.close();
     };
   }, [currentConversationId]);
-
-  useEffect(() => {
-    connectSocketChat();
-  }, [connectSocketChat]);
 
   return (
     <>

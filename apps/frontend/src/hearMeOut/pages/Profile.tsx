@@ -3,24 +3,20 @@ import { IconChevronLeft, IconTrash } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Toaster, toast } from 'sonner';
 import { useEffect, type ChangeEvent } from 'react';
-import {
-  deleteUserAccount,
-  updateUserAccount,
-  updateUserAvatar
-} from '@services/hearMeOutAPI';
-import { HttpStatusCodes, LOCAL_STORAGE_ITEMS } from '@/types/types';
-import { useLocalStorage } from '@hearmeout/hooks/useLocalStorage';
+import { updateUserAccount, updateUserAvatar } from '@services/hearMeOutAPI';
+import { HttpStatusCodes } from '@/types/types';
 import { ACCEPTED_IMG_EXTENSIONS } from '@constants';
 import { EditableTitle } from '@components/EditableTitle';
 import { ImageUploaderBtn } from '@components/ImageUploaderBtn';
 import { useAccountStore } from '@store/account';
 import { FurtherProfileUpdates } from '@hearmeout/components/FurtherProfileUpdates';
 import { getFileExtension } from '@hearmeout/helpers/getFileExtension';
+import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
 
 export const Profile: React.FC = () => {
   const account = useAccountStore((state) => state.account);
   const updateAccount = useAccountStore((state) => state.updateAccount);
-  const { setLocalStorageItem } = useLocalStorage();
+  const { sendDeleteAccount } = useSocketChatEvents();
   const { username, avatar, isGithubAccount } = account!;
 
   useEffect(() => {
@@ -28,14 +24,7 @@ export const Profile: React.FC = () => {
   }, []);
 
   const handleDeleteAccount = async () => {
-    const { data } = await deleteUserAccount();
-    if (data.status >= HttpStatusCodes.BAD_REQUEST) {
-      toast.error('There was an error deleting your account');
-    } else {
-      toast.success('Account deleted successfully');
-      setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
-      window.location.reload();
-    }
+    sendDeleteAccount();
   };
 
   const handleChangeImage = async (e: ChangeEvent<HTMLInputElement>) => {

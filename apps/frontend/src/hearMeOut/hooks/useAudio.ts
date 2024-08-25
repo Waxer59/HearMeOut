@@ -13,8 +13,9 @@ export const useAudio = ({ data }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (!isAudioPlaying) {
-      audioRef.current?.pause();
+    if (!isAudioPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
   }, [isAudioPlaying]);
 
