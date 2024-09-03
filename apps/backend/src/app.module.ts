@@ -18,6 +18,7 @@ import { CachingModule } from './caching/caching.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import * as Joi from 'joi';
 import { NodeEnvironment } from './common/types/types';
+import { WebrtcModule } from './webrtc/webrtc.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { NodeEnvironment } from './common/types/types';
     MessagesModule,
     CachingModule,
     CloudinaryModule,
+    WebrtcModule,
   ],
 })
 export class AppModule {}

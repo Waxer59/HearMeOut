@@ -1,4 +1,4 @@
-import { Avatar, Button, Heading } from '@radix-ui/themes';
+import { Button } from '@radix-ui/themes';
 import { CallLayout } from '@hearmeout/layouts/CallLayout';
 import {
   IconMicrophone,
@@ -6,25 +6,45 @@ import {
   IconPhoneOff
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
 import { useCallStore } from '@store/call';
 import { useChatStore } from '@store/chat';
 import { useConversation } from '@/hearMeOut/hooks/useConversation';
+import { useSocketChatEvents } from '@/hearMeOut/hooks/useSocketChatEvents';
 
 export const CallInProgress: React.FC = () => {
+  const { sendEndCall } = useSocketChatEvents();
   const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
-  const endCall = useCallStore((state) => state.endCall);
+  const clear = useCallStore((state) => state.clear);
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
   const { getAvatar, getName } = useConversation(currentConversationId!);
+  const peerConnection = useCallStore((state) => state.peerConnection);
+  const localStream = useCallStore((state) => state.localStream);
 
   const handleMuteMicrophone = () => {
+    if (!peerConnection || !localStream) return;
+
+    // Toogle microphone mute
+    localStream.getAudioTracks()[0].enabled = !isMicrophoneOn;
+
     setIsMicrophoneOn(!isMicrophoneOn);
   };
 
   const handleEndCall = () => {
-    endCall();
+    if (!peerConnection) return;
+
+    // Stop local stream
+    peerConnection.getSenders().forEach((sender) => sender?.track?.stop());
+
+    // Close peer connection
+    peerConnection.close();
+
+    // Clear call store
+    clear();
+
+    // Notify server that the call is ended
+    sendEndCall(currentConversationId!);
   };
 
   return (
@@ -45,22 +65,8 @@ export const CallInProgress: React.FC = () => {
         </Button>
       </div>
       <div className="flex gap-4 items-center w-[200px] max-w-[200px] overflow-auto pb-2">
-        <UserInCall name="Hugo" />
+        {/* <UserInCall name="Hugo" /> */}
       </div>
     </CallLayout>
   );
 };
-
-interface PropsUserInCall {
-  name: string;
-  avatar?: string;
-}
-
-const UserInCall: React.FC<PropsUserInCall> = ({ name, avatar }) => (
-  <div className="flex flex-col gap-2 items-center">
-    <Avatar fallback={getFallbackAvatarName(name)} src={avatar} size="4" />
-    <Heading as="h3" className="capitalize text-sm text-center">
-      {name}
-    </Heading>
-  </div>
-);

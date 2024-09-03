@@ -51,6 +51,7 @@
     "reflect-metadata": "0.1.13",
     "rxjs": "7.8.1",
     "socket.io": "4.7.2",
+    "wrtc": "^0.4.7",
     "ws-types": "workspace:*"
   },
   "devDependencies": {

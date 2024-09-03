@@ -75,7 +75,22 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.joinGroup, { joinCode });
   };
 
+  const sendOffer = (conversationId: string, offer: string) => {
+    socket?.emit(CHAT_EVENTS.offer, { conversationId, offer });
+  };
+
+  const sendCandidate = (conversationId: string, candidate: string) => {
+    socket?.emit(CHAT_EVENTS.candidate, { conversationId, candidate });
+  };
+
+  const sendEndCall = (conversationId: string) => {
+    socket?.emit(CHAT_EVENTS.endCall, conversationId);
+  };
+
   return {
+    sendEndCall,
+    sendCandidate,
+    sendOffer,
     sendMessage,
     sendTyping,
     sendTypingOff,

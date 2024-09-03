@@ -19,6 +19,7 @@ import { useChatStore } from '@store/chat';
 import { useAccountStore } from '@store/account';
 import { toast } from 'sonner';
 import { useLocalStorage } from './useLocalStorage';
+import { useCallStore } from '@/store/call';
 
 export const useSocketChat = () => {
   const {
@@ -57,6 +58,8 @@ export const useSocketChat = () => {
     });
     setSocket(socketTmp);
   }, []);
+
+  const peerConnection = useCallStore((state) => state.peerConnection);
 
   const disconnectSocketChat = useCallback(() => {
     socket?.disconnect();
@@ -178,6 +181,29 @@ export const useSocketChat = () => {
       socket.removeAllListeners();
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on(CHAT_EVENTS.answer, (answer: string) => {
+      const parsedAnswer = JSON.parse(answer);
+      peerConnection?.setRemoteDescription(
+        new RTCSessionDescription(parsedAnswer)
+      );
+    });
+
+    socket.on(CHAT_EVENTS.offer, (offer: RTCSessionDescriptionInit) => {
+      peerConnection?.setRemoteDescription(offer);
+    });
+
+    socket.on(CHAT_EVENTS.candidate, (candidate: RTCIceCandidateInit) => {
+      peerConnection?.addIceCandidate(candidate);
+    });
+
+    return () => {
+      socket.removeAllListeners();
+    };
+  }, [socket, peerConnection]);
 
   return {
     connectSocketChat,

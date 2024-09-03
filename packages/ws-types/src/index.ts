@@ -18,5 +18,9 @@ export enum CHAT_EVENTS {
   updateMessage = 'updateMessage',
   exitGroup = 'exitGroup',
   notification = 'notification',
-  joinGroup = 'joinGroup'
+  joinGroup = 'joinGroup',
+  offer = 'offer',
+  answer = 'answer',
+  candidate = 'candidate',
+  endCall = 'endCall'
 }

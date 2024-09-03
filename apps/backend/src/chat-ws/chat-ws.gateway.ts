@@ -23,6 +23,9 @@ import { DeleteMessageDto } from 'src/messages/dto/delete-message.dto';
 import { UpdateMessageDto } from 'src/messages/dto/update-message.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
+import { RTCSessionDescription, RTCIceCandidate } from 'wrtc';
+import { OfferDto } from 'src/webrtc/dto/offer.dto';
+import { CandidateDto } from 'src/webrtc/dto/candidate.dto';
 
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 @UseFilters(WsExceptionFilterFilter)
@@ -207,6 +210,52 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId,
       this.server,
     );
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.offer)
+  async offer(
+    @MessageBody() offerDto: OfferDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { offer, conversationId } = offerDto;
+
+    const parsedOffer = JSON.parse(offer) as RTCSessionDescriptionInit;
+    const offerObject = new RTCSessionDescription(parsedOffer);
+
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.offer(
+      offerObject,
+      userId,
+      conversationId,
+      this.server,
+    );
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.candidate)
+  async candidate(
+    @MessageBody() candidateDto: CandidateDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { conversationId, candidate } = candidateDto;
+
+    const parsedCandidate = JSON.parse(candidate) as RTCIceCandidateInit;
+    const candidateObject = new RTCIceCandidate(parsedCandidate);
+
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.candidate(
+      candidateObject,
+      userId,
+      conversationId,
+    );
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.endCall)
+  async endCall(
+    @MessageBody() conversationId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.endCall(conversationId, userId);
   }
 
   async handleConnection(client: Socket) {
