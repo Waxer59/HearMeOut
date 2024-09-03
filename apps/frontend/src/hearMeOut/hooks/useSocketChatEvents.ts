@@ -1,6 +1,6 @@
-import { useChatStore } from '../../store';
 import { CHAT_EVENTS } from 'ws-types';
-import type { UpdateGroupOptions } from '../../types/types';
+import type { UpdateGroupOptions } from '@/types/types';
+import { useChatStore } from '@store/chat';
 
 export const useSocketChatEvents = () => {
   const { currentConversationId, socket } = useChatStore((state) => state);
@@ -17,6 +17,10 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.typing, {
       conversationId: currentConversationId
     });
+  };
+
+  const sendDeleteAccount = () => {
+    socket?.emit(CHAT_EVENTS.deleteAccount);
   };
 
   const sendTypingOff = () => {
@@ -71,7 +75,22 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.joinGroup, { joinCode });
   };
 
+  const sendOffer = (conversationId: string, offer: string) => {
+    socket?.emit(CHAT_EVENTS.offer, { conversationId, offer });
+  };
+
+  const sendCandidate = (conversationId: string, candidate: string) => {
+    socket?.emit(CHAT_EVENTS.candidate, { conversationId, candidate });
+  };
+
+  const sendEndCall = (conversationId: string) => {
+    socket?.emit(CHAT_EVENTS.endCall, conversationId);
+  };
+
   return {
+    sendEndCall,
+    sendCandidate,
+    sendOffer,
     sendMessage,
     sendTyping,
     sendTypingOff,
@@ -85,6 +104,7 @@ export const useSocketChatEvents = () => {
     sendUpdateMessage,
     sendUpdateGroup,
     sendExitGroup,
-    sendJoinGroup
+    sendJoinGroup,
+    sendDeleteAccount
   };
 };

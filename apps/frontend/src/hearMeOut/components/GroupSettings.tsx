@@ -19,20 +19,21 @@ import {
   IconX,
   IconTrash
 } from '@tabler/icons-react';
-import { useAccountStore, useChatStore, useUiStore } from '../../store';
-import {
-  getFallbackAvatarName,
-  getBase64File,
-  getFileExtension
-} from '../helpers';
-import { ConversationTypes } from '../../store/types/types';
+import { ConversationTypes } from '@store/types/types';
 import { useRef, useState } from 'react';
-import { ImageUploaderBtn } from '../../components/ImageUploaderBtn';
-import { EditableTitle } from '../../components';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import type { InputEvent } from '../../types/types';
+import { ImageUploaderBtn } from '@components/ImageUploaderBtn';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
+import type { InputEvent } from '@/types/types';
 import { toast } from 'sonner';
-import { ACCEPTED_IMG_EXTENSIONS } from '../../constants/constants';
+import { ACCEPTED_IMG_EXTENSIONS } from '@constants';
+import { EditableTitle } from '@components/EditableTitle';
+import { useAccountStore } from '@store/account';
+import { useChatStore } from '@store/chat';
+import { useUiStore } from '@store/ui';
+import { getBase64File } from '@hearmeout/helpers/getBase64File';
+import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
+import { getFileExtension } from '@hearmeout/helpers/getFileExtension';
+import { useConversation } from '@hearmeout/hooks/useConversation';
 
 export const GroupSettings = () => {
   const [newUserSearch, setNewUserSearch] = useState('');
@@ -48,18 +49,13 @@ export const GroupSettings = () => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   )!;
-  const setCurrentConversationId = useChatStore(
-    (state) => state.setCurrentConversationId
-  );
   const { id: ownUserId } = useAccountStore((state) => state.account)!;
-  const removeConversation = useChatStore((state) => state.removeConversation);
-  const { name, icon, users, adminIds, type, joinCode } = useChatStore(
-    (state) => state.conversations
-  ).find((c) => c.id === currentConversationId)!;
+  const { conversation } = useConversation(currentConversationId);
+  const { name, icon, users, adminIds, type, joinCode } = conversation;
   const usersNotInGroup = useChatStore((state) => state.conversations).filter(
     (el) => {
       const userInChat = el.users.find((user) => user.id !== ownUserId)!;
-      const isUserInGroup = users.find((user) => user.id === userInChat.id);
+      const isUserInGroup = users.find((user) => user.id === userInChat?.id);
       return !isUserInGroup && el.type === ConversationTypes.chat;
     }
   );
@@ -130,9 +126,7 @@ export const GroupSettings = () => {
 
   const handleLeaveGroup = () => {
     sendExitGroup(currentConversationId);
-    setCurrentConversationId(null);
     setShowGroupSettings(false);
-    removeConversation(currentConversationId);
   };
 
   const handleCopyToClipboard = (text: string) => {
@@ -299,7 +293,7 @@ export const GroupSettings = () => {
                       )!;
 
                       return (
-                        userInChat.username
+                        userInChat?.username
                           .toLowerCase()
                           .includes(newUserSearch) && newUserSearch.length >= 0
                       );
@@ -316,13 +310,13 @@ export const GroupSettings = () => {
                           <div className="flex gap-5 items-center">
                             <Avatar
                               fallback={getFallbackAvatarName(
-                                userInChat.username
+                                userInChat?.username
                               )}
-                              src={userInChat.avatar}
+                              src={userInChat?.avatar}
                               size="4"
                             />
                             <Heading as="h3" className="capitalize text-md">
-                              {userInChat.username}
+                              {userInChat?.username}
                             </Heading>
                           </div>
                           <Checkbox
@@ -332,7 +326,7 @@ export const GroupSettings = () => {
                             onCheckedChange={(check) =>
                               handleAddUserCheckbox(
                                 check as boolean,
-                                userInChat.id
+                                userInChat?.id
                               )
                             }
                           />

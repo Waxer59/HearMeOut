@@ -4,7 +4,7 @@ import {
   type AccountDetails,
   type FriendRequestDetails,
   type SettingsDetails
-} from './types/types';
+} from '@store/types/types';
 import { devtools } from 'zustand/middleware';
 
 const initialState: State = {

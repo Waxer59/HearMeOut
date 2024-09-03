@@ -2,13 +2,13 @@ import { Avatar, TextField, Button } from '@radix-ui/themes';
 import { IconSearch } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DEBOUNCE_SEARCH_TIME } from '../../../constants/constants';
-import { searchUser } from '../../../services/hearMeOutAPI';
-import { getFallbackAvatarName } from '../../helpers';
-import { HttpStatusCodes } from '../../../types/types';
+import { DEBOUNCE_SEARCH_TIME } from '@constants';
+import { searchUser } from '@services//hearMeOutAPI';
+import { HttpStatusCodes } from '@/types/types';
 import { toast } from 'sonner';
-import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
-import type { AccountDetails } from '../../../store/types/types';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
+import type { AccountDetails } from '@store/types/types';
+import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
 
 interface PropsUserBtn {
   id: string;

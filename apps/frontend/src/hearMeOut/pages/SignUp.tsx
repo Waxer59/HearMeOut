@@ -7,14 +7,14 @@ import {
 } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthLayout } from '../layouts/AuthLayout';
+import { AuthLayout } from '@hearmeout/layouts/AuthLayout';
 import { useRef, useState } from 'react';
-import { signUp } from '../../services/hearMeOutAPI';
-import { validateSignUp } from '../helpers';
+import { signUp } from '@services/hearMeOutAPI';
 import { toast } from 'sonner';
-import { HttpStatusCodes } from '../../types/types';
+import { HttpStatusCodes } from '@/types/types';
 import { IconEye, IconEyeClosed } from '@tabler/icons-react';
-import { REGISTER_TIMEOUT } from '../../constants/constants';
+import { REGISTER_TIMEOUT } from '@constants';
+import { validateSignUp } from '@hearmeout/helpers/validateSignUpForm';
 
 export const SignUp: React.FC = () => {
   const form = useRef<HTMLFormElement>(null);

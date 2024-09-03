@@ -1,23 +1,24 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
-import { SignUp, SignIn } from '../pages';
-import { PrivateRoutes, PublicRoutes } from '../../router';
-import { useAccountStore, useChatStore } from '../../store';
-import { LOCAL_STORAGE_ITEMS, type VerifyResponse } from '../../types/types';
-import { verify } from '../../services/hearMeOutAPI';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { Route, Routes } from 'react-router-dom';
+import { LOCAL_STORAGE_ITEMS, type VerifyResponse } from '@/types/types';
+import { verify } from '@services/hearMeOutAPI';
+import { useLocalStorage } from '@hearmeout/hooks/useLocalStorage';
 import { useEffect, useState } from 'react';
 import { BounceLoader } from 'react-spinners';
-import { ChatRoutes } from './ChatRoutes';
-import { useClearState } from '../hooks/useClearState';
+import { ChatRoutes } from '@hearmeout/routes/ChatRoutes';
+import { PrivateRoutes } from '@/router/PrivateRoutes';
+import { PublicRoutes } from '@/router/PublicRoutes';
+import { useAccountStore } from '@store/account';
+import { useChatStore } from '@store/chat';
+import SignIn from '@hearmeout/pages/SignIn';
+import SignUp from '@hearmeout/pages/SignUp';
 
-const AppRoutes = () => {
+const HearMeOutRoutes = () => {
   const setAccount = useAccountStore((state) => state.setAccount);
   const setFriendRequests = useAccountStore((state) => state.setFriendRequests);
   const setFriendRequestsOutgoing = useAccountStore(
     (state) => state.setFriendRequestsOutgoing
   );
   const setSettings = useAccountStore((state) => state.setSettings);
-  const navigate = useNavigate();
   const setConversations = useChatStore((state) => state.setConversations);
   const setActiveConversations = useChatStore(
     (state) => state.setActiveConversations
@@ -25,7 +26,6 @@ const AppRoutes = () => {
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
   );
-  const clearState = useClearState();
   const { setLocalStorageItem, getLocalStorageItem } = useLocalStorage();
   const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
@@ -43,14 +43,14 @@ const AppRoutes = () => {
 
       const { conversations, friendReqTos, friendReqFroms, ...account } = data;
 
+      setActiveConversations(account.activeConversationIds);
+      setConversations(conversations);
+      setFriendRequestsOutgoing(friendReqFroms);
       setCurrentConversationId(
         conversations.filter((el) =>
           account.activeConversationIds.includes(el.id)
         )?.[0]?.id ?? null
       );
-      setActiveConversations(account.activeConversationIds);
-      setConversations(conversations);
-      setFriendRequestsOutgoing(friendReqFroms);
 
       if (account.configuration) {
         setSettings(account.configuration);
@@ -66,9 +66,7 @@ const AppRoutes = () => {
         if (getLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth)) {
           window.location.reload();
         } else {
-          document.title = 'HearMeOut';
-          clearState();
-          navigate('/');
+          window.location.replace('/');
         }
       }
     }
@@ -122,4 +120,4 @@ const AppRoutes = () => {
   );
 };
 
-export default AppRoutes;
+export default HearMeOutRoutes;

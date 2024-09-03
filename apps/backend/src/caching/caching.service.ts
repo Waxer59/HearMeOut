@@ -13,9 +13,9 @@ export class CachingService implements OnApplicationBootstrap {
       return null;
     }
   }
-  async setCacheKey(key: string, value: unknown): Promise<void> {
+  async setCacheKey(key: string, value: unknown, ttl?: number): Promise<void> {
     try {
-      await this.cacheManager.set(key, value);
+      await this.cacheManager.set(key, value, ttl);
     } catch (error) {}
   }
   async deleteCacheKey(key: string): Promise<void> {

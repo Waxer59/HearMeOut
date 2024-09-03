@@ -1,8 +1,9 @@
-import { useChatStore } from '../../../store';
-import type { MessageDetails } from '../../../store/types/types';
-import { Message } from '../';
+import type { MessageDetails } from '@store/types/types';
 import { useEffect, useRef } from 'react';
-import { DateDivider } from './DateDivider';
+import { DateDivider } from '@hearmeout/components/chat/DateDivider';
+import { useChatStore } from '@store/chat';
+import { Message } from '@hearmeout/components/chat/Message';
+import { useConversation } from '@hearmeout/hooks/useConversation';
 
 interface DateGroup {
   date: string;
@@ -14,10 +15,7 @@ export const Messages: React.FC = () => {
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
-  const conversations = useChatStore((state) => state.conversations);
-  const conversation = conversations.find(
-    (el) => el.id === currentConversationId
-  );
+  const { conversation } = useConversation(currentConversationId!);
 
   useEffect(() => {
     if (messageEl.current) {

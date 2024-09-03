@@ -1,33 +1,36 @@
 import { Toaster, toast } from 'sonner';
-import { Sidebar, GroupSettings, ChatView } from '../components/';
 import { useEffect } from 'react';
-import { useAccountStore, useChatStore, useUiStore } from '../../store';
-import { useSocketChatEvents } from '../hooks/useSocketChatEvents';
-import { ConversationTypes } from '../../store/types/types';
-import { getAllConversationMessages } from '../../services/hearMeOutAPI';
-import { BROADCAST_CHANEL_KEY, HttpStatusCodes } from '../../types/types';
-import { useSocketChat } from '../hooks/useSocketChat';
-import { capitalize } from '../helpers';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
+import { ConversationTypes } from '@store/types/types';
+import { getAllConversationMessages } from '@services/hearMeOutAPI';
+import { BROADCAST_CHANEL_KEY, HttpStatusCodes } from '@/types/types';
+import { useAccountStore } from '@store/account';
+import { useChatStore } from '@store/chat';
+import { useUiStore } from '@store/ui';
+import { ChatView } from '@hearmeout/components/chat/ChatView';
+import { GroupSettings } from '@hearmeout/components/GroupSettings';
+import { Sidebar } from '@hearmeout/components/sidebar/Sidebar';
+import { capitalize } from '@hearmeout/helpers/capitalize';
+import { useCallStore } from '@store/call';
+import { Calling } from '@hearmeout/components/call/Calling';
+import { getConversationName } from '../helpers/getConversationName';
 
 export const Chat: React.FC = () => {
-  const { connectSocketChat, disconnectSocketChat } = useSocketChat();
   const { sendOpenChat } = useSocketChatEvents();
-  const isAuthenticated = useAccountStore((state) => state.isAuthenticated);
   const currentConversationId = useChatStore(
     (state) => state.currentConversationId
   );
-  const currentConversation = useChatStore((state) => state.conversations).find(
-    (el) => el.id === currentConversationId
-  );
-  const conversations = useChatStore((state) => state.conversations);
   const socket = useChatStore((state) => state.socket);
+  const conversation = useChatStore((state) => state.conversations).find(
+    (c) => c.id === currentConversationId
+  );
   const setConversationMessages = useChatStore(
     (state) => state.setConversationMessages
   );
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
   );
-  const { id: ownUserId } = useAccountStore((state) => state.account!);
+  const replyMessage = useChatStore((state) => state.replyMessage);
   const clearReplyMessage = useChatStore((state) => state.clearReplyMessage);
   const setShowGroupSettings = useUiStore(
     (state) => state.setShowGroupSettings
@@ -35,9 +38,10 @@ export const Chat: React.FC = () => {
   const removeConversationNotification = useAccountStore(
     (state) => state.removeConversationNotification
   );
+  const isCalling = useCallStore((state) => state.isCalling);
 
   useEffect(() => {
-    if (!currentConversationId || !socket) {
+    if (!currentConversationId) {
       return;
     }
 
@@ -45,20 +49,14 @@ export const Chat: React.FC = () => {
   }, [currentConversationId, socket]);
 
   useEffect(() => {
-    if (!currentConversation) {
+    if (!conversation) {
       return;
     }
 
-    const { username } = currentConversation.users.find(
-      ({ id }) => id !== ownUserId
-    )!;
-    const title =
-      currentConversation.type === ConversationTypes.chat
-        ? username
-        : currentConversation.name;
+    const conversationName = getConversationName(conversation);
 
-    document.title = `${capitalize(title)} | HearMeOut`;
-  }, [currentConversation]);
+    document.title = `${capitalize(conversationName)} | HearMeOut`;
+  }, [conversation]);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -87,21 +85,19 @@ export const Chat: React.FC = () => {
       setCurrentConversationId(data);
     };
 
-    const doesConversationMessagesExists = Boolean(
-      conversations.find((el) => currentConversationId === el.id)?.messages
-    );
+    const doesConversationMessagesExists = Boolean(conversation?.messages);
 
     // clear replying message when navigating between chats
-    clearReplyMessage();
+    if (replyMessage) {
+      clearReplyMessage();
+    }
 
     if (currentConversationId) {
       removeConversationNotification(currentConversationId);
     }
 
     // close group settings when navigating between chats
-    if (currentConversation?.type === ConversationTypes.group) {
-      setShowGroupSettings(false);
-    }
+    setShowGroupSettings(false);
 
     // Fetch all the messages only if they don't exist already
     if (!doesConversationMessagesExists) {
@@ -113,24 +109,13 @@ export const Chat: React.FC = () => {
     };
   }, [currentConversationId]);
 
-  useEffect(() => {
-    connectSocketChat();
-  }, [connectSocketChat]);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      disconnectSocketChat();
-    }
-  }, [isAuthenticated, disconnectSocketChat]);
-
   return (
     <>
       <div className="flex h-screen relative">
         <Sidebar />
         <ChatView />
-        {currentConversation?.type === ConversationTypes.group && (
-          <GroupSettings />
-        )}
+        {conversation?.type === ConversationTypes.group && <GroupSettings />}
+        {isCalling && <Calling />}
       </div>
       <Toaster position="bottom-right" />
     </>

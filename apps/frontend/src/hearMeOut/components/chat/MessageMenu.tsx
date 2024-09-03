@@ -1,7 +1,8 @@
 import { IconArrowBackUp, IconEdit, IconTrash } from '@tabler/icons-react';
-import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
-import { useAccountStore, useChatStore } from '../../../store';
-import type { MessageDetails } from '../../../store/types/types';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
+import type { MessageDetails } from '@store/types/types';
+import { useAccountStore } from '@store/account';
+import { useChatStore } from '@store/chat';
 
 interface Props {
   message: MessageDetails;

@@ -5,7 +5,7 @@ import type {
   ConversationDetails,
   MessageDetails,
   UserTyping
-} from './types/types';
+} from '@store/types/types';
 import type { Socket } from 'socket.io-client';
 
 const initialState: State = {
@@ -68,146 +68,161 @@ interface Actions {
 }
 
 export const useChatStore = create<State & Actions>()(
-  devtools((set, get) => ({
-    ...initialState,
-    setConversations: (conversations) => set({ conversations }),
-    addConversation: (conversations) =>
-      set((state) => ({
-        conversations: state.conversations
-          ? [...state.conversations, conversations]
-          : [conversations]
-      })),
-    clearConversations: () => set({ conversations: [] }),
-    setActiveConversations: (activeConversations) =>
-      set({ activeConversations }),
-    clearActive: () => set({ activeConversations: [] }),
-    setSocket: (socket) => set({ socket }),
-    clearSocket: () => set({ socket: null }),
-    getActiveConversations: () =>
-      get().conversations.filter((el) =>
-        get().activeConversations.includes(el.id)
-      ),
-    setConversationIsOnline: (userId, isOnline) =>
-      set((state) => ({
-        conversations: state.conversations.map((el) => ({
-          ...el,
-          users: el.users.map((el: AccountDetails) =>
-            el.id === userId
+  devtools(
+    (set, get) => ({
+      ...initialState,
+      setConversations: (conversations) => set({ conversations }),
+      addConversation: (conversations) =>
+        set((state) => ({
+          conversations: state.conversations
+            ? [...state.conversations, conversations]
+            : [conversations]
+        })),
+      clearConversations: () => set({ conversations: [] }),
+      setActiveConversations: (activeConversations) =>
+        set({ activeConversations }),
+      clearActive: () => set({ activeConversations: [] }),
+      setSocket: (socket) => set({ socket }),
+      clearSocket: () => set({ socket: null }),
+      getActiveConversations: () =>
+        get().conversations.filter((el) =>
+          get().activeConversations.includes(el.id)
+        ),
+      setConversationIsOnline: (userId, isOnline) =>
+        set((state) => ({
+          conversations: state.conversations.map((el) => ({
+            ...el,
+            users: el.users.map((el: AccountDetails) =>
+              el.id === userId
+                ? {
+                    ...el,
+                    isOnline
+                  }
+                : el
+            )
+          }))
+        })),
+      setCurrentConversationId: (currentConversationId) =>
+        set({
+          currentConversationId
+        }),
+      clearCurrentConversationId: () => set({ currentConversationId: null }),
+      setConversationMessages: (conversationId, messages) =>
+        set((state) => ({
+          conversations: state.conversations.map((el) =>
+            el.id === conversationId
               ? {
                   ...el,
-                  isOnline
+                  messages
                 }
               : el
           )
-        }))
-      })),
-    setCurrentConversationId: (currentConversationId) =>
-      set({ currentConversationId }),
-    clearCurrentConversationId: () => set({ currentConversationId: null }),
-    setConversationMessages: (conversationId, messages) =>
-      set((state) => ({
-        conversations: state.conversations.map((el) =>
-          el.id === conversationId
-            ? {
-                ...el,
-                messages
-              }
-            : el
-        )
-      })),
-    addConversationMessage: (conversationId, message) =>
-      set((state) => ({
-        conversations: state.conversations.map((el) =>
-          el.id === conversationId
-            ? {
-                ...el,
-                messages: el.messages ? [...el.messages, message] : [message]
-              }
-            : el
-        )
-      })),
-    addUserTyping: (userTyping) =>
-      set((state) => {
-        if (
-          state.usersTyping.some(
-            (el) =>
-              el.userId === userTyping.userId &&
-              el.conversationId === userTyping.conversationId
+        })),
+      addConversationMessage: (conversationId, message) =>
+        set((state) => ({
+          conversations: state.conversations.map((el) =>
+            el.id === conversationId
+              ? {
+                  ...el,
+                  messages: el.messages ? [...el.messages, message] : [message]
+                }
+              : el
           )
-        ) {
+        })),
+      addUserTyping: (userTyping) =>
+        set((state) => {
+          if (
+            state.usersTyping.some(
+              (el) =>
+                el.userId === userTyping.userId &&
+                el.conversationId === userTyping.conversationId
+            )
+          ) {
+            return {
+              usersTyping: state.usersTyping
+            };
+          }
+
           return {
             usersTyping: state.usersTyping
+              ? [...state.usersTyping, userTyping]
+              : [userTyping]
           };
-        }
-
-        return {
+        }),
+      removeUserTyping: (userTyping) =>
+        set((state) => ({
           usersTyping: state.usersTyping
-            ? [...state.usersTyping, userTyping]
-            : [userTyping]
-        };
-      }),
-    removeUserTyping: (userTyping) =>
-      set((state) => ({
-        usersTyping: state.usersTyping
-          ? state.usersTyping.filter(
-              (el) =>
-                el.userId !== userTyping.userId &&
-                el.conversationId !== userTyping.conversationId
-            )
-          : []
-      })),
-    clearUserTyping: () => set({ usersTyping: [] }),
-    removeActiveConversation: (conversationId) =>
-      set((state) => ({
-        activeConversations: state.activeConversations
-          ? state.activeConversations.filter((el) => el !== conversationId)
-          : []
-      })),
-    addActiveConversation: (id) =>
-      set((state) => ({
-        activeConversations: state.activeConversations
-          ? [...state.activeConversations, id]
-          : [id]
-      })),
-    clearChatState: () => set(initialState),
-    removeConversation: (id) =>
-      set((state) => ({
-        conversations: state.conversations
-          ? state.conversations.filter((el) => el.id !== id)
-          : [],
-        activeConversations: state.activeConversations.filter((el) => el !== id)
-      })),
-    deleteConversationMessage: (conversationId, messageId) =>
-      set((state) => ({
-        conversations: state.conversations.map((el) =>
-          el.id === conversationId
-            ? {
-                ...el,
-                messages: el.messages.filter((el) => el.id !== messageId)
-              }
-            : el
-        )
-      })),
-    updateConversationMessage: (conversationId, messageId, content) =>
-      set((state) => ({
-        conversations: state.conversations.map((el) =>
-          el.id === conversationId
-            ? {
-                ...el,
-                messages: el.messages.map((el) =>
-                  el.id === messageId ? { ...el, content, isEdited: true } : el
-                )
-              }
-            : el
-        )
-      })),
-    setReplyMessage: (replyMessage) => set({ replyMessage }),
-    clearReplyMessage: () => set({ replyMessage: null }),
-    updateConversation: (conversation) =>
-      set((state) => ({
-        conversations: state.conversations.map((el) =>
-          el.id === conversation.id ? { ...el, ...conversation } : el
-        )
-      }))
-  }))
+            ? state.usersTyping.filter(
+                (el) =>
+                  el.userId !== userTyping.userId &&
+                  el.conversationId !== userTyping.conversationId
+              )
+            : []
+        })),
+      clearUserTyping: () => set({ usersTyping: [] }),
+      removeActiveConversation: (conversationId) =>
+        set((state) => ({
+          activeConversations: state.activeConversations
+            ? state.activeConversations.filter((el) => el !== conversationId)
+            : []
+        })),
+      addActiveConversation: (id) =>
+        set((state) => ({
+          activeConversations: state.activeConversations
+            ? [...state.activeConversations, id]
+            : [id]
+        })),
+      clearChatState: () => set(initialState),
+      removeConversation: (id) =>
+        set((state) => ({
+          currentConversationId:
+            get().currentConversationId === id
+              ? null
+              : get().currentConversationId,
+          conversations: state.conversations
+            ? state.conversations.filter((el) => el.id !== id)
+            : [],
+          activeConversations: state.activeConversations.filter(
+            (el) => el !== id
+          )
+        })),
+      deleteConversationMessage: (conversationId, messageId) =>
+        set((state) => ({
+          conversations: state.conversations.map((el) =>
+            el.id === conversationId
+              ? {
+                  ...el,
+                  messages: el.messages.filter((el) => el.id !== messageId)
+                }
+              : el
+          )
+        })),
+      updateConversationMessage: (conversationId, messageId, content) =>
+        set((state) => ({
+          conversations: state.conversations.map((el) =>
+            el.id === conversationId
+              ? {
+                  ...el,
+                  messages: el.messages.map((el) =>
+                    el.id === messageId
+                      ? { ...el, content, isEdited: true }
+                      : el
+                  )
+                }
+              : el
+          )
+        })),
+      setReplyMessage: (replyMessage) => set({ replyMessage }),
+      clearReplyMessage: () => set({ replyMessage: null }),
+      updateConversation: (conversation) =>
+        set((state) => ({
+          conversations: state.conversations.map((el) =>
+            el.id === conversation.id ? { ...el, ...conversation } : el
+          )
+        }))
+    }),
+    {
+      trace: true
+    }
+  )
 );

@@ -1,5 +1,5 @@
-import { getEnvVariables } from '../helpers/getEnvVariables';
-import type { SettingsDetails } from '../store/types/types';
+import { getEnvVariables } from '@helpers/getEnvVariables';
+import type { SettingsDetails } from '@store/types/types';
 import {
   type UpdateAccount,
   type RequireAtLeastOne,
@@ -9,7 +9,7 @@ import {
   type CreateAccount,
   type SignInDetails,
   type IResponseData
-} from '../types/types';
+} from '@/types/types';
 
 const baseUrl = `${getEnvVariables().VITE_HEARMEOUT_API}/api`;
 

@@ -1,14 +1,15 @@
 import { IconButton, TextField, Tooltip, Button } from '@radix-ui/themes';
 import { IconMoodSmile, IconSend, IconX } from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
-import type { EmojiProps, InputEvent } from '../../../types/types';
+import type { EmojiProps, InputEvent } from '@/types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import { TypingIndicator } from '..';
-import { useAccountStore, useChatStore } from '../../../store';
-import { TYPING_TIMEOUT } from '../../../constants/constants';
-import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import { TYPING_TIMEOUT } from '@constants';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
 import Draggable from 'react-draggable';
+import { useAccountStore } from '@store/account';
+import { useChatStore } from '@store/chat';
+import { TypingIndicator } from '@hearmeout/components/chat/TypingIndicator';
 
 export const Input: React.FC = () => {
   const [isEmojiMenuOpen, setIsEmojiMenuOpen] = useState(false);

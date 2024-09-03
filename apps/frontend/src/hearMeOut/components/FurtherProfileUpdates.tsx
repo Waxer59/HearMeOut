@@ -2,8 +2,8 @@ import { IconEye, IconEyeClosed } from '@tabler/icons-react';
 import * as Form from '@radix-ui/react-form';
 import { Button, Heading, TextFieldInput } from '@radix-ui/themes';
 import { useRef, useState, type FormEvent } from 'react';
-import { updateUserAccount } from '../../services/hearMeOutAPI';
-import { HttpStatusCodes } from '../../types/types';
+import { updateUserAccount } from '@services//hearMeOutAPI';
+import { HttpStatusCodes } from '@/types/types';
 import { toast } from 'sonner';
 
 export const FurtherProfileUpdates: React.FC = () => {

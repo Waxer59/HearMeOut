@@ -2,8 +2,8 @@ import { Button, TextField } from '@radix-ui/themes';
 import { IconSend } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { toast } from 'sonner';
-import { JOIN_CODE_LENGTH } from '../../../constants/constants';
-import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import { JOIN_CODE_LENGTH } from '@constants';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
 
 interface Props {
   closeDialog: () => void;
@@ -28,7 +28,6 @@ export const JoinGroupOption: React.FC<Props> = ({ closeDialog }) => {
 
     sendJoinGroup(code);
     closeDialog();
-    toast.success('Joined group');
   };
 
   return (

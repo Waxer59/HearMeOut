@@ -7,8 +7,10 @@ import {
   IconUsersGroup,
   IconX
 } from '@tabler/icons-react';
-import { AddContactOption, CreateGroupOption, JoinGroupOption } from '..';
 import { useState } from 'react';
+import { AddContactOption } from '@hearmeout/components/sidebar/AddContactOption';
+import { CreateGroupOption } from '@hearmeout/components/sidebar/CreateGroupOption';
+import { JoinGroupOption } from '@hearmeout/components/sidebar/JoinGroupOption';
 
 enum DialogSelectionEnum {
   ADD_CONTACT = 'ADD_CONTACT',
@@ -76,10 +78,10 @@ export const Options: React.FC = () => {
             {dialogSelection === DialogSelectionEnum.ADD_CONTACT
               ? 'Add contact'
               : dialogSelection === DialogSelectionEnum.CREATE_GROUP
-              ? 'Create group'
-              : dialogSelection === DialogSelectionEnum.JOIN_GROUP
-              ? 'Join group'
-              : 'Create channel'}
+                ? 'Create group'
+                : dialogSelection === DialogSelectionEnum.JOIN_GROUP
+                  ? 'Join group'
+                  : 'Create channel'}
           </Dialog.Title>
           <Dialog.Close className="cursor-pointer">
             <Button variant="ghost" color="red" className="transition">

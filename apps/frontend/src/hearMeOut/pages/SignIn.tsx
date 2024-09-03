@@ -8,12 +8,12 @@ import {
 import * as Form from '@radix-ui/react-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { IconBrandGithub, IconEye, IconEyeClosed } from '@tabler/icons-react';
-import { AuthLayout } from '../layouts/AuthLayout';
-import { getEnvVariables } from '../../helpers/getEnvVariables';
+import { AuthLayout } from '@hearmeout/layouts/AuthLayout';
+import { getEnvVariables } from '@helpers/getEnvVariables';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { signIn } from '../../services/hearMeOutAPI';
-import { HttpStatusCodes } from '../../types/types';
+import { signIn } from '@services/hearMeOutAPI';
+import { HttpStatusCodes } from '@/types/types';
 
 export const SignIn: React.FC = () => {
   const form = useRef<HTMLFormElement>(null);

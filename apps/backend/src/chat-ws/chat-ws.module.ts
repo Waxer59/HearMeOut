@@ -8,6 +8,7 @@ import { FriendRequestsModule } from 'src/friend-requests/friend-requests.module
 import { ConversationsModule } from 'src/conversations/conversations.module';
 import { CachingModule } from 'src/caching/caching.module';
 import { ConfigModule } from '@nestjs/config';
+import { WebrtcModule } from 'src/webrtc/webrtc.module';
 
 @Module({
   providers: [ChatWsGateway, ChatWsService],
@@ -19,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
     FriendRequestsModule,
     ConversationsModule,
     ConfigModule,
+    WebrtcModule,
   ],
 })
 export class ChatWsModule {}

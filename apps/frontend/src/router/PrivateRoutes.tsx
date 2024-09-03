@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAccountStore } from '../store/account';
+import { useAccountStore } from '@store/account';
 
 interface Props {
   children: JSX.Element;

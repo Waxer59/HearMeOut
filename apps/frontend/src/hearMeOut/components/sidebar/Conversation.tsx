@@ -1,11 +1,13 @@
 import { Avatar, Badge, Button, ContextMenu } from '@radix-ui/themes';
-import { getFallbackAvatarName } from '../../helpers';
-import { useAccountStore, useChatStore, useUiStore } from '../../../store';
-import { removeActiveConversation as removeActiveConversationAPI } from '../../../services/hearMeOutAPI';
-import { ConversationTypes } from '../../../store/types/types';
-import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
-import { NotificationIndicator } from '../NotificationIndicator';
+import { removeActiveConversation as removeActiveConversationAPI } from '@services//hearMeOutAPI';
+import { ConversationTypes } from '@store/types/types';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
+import { NotificationIndicator } from '@hearmeout/components/NotificationIndicator';
 import { useEffect, useState } from 'react';
+import { useAccountStore } from '@store/account';
+import { useChatStore } from '@store/chat';
+import { useUiStore } from '@store/ui';
+import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
 
 interface Props {
   id: string;
@@ -36,14 +38,8 @@ export const Conversation: React.FC<Props> = ({
   const [hasNewMessages, setHasNewMessages] = useState(
     account.conversationNotificationIds.includes(id)
   );
-  const currentConversationId = useChatStore(
-    (state) => state.currentConversationId
-  );
   const isInActiveConversationsTab = useUiStore(
     (state) => state.isInActiveConversationsTab
-  );
-  const setShowGroupSettings = useUiStore(
-    (state) => state.setShowGroupSettings
   );
   const setCurrentConversationId = useChatStore(
     (state) => state.setCurrentConversationId
@@ -51,7 +47,6 @@ export const Conversation: React.FC<Props> = ({
   const removeActiveConversation = useChatStore(
     (state) => state.removeActiveConversation
   );
-  const removeConversation = useChatStore((state) => state.removeConversation);
   const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
 
   useEffect(() => {
@@ -69,20 +64,14 @@ export const Conversation: React.FC<Props> = ({
   };
 
   const handleExitConversation = async () => {
-    if (currentConversationId === id) {
-      setCurrentConversationId(null);
-    }
-
     switch (type) {
       case ConversationTypes.group:
         sendExitGroup(id);
-        setShowGroupSettings(false);
         break;
       case ConversationTypes.chat:
         sendRemoveConversation(id);
         break;
     }
-    removeConversation(id);
   };
 
   return (

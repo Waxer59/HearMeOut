@@ -1,8 +1,8 @@
 import { Button, Heading, TextField, Tooltip } from '@radix-ui/themes';
 import { IconSearch, IconX } from '@tabler/icons-react';
-import { Options } from '..';
-import { useUiStore } from '../../../store';
-import type { InputEvent } from '../../../types/types';
+import type { InputEvent } from '@/types/types';
+import { useUiStore } from '@store/ui';
+import { Options } from './Options';
 
 export const Header: React.FC = () => {
   const setChatQueryFilter = useUiStore((state) => state.setChatQueryFilter);

@@ -7,10 +7,12 @@ import { Conversation } from '@prisma/client';
 import { PrismaService } from 'src/common/db/prisma.service';
 import { CONVERSATION_TYPE } from 'src/common/types/types';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { UpdateGroupDTO, CreateGroupDto, CreateChatDto } from './dto';
 import { UsersService } from 'src/users/users.service';
 import { nanoid } from 'nanoid';
 import { JOIN_CODE_LENGTH } from 'src/common/constants/constants';
+import { CreateChatDto } from './dto/create-chat.dto';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDTO } from './dto/update-group.dto';
 
 @Injectable()
 export class ConversationsService {
@@ -43,14 +45,7 @@ export class ConversationsService {
           type: CONVERSATION_TYPE.group,
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -91,14 +86,7 @@ export class ConversationsService {
           },
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -133,14 +121,7 @@ export class ConversationsService {
           type: CONVERSATION_TYPE.chat,
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -262,14 +243,7 @@ export class ConversationsService {
           id,
         },
         include: {
-          users: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-              isOnline: true,
-            },
-          },
+          users: true,
         },
       });
     } catch (error) {
@@ -378,7 +352,7 @@ export class ConversationsService {
 
     if (joinCode) {
       await this.generateJoinCode(id);
-    } else {
+    } else if (joinCode !== undefined) {
       await this.removeJoinCode(id);
     }
 
@@ -441,14 +415,18 @@ export class ConversationsService {
   }
 
   async remove(id: string): Promise<Conversation> {
-    let deletedConversation;
+    let deletedConversation: Conversation;
     try {
       deletedConversation = await this.prisma.conversation.delete({
+        omit: {
+          icon_public_id: false,
+        },
         where: {
           id,
         },
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );

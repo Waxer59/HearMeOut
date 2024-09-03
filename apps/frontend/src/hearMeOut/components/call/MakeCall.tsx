@@ -1,5 +1,5 @@
 import { IconPhoneOff } from '@tabler/icons-react';
-import { CallLayout } from '../../layouts/CallLayout';
+import { CallLayout } from '@hearmeout/layouts/CallLayout';
 import { Button } from '@radix-ui/themes';
 
 export const MakeCall: React.FC = () => {

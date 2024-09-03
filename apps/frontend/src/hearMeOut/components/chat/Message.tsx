@@ -5,14 +5,14 @@ import {
   DropdownMenu,
   TextFieldInput
 } from '@radix-ui/themes';
-import { getFallbackAvatarName } from '../../helpers';
 import { IconChevronDown } from '@tabler/icons-react';
 import { useState, useRef, useEffect } from 'react';
-import { MessageMenu } from '../';
-import { useSocketChatEvents } from '../../hooks/useSocketChatEvents';
+import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
 import { toast } from 'sonner';
-import type { MessageDetails } from '../../../store/types/types';
-import { useChatStore } from '../../../store';
+import type { MessageDetails } from '@store/types/types';
+import { useChatStore } from '@store/chat';
+import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
+import { MessageMenu } from '@hearmeout/components/chat/MessageMenu';
 
 interface Props {
   message: MessageDetails;

@@ -9,6 +9,11 @@ export interface AccountDetails {
   activeConversationIds: string[];
 }
 
+export interface CallConsumerDetails {
+  user: AccountDetails;
+  mediaStream: MediaStream;
+}
+
 export interface SettingsDetails {
   theme: ThemeEnum;
 }

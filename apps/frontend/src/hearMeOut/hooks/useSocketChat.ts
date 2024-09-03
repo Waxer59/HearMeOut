@@ -1,24 +1,28 @@
 import { useCallback, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { getEnvVariables } from '../../helpers/getEnvVariables';
-import { useAccountStore, useChatStore } from '../../store';
-import { addActiveConversation as addActiveConversationAPI } from '../../services/hearMeOutAPI';
+import { getEnvVariables } from '@helpers/getEnvVariables';
+import { addActiveConversation as addActiveConversationAPI } from '@services/hearMeOutAPI';
 import { CHAT_EVENTS } from 'ws-types';
 import {
+  LOCAL_STORAGE_ITEMS,
   type DeleteMessageDetails,
   type RemoveFriendRequestDetails,
   type UpdateMessageDetails
-} from '../../types/types';
+} from '@/types/types';
 import type {
   ConversationDetails,
   FriendRequestDetails,
   MessageDetails,
   UserTyping
-} from '../../store/types/types';
+} from '@store/types/types';
+import { useChatStore } from '@store/chat';
+import { useAccountStore } from '@store/account';
+import { toast } from 'sonner';
+import { useLocalStorage } from './useLocalStorage';
+import { useCallStore } from '@/store/call';
 
 export const useSocketChat = () => {
   const {
-    currentConversationId,
     socket,
     addActiveConversation,
     addConversation,
@@ -31,10 +35,10 @@ export const useSocketChat = () => {
     removeConversation,
     removeUserTyping,
     setConversationIsOnline,
-    setCurrentConversationId,
     updateConversation,
     setSocket
   } = useChatStore((state) => state);
+  const { setLocalStorageItem } = useLocalStorage();
   const {
     account,
     addFriendRequest,
@@ -54,6 +58,8 @@ export const useSocketChat = () => {
     });
     setSocket(socketTmp);
   }, []);
+
+  const peerConnection = useCallStore((state) => state.peerConnection);
 
   const disconnectSocketChat = useCallback(() => {
     socket?.disconnect();
@@ -106,6 +112,7 @@ export const useSocketChat = () => {
       async (conversation: ConversationDetails) => {
         addConversation(conversation);
         addActiveConversation(conversation.id);
+        toast.info(`New conversation: ${conversation.name}`);
       }
     );
 
@@ -122,10 +129,6 @@ export const useSocketChat = () => {
     );
 
     socket.on(CHAT_EVENTS.removeConversation, (id: string) => {
-      if (currentConversationId === id) {
-        setCurrentConversationId(null);
-      }
-
       removeConversation(id);
     });
 
@@ -139,11 +142,6 @@ export const useSocketChat = () => {
         addFriendRequestOutgoing(friendRequest);
       }
     );
-
-    socket.on(CHAT_EVENTS.createGroup, (group: ConversationDetails) => {
-      addConversation(group);
-      addActiveConversation(group.id);
-    });
 
     socket.on(
       CHAT_EVENTS.removeFriendRequest,
@@ -163,6 +161,11 @@ export const useSocketChat = () => {
       }
     );
 
+    socket.on(CHAT_EVENTS.deleteAccount, () => {
+      setLocalStorageItem(LOCAL_STORAGE_ITEMS.isAuth, false);
+      window.location.reload();
+    });
+
     socket.on(
       CHAT_EVENTS.updateMessage,
       ({ content, conversationId, messageId }: UpdateMessageDetails) => {
@@ -170,7 +173,7 @@ export const useSocketChat = () => {
       }
     );
 
-    socket.on(CHAT_EVENTS.notification, ({ id }) => {
+    socket.on(CHAT_EVENTS.notification, ({ id }: { id: string }) => {
       addConversationNotification(id);
     });
 
@@ -178,6 +181,29 @@ export const useSocketChat = () => {
       socket.removeAllListeners();
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on(CHAT_EVENTS.answer, (answer: string) => {
+      const parsedAnswer = JSON.parse(answer);
+      peerConnection?.setRemoteDescription(
+        new RTCSessionDescription(parsedAnswer)
+      );
+    });
+
+    socket.on(CHAT_EVENTS.offer, (offer: RTCSessionDescriptionInit) => {
+      peerConnection?.setRemoteDescription(offer);
+    });
+
+    socket.on(CHAT_EVENTS.candidate, (candidate: RTCIceCandidateInit) => {
+      peerConnection?.addIceCandidate(candidate);
+    });
+
+    return () => {
+      socket.removeAllListeners();
+    };
+  }, [socket, peerConnection]);
 
   return {
     connectSocketChat,

@@ -6,10 +6,11 @@ import {
 import { PrismaService } from 'src/common/db/prisma.service';
 import { User } from '@prisma/client';
 import { generateHash } from 'src/common/helpers/bcrypt';
-import { CreateUserDto, UpdateUserDto } from './dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { base64File } from 'src/common/helpers/base64File';
 import { CONVERSATION_TYPE, UserWithRelations } from 'src/common/types/types';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -50,6 +51,15 @@ export class UsersService {
   async findOneByUsername(username: string): Promise<User> {
     try {
       return await this.prisma.user.findFirst({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
         where: {
           username: {
             equals: username,
@@ -66,7 +76,18 @@ export class UsersService {
 
   async findOneByGithubId(githubId: string): Promise<User> {
     try {
-      return await this.prisma.user.findFirst({ where: { githubId } });
+      return await this.prisma.user.findFirst({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
+        where: { githubId },
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
@@ -76,59 +97,52 @@ export class UsersService {
 
   async findOneById(id: string): Promise<UserWithRelations> {
     try {
-      return (await this.prisma.user.findFirst({
+      const user = (await this.prisma.user.findFirst({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
         where: { id },
         include: {
-          configuration: {
-            select: {
-              theme: true,
-            },
-          },
+          configuration: true,
           conversations: {
-            select: {
-              id: true,
-              creatorId: true,
-              adminIds: true,
-              name: true,
-              type: true,
-              icon: true,
-              joinCode: true,
-              users: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatar: true,
-                  isOnline: true,
-                },
-              },
+            include: {
+              users: true,
             },
           },
           friendReqFroms: {
             include: {
-              to: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatar: true,
-                  isOnline: true,
-                },
-              },
+              to: true,
             },
           },
           friendReqTos: {
             include: {
-              from: {
-                select: {
-                  id: true,
-                  username: true,
-                  avatar: true,
-                  isOnline: true,
-                },
-              },
+              from: true,
             },
           },
         },
       })) as unknown as UserWithRelations;
+
+      // Post-process to omit the requesting user from the conversations users
+      // if the conversation is of the chat type
+      if (user && user.conversations) {
+        user.conversations = user.conversations.map((conversation) => {
+          if (conversation.type === CONVERSATION_TYPE.chat) {
+            conversation.users = conversation.users.filter(
+              (user) => user.id !== id,
+            );
+          }
+
+          return conversation;
+        });
+      }
+
+      return user;
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException(
@@ -161,6 +175,13 @@ export class UsersService {
       });
     }
 
+    if (updateUserDto.username) {
+      const findUser = await this.findOneByUsername(updateUserDto.username);
+      if (findUser) {
+        throw new BadRequestException('Username already exists');
+      }
+    }
+
     try {
       return await this.prisma.user.update({
         where: { id },
@@ -175,7 +196,18 @@ export class UsersService {
 
   async remove(id: string): Promise<User> {
     try {
-      const user = await this.prisma.user.delete({ where: { id } });
+      const user = await this.prisma.user.delete({
+        omit: {
+          password: false,
+          githubId: false,
+          activeConversationIds: false,
+          adminConversationIds: false,
+          avatar_public_id: false,
+          conversationIds: false,
+          conversationNotificationIds: false,
+        },
+        where: { id },
+      });
 
       // If the image is uploaded to cloudinary, delete it
       if (user.avatar_public_id) {
@@ -183,6 +215,7 @@ export class UsersService {
       }
       return user;
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -201,8 +234,12 @@ export class UsersService {
     });
 
     try {
-      const updatedUsers = users.map((user) =>
-        this.prisma.user.update({
+      const updatedUsers = users.map((user) => {
+        if (!user.activeConversationIds) {
+          return;
+        }
+
+        return this.prisma.user.update({
           where: { id: user.id },
           data: {
             activeConversationIds: {
@@ -212,10 +249,11 @@ export class UsersService {
               ),
             },
           },
-        }),
-      );
+        });
+      });
       await Promise.all(updatedUsers);
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -246,8 +284,12 @@ export class UsersService {
     const users =
       await this.getConversationNotificationFromAllUsers(conversationId);
     try {
-      const updatedUsers = users.map((user) =>
-        this.prisma.user.update({
+      const updatedUsers = users.map((user) => {
+        if (!user.conversationNotificationIds) {
+          return;
+        }
+
+        return this.prisma.user.update({
           where: { id: user.id },
           data: {
             conversationNotificationIds: {
@@ -256,10 +298,11 @@ export class UsersService {
               ),
             },
           },
-        }),
-      );
+        });
+      });
       await Promise.all(updatedUsers);
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException(
         'Something went wrong, please try again later',
       );
@@ -270,6 +313,14 @@ export class UsersService {
     userId: string,
     conversationId: string,
   ): Promise<User> {
+    const user = await this.findOneById(userId);
+    const hasAlreadyBeenNotified =
+      user.conversationNotificationIds.includes(conversationId);
+
+    if (hasAlreadyBeenNotified) {
+      return user;
+    }
+
     try {
       return await this.prisma.user.update({
         where: {
@@ -348,11 +399,6 @@ export class UsersService {
               in: excludeUsersIds,
             },
           },
-        },
-        select: {
-          id: true,
-          username: true,
-          avatar: true,
         },
       });
     } catch (error) {

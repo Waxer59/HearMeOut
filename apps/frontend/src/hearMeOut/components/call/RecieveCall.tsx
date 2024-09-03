@@ -1,6 +1,6 @@
 import { Button } from '@radix-ui/themes';
 import { IconPhone, IconPhoneOff } from '@tabler/icons-react';
-import { CallLayout } from '../../layouts/CallLayout';
+import { CallLayout } from '@hearmeout/layouts/CallLayout';
 
 export const RecieveCall: React.FC = () => {
   return (

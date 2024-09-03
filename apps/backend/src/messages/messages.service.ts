@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/common/db/prisma.service';
-import { CreateMessageDto } from './dto';
 import { Message } from '@prisma/client';
 import { MessageWithRelations } from 'src/common/types/types';
+import { CreateMessageDto } from './dto/create-message.dto';
 
 @Injectable()
 export class MessagesService {
@@ -138,13 +138,7 @@ export class MessagesService {
           conversationId,
         },
         include: {
-          from: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-            },
-          },
+          from: true,
         },
       });
     } catch (error) {
