@@ -517,4 +517,8 @@ export class ChatWsService {
       candidate,
     );
   }
+
+  async endCall(conversationId: string, peerId: string): Promise<void> {
+    await this.webRtcService.endCall(conversationId, peerId);
+  }
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
-import { CachingService } from 'src/caching/caching.service';
 import {
   RTCPeerConnection,
   RTCIceCandidate,
@@ -20,9 +19,6 @@ const servers = {
 @Injectable()
 export class WebrtcService {
   private peers: { [key: string]: RTCPeerConnection } = {};
-  private peerTracks = {};
-
-  constructor(private readonly cachingService: CachingService) {}
 
   async addPeerToConversation(
     conversationId: string,
@@ -30,45 +26,37 @@ export class WebrtcService {
     offer: RTCSessionDescription,
     server: Server,
   ): Promise<RTCSessionDescription> {
-    // const peers = await this.getConversationPeers(conversationId);
-    const peers = this.peers[conversationId];
+    const peers = await this.getConversationPeers(conversationId);
     const peerConnection = new RTCPeerConnection(servers);
-
-    if (!peers) {
-      this.peers[conversationId] = {};
-    }
-
-    this.peers[conversationId][peerId] = peerConnection;
+    await this.savePeer(conversationId, peerId, peerConnection);
 
     peerConnection.ontrack = (event) => {
       const [remoteStream] = event.streams;
       const tracks = remoteStream.getTracks();
-      const peers = this.peers[conversationId];
 
-      if (!this.peerTracks[conversationId]) {
-        this.peerTracks[conversationId] = {};
+      if (!peers) {
+        return;
       }
-
-      // Save the new tracks for the peer
-      this.peerTracks[conversationId][peerId] = tracks;
-      const conversationTracks = this.peerTracks[conversationId];
 
       Object.keys(peers).forEach((userId) => {
         const peer = peers[userId];
 
-        // If the peer is the new peer (peerId), add all tracks of other peers
+        // If the peer is the new peer, add all tracks of other peers
         if (userId === peerId) {
-          Object.keys(conversationTracks).forEach((otherPeerId) => {
+          Object.keys(peers).forEach(async (otherPeerId) => {
+            const otherPeer = peers[otherPeerId];
+            const peerTracks = otherPeer
+              .getReceivers()
+              .map((sender) => sender.track);
+
             if (otherPeerId !== peerId) {
-              // Excluir las pistas propias
-              const otherPeerTracks = conversationTracks[otherPeerId];
-              otherPeerTracks.forEach((track) => {
+              peerTracks.forEach((track) => {
                 peer.addTrack(track, remoteStream);
               });
             }
           });
         } else {
-          // If the peer is not the new peer (peerId), add the tracks of the new peer (peerId)
+          // If the peer is not the new peer, add the tracks of the new peer
           tracks.forEach((track) => {
             if (!peer.getSenders().some((sender) => sender.track === track)) {
               peer.addTrack(track, remoteStream);
@@ -94,18 +82,11 @@ export class WebrtcService {
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
 
-    // const peerState = {
-    //   remoteDescription: offer,
-    //   localDescription: answer,
-    //   // Track ICE candidates
-    //   iceCandidates: [],
-    // };
-
     return answer;
   }
 
   async endCall(conversationId: string, peerId: string): Promise<void> {
-    const peer = this.peers[conversationId]?.[peerId];
+    const peer = await this.getConversationPeer(conversationId, peerId);
 
     if (peer) {
       // Remove all local tracks
@@ -118,15 +99,7 @@ export class WebrtcService {
       peer.close();
 
       // Remove peer from conversation
-      delete this.peers[conversationId][peerId];
-    }
-
-    // If there are no more peers in the conversation
-    if (
-      this.peers[conversationId] &&
-      Object.keys(this.peers[conversationId]).length === 0
-    ) {
-      delete this.peers[conversationId];
+      await this.removePeer(conversationId, peerId);
     }
   }
 
@@ -135,8 +108,7 @@ export class WebrtcService {
     peerId: string,
     candidate: RTCIceCandidate,
   ): Promise<void> {
-    // const peers = await this.getConversationPeers(conversationId);
-    const peer = this.peers[conversationId][peerId];
+    const peer = await this.getConversationPeer(conversationId, peerId);
 
     if (peer) {
       await peer.addIceCandidate(candidate);
@@ -147,32 +119,53 @@ export class WebrtcService {
     conversationId: string,
     peerId: string,
   ): Promise<RTCPeerConnection | null> {
-    const peerState = this.peers[conversationId][peerId];
-    if (!peerState) {
-      return null;
+    const peer = this.peers[conversationId]?.[peerId];
+
+    return peer;
+  }
+
+  async savePeer(
+    conversationId: string,
+    peerId: string,
+    peer: RTCPeerConnection,
+  ): Promise<void> {
+    if (!this.peers[conversationId]) {
+      this.peers[conversationId] = {};
     }
-    const peerConnection = new RTCPeerConnection(servers);
 
-    await peerConnection.setRemoteDescription(peerState.remoteDescription);
-    await peerConnection.setLocalDescription(peerState.localDescription);
+    this.peers[conversationId][peerId] = peer;
+  }
 
-    // Add ICE candidates
-    peerState.iceCandidates.forEach((candidate) => {
-      peerConnection.addIceCandidate(candidate);
-    });
+  async removePeer(
+    conversationId: string,
+    peerId: string,
+  ): Promise<RTCPeerConnection> {
+    const peersInConversation = await this.getConversationPeers(conversationId);
+    const peer = this.peers[conversationId][peerId];
 
-    return peerConnection;
+    // If there are no more peers in the conversation then remove the conversation
+    if (peersInConversation.length === 0) {
+      await this.removeConversationPeers(conversationId);
+    } else {
+      delete this.peers[conversationId][peerId];
+    }
+
+    return peer;
   }
 
   async getConversationPeers(
     conversationId: string,
+  ): Promise<RTCPeerConnection[]> {
+    const peers = this.peers[conversationId];
+
+    return peers;
+  }
+
+  async removeConversationPeers(
+    conversationId: string,
   ): Promise<{ [key: string]: RTCPeerConnection }> {
-    // const peersRaw = await this.cachingService.getCacheKey(
-    //   CACHE_PREFIXES.webrtcPeers + conversationId,
-    // );
-
-    // const peers: { [key: string]: RTCPeerConnection } = {};
-
-    return this.peers[conversationId];
+    const peers = this.peers[conversationId];
+    delete this.peers[conversationId];
+    return peers;
   }
 }

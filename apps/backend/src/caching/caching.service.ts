@@ -5,10 +5,10 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 @Injectable()
 export class CachingService implements OnApplicationBootstrap {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
-  async getCacheKey(key: string): Promise<unknown> {
+  async getCacheKey<T>(key: string): Promise<T | null> {
     try {
       const value = await this.cacheManager.get(key);
-      return value;
+      return value as T;
     } catch (error) {
       return null;
     }
