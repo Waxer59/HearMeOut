@@ -18,6 +18,7 @@ export class WsExceptionFilterFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       // handle http exception
     } else {
+      console.log(exception);
       // handle websocket exception
       client.disconnect();
     }

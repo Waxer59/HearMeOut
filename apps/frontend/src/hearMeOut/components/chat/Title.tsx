@@ -125,7 +125,6 @@ export const Title: React.FC<Props> = ({
 
     // emitCallingSound();
     setCallingId(currentConversationId);
-
     sendOffer(currentConversationId, JSON.stringify(offer));
   };
 
