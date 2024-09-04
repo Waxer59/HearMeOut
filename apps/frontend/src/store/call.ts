@@ -7,33 +7,35 @@ const initialState: State = {
   peerConnection: null,
   callConsumersIds: [],
   mutedUsers: [],
+  incommingCallsIds: [],
   callingConversation: null,
   isSignaling: false,
-  isRecevingCall: false,
   isCallinProgress: false
 };
 
 interface State {
   localStream: MediaStream | null;
   peerConnection: RTCPeerConnection | null;
+  incommingCallsIds: string[];
   mutedUsers: string[];
   callConsumersIds: string[];
   callingConversation: ConversationDetails | null;
   isSignaling: boolean;
-  isRecevingCall: boolean;
   isCallinProgress: boolean;
 }
 
 interface Actions {
   setLocalStream: (stream: MediaStream) => void;
   addMutedUser: (userId: string) => void;
+  removeIncommingCallId: (callId: string) => void;
+  addIncommingCallId: (callId: string) => void;
+  setIncommingCallsIds: (incommingCallsIds: string[]) => void;
   removeMutedUser: (userId: string) => void;
   setCallConsumersIds: (callConsumersIds: string[]) => void;
   addCallConsumerId: (callConsumerId: string) => void;
   removeCallConsumerId: (userId: string) => void;
   setPeerConnection: (peerConnection: RTCPeerConnection) => void;
   setCallingConversation: (callingConversation: ConversationDetails) => void;
-  setIsReceivingCall: (isRecevingCall: boolean) => void;
   setIsCallinProgress: (isCallinProgress: boolean) => void;
   setIsSignaling: (isSignaling: boolean) => void;
   clear: () => void;
@@ -44,9 +46,17 @@ export const useCallStore = create<State & Actions>()(
     ...initialState,
     setLocalStream: (stream) => set({ localStream: stream }),
     setIsSignaling: (isSignaling) => set({ isSignaling }),
-    setIsReceivingCall: (isRecevingCall) => set({ isRecevingCall }),
+    setIncommingCallsIds: (incommingCallsIds) => set({ incommingCallsIds }),
+    addIncommingCallId: (userId) =>
+      set((state) => ({
+        incommingCallsIds: [...state.incommingCallsIds, userId]
+      })),
+    removeIncommingCallId: (userId) =>
+      set((state) => ({
+        incommingCallsIds: state.incommingCallsIds.filter((id) => id !== userId)
+      })),
     setIsCallinProgress: (isCallinProgress) =>
-      set({ isCallinProgress, isRecevingCall: false, isSignaling: false }),
+      set({ isCallinProgress, isSignaling: false }),
     setCallConsumersIds: (callConsumersIds) => set({ callConsumersIds }),
     addCallConsumerId: (callConsumerId) =>
       set((state) => ({

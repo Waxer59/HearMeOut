@@ -13,21 +13,46 @@ interface Props {
 
 export const RecieveCall: React.FC<Props> = ({ callingConversation }) => {
   const { getAvatar, getName } = useConversation(callingConversation.id);
-  const { sendUserLeftCall } = useSocketChatEvents();
-  const clearCallStore = useCallStore((state) => state.clear);
+  const { sendDeclineCall } = useSocketChatEvents();
   const setIsCallinProgress = useCallStore(
     (state) => state.setIsCallinProgress
+  );
+  const incommingCallsIds = useCallStore((state) => state.incommingCallsIds);
+  const setCallingConversation = useCallStore(
+    (state) => state.setCallingConversation
+  );
+  const setIncommingCallsIds = useCallStore(
+    (state) => state.setIncommingCallsIds
+  );
+  const removeIncommingCallId = useCallStore(
+    (state) => state.removeIncommingCallId
   );
   const { createPeerConnection } = useWebRTC();
 
   const handleAcceptCall = () => {
+    // Decline all incoming calls
+    incommingCallsIds.forEach((callId) => {
+      if (callId === callingConversation.id) return;
+      sendDeclineCall(callId);
+    });
+
+    // Remove all incoming calls
+    setIncommingCallsIds([]);
     setIsCallinProgress(true);
+    setCallingConversation(callingConversation);
+    removeIncommingCallId(callingConversation.id);
     createPeerConnection(callingConversation);
   };
 
   const handleEndCall = () => {
-    sendUserLeftCall(callingConversation.id);
-    clearCallStore();
+    sendDeclineCall(callingConversation.id);
+    removeIncommingCallId(callingConversation.id);
+
+    // If the are not more incoming calls
+    // then setIsRecevingCall to false
+    if (incommingCallsIds.length === 0) {
+      setIsCallinProgress(false);
+    }
   };
 
   return (

@@ -62,11 +62,14 @@ export const useSocketChat = () => {
   const conversations = useChatStore((state) => state.conversations);
 
   const peerConnection = useCallStore((state) => state.peerConnection);
-  const addMuteUser = useCallStore((state) => state.addMutedUser);
-  const setCallingConversation = useCallStore(
-    (state) => state.setCallingConversation
+  const callingConversation = useCallStore(
+    (state) => state.callingConversation
   );
-  const setIsReceivingCall = useCallStore((state) => state.setIsReceivingCall);
+  const removeIncommingCallId = useCallStore(
+    (state) => state.removeIncommingCallId
+  );
+  const addMuteUser = useCallStore((state) => state.addMutedUser);
+  const addIncomingCallId = useCallStore((state) => state.addIncommingCallId);
   const removeMuteUser = useCallStore((state) => state.removeMutedUser);
   const setCallConsumersIds = useCallStore(
     (state) => state.setCallConsumersIds
@@ -229,13 +232,14 @@ export const useSocketChat = () => {
       );
 
       if (callingConversation) {
-        setCallingConversation(callingConversation);
-        setIsReceivingCall(true);
+        addIncomingCallId(conversationId);
       }
     });
 
     socket.on(CHAT_EVENTS.usersInCall, ({ users }: { users: string[] }) => {
-      if (users.length > 1) {
+      const isInCall = users.includes(ownUserId);
+
+      if (users.length > 1 && isInCall) {
         setIsCallInProgress(true);
       }
 
@@ -245,14 +249,18 @@ export const useSocketChat = () => {
       setCallConsumersIds(users);
     });
 
-    socket.on(CHAT_EVENTS.endCall, () => {
-      clearCallStore();
+    socket.on(CHAT_EVENTS.endCall, (conversationId: string) => {
+      if (callingConversation?.id === conversationId) {
+        clearCallStore();
+      } else {
+        removeIncommingCallId(conversationId);
+      }
     });
 
     return () => {
       socket.removeAllListeners();
     };
-  }, [socket, peerConnection]);
+  }, [socket, peerConnection, callingConversation]);
 
   return {
     connectSocketChat,

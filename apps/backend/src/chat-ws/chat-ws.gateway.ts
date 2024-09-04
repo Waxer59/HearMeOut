@@ -71,6 +71,11 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return await this.chatWsService.typing(typingDto, client, userId);
   }
 
+  @SubscribeMessage(CHAT_EVENTS.declineCall)
+  async declineCall(@MessageBody() conversationId: string) {
+    return await this.chatWsService.declineCall(conversationId, this.server);
+  }
+
   @SubscribeMessage(CHAT_EVENTS.typingOff)
   async typingOff(
     @MessageBody() typingDto: TypingDto,
@@ -255,7 +260,11 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return await this.chatWsService.leftCall(conversationId, userId, client);
+    return await this.chatWsService.leftCall(
+      conversationId,
+      userId,
+      this.server,
+    );
   }
 
   @SubscribeMessage(CHAT_EVENTS.muteUser)

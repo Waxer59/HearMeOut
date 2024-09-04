@@ -95,7 +95,12 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.unmuteUser, conversationId);
   };
 
+  const sendDeclineCall = (conversationId: string) => {
+    socket?.emit(CHAT_EVENTS.declineCall, conversationId);
+  };
+
   return {
+    sendDeclineCall,
     sendMuteUser,
     sendUnmuteUser,
     sendUserLeftCall,

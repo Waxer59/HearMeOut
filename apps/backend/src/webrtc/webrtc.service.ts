@@ -162,15 +162,9 @@ export class WebrtcService {
     conversationId: string,
     peerId: string,
   ): Promise<RTCPeerConnection> {
-    const peersInConversation = await this.getConversationPeers(conversationId);
     const peer = this.peers[conversationId][peerId];
 
-    // If there are no more peers in the conversation then remove the conversation
-    if (peersInConversation.length === 0) {
-      await this.removeConversationPeers(conversationId);
-    } else {
-      delete this.peers[conversationId][peerId];
-    }
+    delete this.peers[conversationId][peerId];
 
     return peer;
   }

@@ -549,7 +549,7 @@ export class ChatWsService {
   async leftCall(
     conversationId: string,
     peerId: string,
-    client: Socket,
+    server: Server,
   ): Promise<void> {
     // Remove peer from conversation
     await this.webRtcService.endPeerCall(conversationId, peerId);
@@ -565,9 +565,10 @@ export class ChatWsService {
     const peersIds = Object.keys(conversationPeers);
 
     if (peersIds.length <= 1) {
-      client.to(conversationId).emit(CHAT_EVENTS.endCall);
+      server.to(conversationId).emit(CHAT_EVENTS.endCall, conversationId);
+      await this.webRtcService.removeConversationPeers(conversationId);
     } else {
-      client.to(conversationId).to(peerId).emit(CHAT_EVENTS.usersInCall, {
+      server.to(conversationId).emit(CHAT_EVENTS.usersInCall, {
         users: peersIds,
       });
     }
@@ -589,5 +590,16 @@ export class ChatWsService {
   ): Promise<void> {
     // Notify users that the user is muted
     client.to(conversationId).emit(CHAT_EVENTS.muteUser, userId);
+  }
+
+  async declineCall(conversationId: string, server: Server): Promise<void> {
+    const conversation =
+      await this.conversationsService.findById(conversationId);
+    const isChatConversation = conversation.type === CONVERSATION_TYPE.chat;
+
+    if (isChatConversation) {
+      server.to(conversationId).emit(CHAT_EVENTS.endCall, conversationId);
+      await this.webRtcService.removeConversationPeers(conversationId);
+    }
   }
 }

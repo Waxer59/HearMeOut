@@ -8,24 +8,28 @@ import { useRef, useEffect } from 'react';
 import { CallInProgress } from './CallInProgress';
 import { RecieveCall } from './RecieveCall';
 import { MakeCall } from './MakeCall';
+import { useSocketChatEvents } from '@/hearMeOut/hooks/useSocketChatEvents';
+import { useChatStore } from '@/store/chat';
 
 export const Calling = () => {
   const { playAudio, stopAudio, isAudioPlaying } = useAudio({
     data: '/sounds/calling.mp3'
   });
+  const { sendUserLeftCall } = useSocketChatEvents();
+  const conversations = useChatStore((state) => state.conversations);
   const callingConversation = useCallStore(
     (state) => state.callingConversation
   );
+  const incommingCallsIds = useCallStore((state) => state.incommingCallsIds);
   const isSignaling = useCallStore((state) => state.isSignaling);
   const isCallinProgress = useCallStore((state) => state.isCallinProgress);
-  const isRecevingCall = useCallStore((state) => state.isRecevingCall);
   const callIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isSignaling || !isRecevingCall) {
+    if (!isSignaling || incommingCallsIds.length === 0) {
       clearCallingSound();
     }
-  }, [isSignaling, isRecevingCall]);
+  }, [isSignaling, incommingCallsIds]);
 
   useEffect(() => {
     if (isCallinProgress) {
@@ -34,14 +38,14 @@ export const Calling = () => {
   }, [isCallinProgress]);
 
   useEffect(() => {
-    if (isSignaling || isRecevingCall) {
+    if (isSignaling || incommingCallsIds.length > 0) {
       if (isAudioPlaying) {
         clearCallingSound();
       }
 
       emitCallingSound();
     }
-  }, [isSignaling, isRecevingCall]);
+  }, [isSignaling, incommingCallsIds]);
 
   const clearCallingSound = () => {
     stopAudio();
@@ -56,6 +60,11 @@ export const Calling = () => {
     callIntervalRef.current = setInterval(() => {
       if (CALLING_TONES === currentCallingTones) {
         clearInterval(callIntervalRef.current!);
+
+        if (!isCallinProgress) {
+          sendUserLeftCall(callingConversation!.id);
+        }
+
         callIntervalRef.current = null;
         return;
       }
@@ -64,11 +73,13 @@ export const Calling = () => {
       playAudio();
     }, CALLING_TONES_TIME_INTERVAL);
   };
+
   return (
     <>
-      {isRecevingCall && callingConversation && (
-        <RecieveCall callingConversation={callingConversation} />
-      )}
+      {incommingCallsIds.map((callId) => {
+        const conversation = conversations.find((c) => c.id === callId)!;
+        return <RecieveCall callingConversation={conversation} key={callId} />;
+      })}
       {isSignaling && callingConversation && (
         <MakeCall callingConversation={callingConversation} />
       )}

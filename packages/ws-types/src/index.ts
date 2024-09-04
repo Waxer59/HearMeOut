@@ -27,5 +27,6 @@ export enum CHAT_EVENTS {
   usersInCall = 'usersInCall',
   muteUser = 'muteUser',
   unmuteUser = 'unmuteUser',
-  endCall = 'endCall'
+  endCall = 'endCall',
+  declineCall = 'declineCall'
 }
