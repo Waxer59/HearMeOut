@@ -9,18 +9,43 @@ import { useState } from 'react';
 import { useCallStore } from '@store/call';
 import { useConversation } from '@/hearMeOut/hooks/useConversation';
 import { useSocketChatEvents } from '@/hearMeOut/hooks/useSocketChatEvents';
+import {
+  ConversationTypes,
+  type ConversationDetails
+} from '@/store/types/types';
+import { UserInCall } from './UserInCall';
 
-export const CallInProgress: React.FC = () => {
-  const { sendEndCall } = useSocketChatEvents();
+interface Props {
+  callingConversation: ConversationDetails;
+}
+
+export const CallInProgress: React.FC<Props> = ({ callingConversation }) => {
+  const { sendUserLeftCall, sendMuteUser, sendUnmuteUser } =
+    useSocketChatEvents();
   const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
-  const clear = useCallStore((state) => state.clear);
-  const callingId = useCallStore((state) => state.callingId);
-  const { getAvatar, getName } = useConversation(callingId!);
-  const peerConnection = useCallStore((state) => state.peerConnection);
-  const localStream = useCallStore((state) => state.localStream);
 
-  const handleMuteMicrophone = () => {
+  const { localStream, peerConnection, callConsumersIds, mutedUsers, clear } =
+    useCallStore((state) => state);
+
+  const callingConversationId = callingConversation.id;
+  const { getAvatar, getName } = useConversation(callingConversationId);
+
+  const isChatConversation =
+    callingConversation.type === ConversationTypes.chat;
+
+  // If the conversation is a chat conversation
+  // and one user is muted, then the call is muted
+  const isUserMuted = isChatConversation && mutedUsers.length > 0;
+
+  const toggleMuteMicrophone = () => {
     if (!peerConnection || !localStream) return;
+
+    // Notify server that the user is muted
+    if (isMicrophoneOn) {
+      sendMuteUser(callingConversationId);
+    } else {
+      sendUnmuteUser(callingConversationId);
+    }
 
     // Toogle microphone mute
     localStream.getAudioTracks()[0].enabled = !isMicrophoneOn;
@@ -41,16 +66,16 @@ export const CallInProgress: React.FC = () => {
     clear();
 
     // Notify server that the call is ended
-    sendEndCall(callingId!);
+    sendUserLeftCall(callingConversationId);
   };
 
   return (
-    <CallLayout name={getName()} avatar={getAvatar()}>
+    <CallLayout name={getName()} avatar={getAvatar()} isMuted={isUserMuted}>
       <div className="flex gap-4 items-center">
         <Button
           variant="ghost"
           className="cursor-pointer"
-          onClick={handleMuteMicrophone}>
+          onClick={toggleMuteMicrophone}>
           {isMicrophoneOn ? <IconMicrophone /> : <IconMicrophoneOff />}
         </Button>
         <Button
@@ -61,9 +86,24 @@ export const CallInProgress: React.FC = () => {
           <IconPhoneOff />
         </Button>
       </div>
-      <div className="flex gap-4 items-center w-[200px] max-w-[200px] overflow-auto pb-2">
-        {/* <UserInCall name="Hugo" /> */}
-      </div>
+      <ul className="flex gap-4 items-center w-[200px] max-w-[200px] overflow-auto pb-2">
+        {!isChatConversation &&
+          callConsumersIds.map((consumerId) => {
+            const consumer = callingConversation.users.find(
+              (user) => user.id === consumerId
+            )!;
+            const isMuted = mutedUsers.includes(consumerId);
+
+            return (
+              <UserInCall
+                key={consumer.id}
+                name={consumer.username}
+                avatar={consumer.avatar}
+                isMuted={isMuted}
+              />
+            );
+          })}
+      </ul>
     </CallLayout>
   );
 };

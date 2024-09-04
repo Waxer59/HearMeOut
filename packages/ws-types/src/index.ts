@@ -22,5 +22,10 @@ export enum CHAT_EVENTS {
   offer = 'offer',
   answer = 'answer',
   candidate = 'candidate',
+  calling = 'calling',
+  leftCall = 'leftCall',
+  usersInCall = 'usersInCall',
+  muteUser = 'muteUser',
+  unmuteUser = 'unmuteUser',
   endCall = 'endCall'
 }

@@ -11,7 +11,6 @@ import { ChatView } from '@hearmeout/components/chat/ChatView';
 import { GroupSettings } from '@hearmeout/components/GroupSettings';
 import { Sidebar } from '@hearmeout/components/sidebar/Sidebar';
 import { capitalize } from '@hearmeout/helpers/capitalize';
-import { useCallStore } from '@store/call';
 import { Calling } from '@hearmeout/components/call/Calling';
 import { getConversationName } from '../helpers/getConversationName';
 
@@ -38,7 +37,6 @@ export const Chat: React.FC = () => {
   const removeConversationNotification = useAccountStore(
     (state) => state.removeConversationNotification
   );
-  const isCalling = useCallStore((state) => state.isCalling);
 
   useEffect(() => {
     if (!currentConversationId) {
@@ -115,7 +113,7 @@ export const Chat: React.FC = () => {
         <Sidebar />
         <ChatView />
         {conversation?.type === ConversationTypes.group && <GroupSettings />}
-        {isCalling && <Calling />}
+        <Calling />
       </div>
       <Toaster position="bottom-right" />
     </>

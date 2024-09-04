@@ -59,7 +59,22 @@ export const useSocketChat = () => {
     setSocket(socketTmp);
   }, []);
 
+  const conversations = useChatStore((state) => state.conversations);
+
   const peerConnection = useCallStore((state) => state.peerConnection);
+  const addMuteUser = useCallStore((state) => state.addMutedUser);
+  const setCallingConversation = useCallStore(
+    (state) => state.setCallingConversation
+  );
+  const setIsReceivingCall = useCallStore((state) => state.setIsReceivingCall);
+  const removeMuteUser = useCallStore((state) => state.removeMutedUser);
+  const setCallConsumersIds = useCallStore(
+    (state) => state.setCallConsumersIds
+  );
+  const setIsCallInProgress = useCallStore(
+    (state) => state.setIsCallinProgress
+  );
+  const clearCallStore = useCallStore((state) => state.clear);
 
   const disconnectSocketChat = useCallback(() => {
     socket?.disconnect();
@@ -198,6 +213,40 @@ export const useSocketChat = () => {
 
     socket.on(CHAT_EVENTS.candidate, (candidate: RTCIceCandidateInit) => {
       peerConnection?.addIceCandidate(candidate);
+    });
+
+    socket.on(CHAT_EVENTS.unmuteUser, (userId: string) => {
+      removeMuteUser(userId);
+    });
+
+    socket.on(CHAT_EVENTS.muteUser, (userId: string) => {
+      addMuteUser(userId);
+    });
+
+    socket.on(CHAT_EVENTS.calling, (conversationId: string) => {
+      const callingConversation = conversations.find(
+        (conversation) => conversation.id === conversationId
+      );
+
+      if (callingConversation) {
+        setCallingConversation(callingConversation);
+        setIsReceivingCall(true);
+      }
+    });
+
+    socket.on(CHAT_EVENTS.usersInCall, ({ users }: { users: string[] }) => {
+      if (users.length > 1) {
+        setIsCallInProgress(true);
+      }
+
+      // Remove own id from the list of users
+      users.splice(users.indexOf(ownUserId), 1);
+
+      setCallConsumersIds(users);
+    });
+
+    socket.on(CHAT_EVENTS.endCall, () => {
+      clearCallStore();
     });
 
     return () => {

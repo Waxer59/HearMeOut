@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Server } from 'socket.io';
+import type { Socket } from 'socket.io';
 import {
   RTCPeerConnection,
   RTCIceCandidate,
@@ -24,7 +24,7 @@ export class WebrtcService {
     conversationId: string,
     peerId: string,
     offer: RTCSessionDescription,
-    server: Server,
+    client: Socket,
   ): Promise<RTCSessionDescription> {
     const peers = await this.getConversationPeers(conversationId);
     const peerConnection = new RTCPeerConnection(servers);
@@ -69,12 +69,12 @@ export class WebrtcService {
     peerConnection.onnegotiationneeded = async () => {
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
-      server.to(peerId).emit(CHAT_EVENTS.offer, offer);
+      client.emit(CHAT_EVENTS.offer, offer);
     };
 
     peerConnection.onicecandidate = ({ candidate }) => {
       if (candidate) {
-        server.to(peerId).emit(CHAT_EVENTS.candidate, candidate);
+        client.emit(CHAT_EVENTS.candidate, candidate);
       }
     };
 
@@ -85,7 +85,7 @@ export class WebrtcService {
     return answer;
   }
 
-  async endCall(conversationId: string, peerId: string): Promise<void> {
+  async endPeerCall(conversationId: string, peerId: string): Promise<void> {
     const peer = await this.getConversationPeer(conversationId, peerId);
 
     if (peer) {
@@ -99,7 +99,7 @@ export class WebrtcService {
       peer.close();
 
       // Remove peer from conversation
-      await this.removePeer(conversationId, peerId);
+      await this.removePeerFromConversation(conversationId, peerId);
     }
   }
 
@@ -136,7 +136,29 @@ export class WebrtcService {
     this.peers[conversationId][peerId] = peer;
   }
 
-  async removePeer(
+  async findPeerConversation(peerId: string): Promise<string | null> {
+    const conversationIds = Object.keys(this.peers).filter(
+      (id) => this.peers[id][peerId],
+    );
+
+    if (conversationIds.length === 0) {
+      return null;
+    }
+
+    return conversationIds[0];
+  }
+
+  async removePeer(peerId: string): Promise<void> {
+    const conversationId = await this.findPeerConversation(peerId);
+
+    if (!conversationId) {
+      return;
+    }
+
+    await this.removePeerFromConversation(conversationId, peerId);
+  }
+
+  async removePeerFromConversation(
     conversationId: string,
     peerId: string,
   ): Promise<RTCPeerConnection> {
@@ -155,7 +177,7 @@ export class WebrtcService {
 
   async getConversationPeers(
     conversationId: string,
-  ): Promise<RTCPeerConnection[]> {
+  ): Promise<RTCPeerConnection[] | null> {
     const peers = this.peers[conversationId];
 
     return peers;

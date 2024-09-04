@@ -227,7 +227,7 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       offerObject,
       userId,
       conversationId,
-      this.server,
+      client,
     );
   }
 
@@ -249,13 +249,31 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
-  @SubscribeMessage(CHAT_EVENTS.endCall)
+  @SubscribeMessage(CHAT_EVENTS.leftCall)
   async endCall(
     @MessageBody() conversationId: string,
     @ConnectedSocket() client: Socket,
   ) {
     const { id: userId } = await this.chatWsService.getUserIdAuth(client);
-    return await this.chatWsService.endCall(conversationId, userId);
+    return await this.chatWsService.leftCall(conversationId, userId, client);
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.muteUser)
+  async muteUser(
+    @MessageBody() conversationId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.muteUser(conversationId, userId, client);
+  }
+
+  @SubscribeMessage(CHAT_EVENTS.unmuteUser)
+  async unmuteUser(
+    @MessageBody() conversationId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { id: userId } = await this.chatWsService.getUserIdAuth(client);
+    return await this.chatWsService.unmuteUser(conversationId, userId, client);
   }
 
   async handleConnection(client: Socket) {

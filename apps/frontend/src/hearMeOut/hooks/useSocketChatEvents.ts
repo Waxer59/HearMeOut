@@ -83,12 +83,22 @@ export const useSocketChatEvents = () => {
     socket?.emit(CHAT_EVENTS.candidate, { conversationId, candidate });
   };
 
-  const sendEndCall = (conversationId: string) => {
-    socket?.emit(CHAT_EVENTS.endCall, conversationId);
+  const sendUserLeftCall = (conversationId: string) => {
+    socket?.emit(CHAT_EVENTS.leftCall, conversationId);
+  };
+
+  const sendMuteUser = (conversationId: string) => {
+    socket?.emit(CHAT_EVENTS.muteUser, conversationId);
+  };
+
+  const sendUnmuteUser = (conversationId: string) => {
+    socket?.emit(CHAT_EVENTS.unmuteUser, conversationId);
   };
 
   return {
-    sendEndCall,
+    sendMuteUser,
+    sendUnmuteUser,
+    sendUserLeftCall,
     sendCandidate,
     sendOffer,
     sendMessage,

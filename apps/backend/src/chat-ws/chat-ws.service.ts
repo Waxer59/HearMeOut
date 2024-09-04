@@ -81,7 +81,7 @@ export class ChatWsService {
     client: Socket,
     userId: string,
   ): Promise<void> {
-    client.broadcast
+    client
       .to(typingDto.conversationId)
       .emit(CHAT_EVENTS.typing, { userId, ...typingDto });
   }
@@ -91,7 +91,7 @@ export class ChatWsService {
     client: Socket,
     userId: string,
   ): Promise<void> {
-    client.broadcast
+    client
       .to(typingDto.conversationId)
       .emit(CHAT_EVENTS.typingOff, { userId, ...typingDto });
   }
@@ -485,25 +485,53 @@ export class ChatWsService {
       CACHE_PREFIXES.userActiveChat + id,
     );
 
+    // Remove peer from conversation
+    await this.webRtcService.removePeer(id);
+
     // Notify conversation rooms that the user is offline
-    client.broadcast.to(conversationIds).emit(CHAT_EVENTS.userDisconnect, id);
+    client.to(conversationIds).emit(CHAT_EVENTS.userDisconnect, id);
   }
 
   async offer(
     offer: RTCSessionDescription,
     userId: string,
     conversationId: string,
-    server: Server,
+    client: Socket,
   ): Promise<void> {
+    // A peer can only have one conversation
+    // so if the peer is already in a conversation
+    // then remove the peer from the conversation
+    // and add the peer to the new conversation
+    await this.webRtcService.removePeer(userId);
+
     const answer = await this.webRtcService.addPeerToConversation(
       conversationId,
       userId,
       offer,
-      server,
+      client,
     );
 
     // Give answer to the client
-    server.to(userId).emit(CHAT_EVENTS.answer, JSON.stringify(answer));
+    client.emit(CHAT_EVENTS.answer, JSON.stringify(answer));
+
+    const conversationPeers =
+      await this.webRtcService.getConversationPeers(conversationId);
+    const peersIds = Object.keys(conversationPeers);
+
+    // If the conversation is not created yet
+    // then notify the user that the call is started
+    if (!conversationPeers || peersIds.length <= 1) {
+      client.to(conversationId).emit(CHAT_EVENTS.calling, conversationId);
+    } else {
+      // Emit users ids in the call
+      client.to(conversationId).emit(CHAT_EVENTS.usersInCall, {
+        users: peersIds,
+      });
+
+      client.emit(CHAT_EVENTS.usersInCall, {
+        users: peersIds,
+      });
+    }
   }
 
   async candidate(
@@ -518,7 +546,48 @@ export class ChatWsService {
     );
   }
 
-  async endCall(conversationId: string, peerId: string): Promise<void> {
-    await this.webRtcService.endCall(conversationId, peerId);
+  async leftCall(
+    conversationId: string,
+    peerId: string,
+    client: Socket,
+  ): Promise<void> {
+    // Remove peer from conversation
+    await this.webRtcService.endPeerCall(conversationId, peerId);
+
+    // Notify users the new users in the call
+    const conversationPeers =
+      await this.webRtcService.getConversationPeers(conversationId);
+
+    if (!conversationPeers) {
+      return;
+    }
+
+    const peersIds = Object.keys(conversationPeers);
+
+    if (peersIds.length <= 1) {
+      client.to(conversationId).emit(CHAT_EVENTS.endCall);
+    } else {
+      client.to(conversationId).to(peerId).emit(CHAT_EVENTS.usersInCall, {
+        users: peersIds,
+      });
+    }
+  }
+
+  async unmuteUser(
+    conversationId: string,
+    userId: string,
+    client: Socket,
+  ): Promise<void> {
+    // Notify users that the user is unmuted
+    client.to(conversationId).emit(CHAT_EVENTS.unmuteUser, userId);
+  }
+
+  async muteUser(
+    conversationId: string,
+    userId: string,
+    client: Socket,
+  ): Promise<void> {
+    // Notify users that the user is muted
+    client.to(conversationId).emit(CHAT_EVENTS.muteUser, userId);
   }
 }
