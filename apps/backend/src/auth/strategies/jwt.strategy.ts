@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { Strategy } from 'passport-jwt';
 import { AUTH_COOKIE } from 'src/common/constants/constants';
 import { UsersService } from 'src/users/users.service';
