@@ -1,5 +1,10 @@
 import { Badge, Button, Heading, Tooltip } from '@radix-ui/themes';
-import { IconMenu2, IconPhone, IconUsersGroup } from '@tabler/icons-react';
+import {
+  IconMenu2,
+  IconPhone,
+  IconPhoneOff,
+  IconUsersGroup
+} from '@tabler/icons-react';
 import { ConversationTypes } from '@store/types/types';
 import { useChatStore } from '@store/chat';
 import { useUiStore } from '@store/ui';
@@ -27,18 +32,25 @@ export const Title: React.FC<Props> = ({
   const currentConversation = conversations.find(
     (c) => c.id === currentConversationId
   );
+  const callingConversation = useCallStore(
+    (state) => state.callingConversation
+  );
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const setIsSidebarOpen = useUiStore((state) => state.setIsSidebarOpen);
   const setIsSignaling = useCallStore((state) => state.setIsSignaling);
-  const { createPeerConnection } = useWebRTC();
+  const { createPeerConnection, endPeerConnection } = useWebRTC();
 
   const handleCall = async () => {
     if (!currentConversation) {
       return;
     }
 
-    setIsSignaling(true);
-    createPeerConnection(currentConversation);
+    if (callingConversation) {
+      endPeerConnection();
+    } else {
+      setIsSignaling(true);
+      createPeerConnection(currentConversation);
+    }
   };
 
   const handleShowGroupSettings = () => {
@@ -79,8 +91,12 @@ export const Title: React.FC<Props> = ({
             </Button>
           </Tooltip>
         )}
-        <Button className="cursor-pointer" variant="ghost" onClick={handleCall}>
-          <IconPhone />
+        <Button
+          className="cursor-pointer"
+          variant={callingConversation ? 'soft' : 'ghost'}
+          color={callingConversation ? 'red' : 'gray'}
+          onClick={handleCall}>
+          {callingConversation ? <IconPhoneOff /> : <IconPhone />}
         </Button>
       </div>
     </div>

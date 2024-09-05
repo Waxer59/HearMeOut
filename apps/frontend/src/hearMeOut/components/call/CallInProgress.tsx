@@ -14,17 +14,18 @@ import {
   type ConversationDetails
 } from '@/store/types/types';
 import { UserInCall } from './UserInCall';
+import { useWebRTC } from '@/hearMeOut/hooks/useWebRTC';
 
 interface Props {
   callingConversation: ConversationDetails;
 }
 
 export const CallInProgress: React.FC<Props> = ({ callingConversation }) => {
-  const { sendUserLeftCall, sendMuteUser, sendUnmuteUser } =
-    useSocketChatEvents();
+  const { sendMuteUser, sendUnmuteUser } = useSocketChatEvents();
   const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
+  const { endPeerConnection } = useWebRTC();
 
-  const { localStream, peerConnection, callConsumersIds, mutedUsers, clear } =
+  const { localStream, peerConnection, callConsumersIds, mutedUsers } =
     useCallStore((state) => state);
 
   const callingConversationId = callingConversation.id;
@@ -54,19 +55,7 @@ export const CallInProgress: React.FC<Props> = ({ callingConversation }) => {
   };
 
   const handleEndCall = () => {
-    if (!peerConnection) return;
-
-    // Stop local stream
-    peerConnection.getSenders().forEach((sender) => sender?.track?.stop());
-
-    // Close peer connection
-    peerConnection.close();
-
-    // Clear call store
-    clear();
-
-    // Notify server that the call is ended
-    sendUserLeftCall(callingConversationId);
+    endPeerConnection();
   };
 
   return (
@@ -88,6 +77,7 @@ export const CallInProgress: React.FC<Props> = ({ callingConversation }) => {
       </div>
       <ul className="flex gap-4 items-center w-[200px] max-w-[200px] overflow-auto pb-2">
         {!isChatConversation &&
+          callingConversation &&
           callConsumersIds.map((consumerId) => {
             const consumer = callingConversation.users.find(
               (user) => user.id === consumerId

@@ -155,7 +155,8 @@ export class WebrtcService {
       return;
     }
 
-    await this.removePeerFromConversation(conversationId, peerId);
+    // Delete all tracks of the peer
+    await this.endPeerCall(conversationId, peerId);
   }
 
   async removePeerFromConversation(

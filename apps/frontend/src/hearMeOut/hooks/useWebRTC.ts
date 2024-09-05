@@ -13,13 +13,36 @@ const servers = {
 };
 
 export const useWebRTC = () => {
-  const { sendOffer, sendCandidate } = useSocketChatEvents();
+  const { sendOffer, sendCandidate, sendUserLeftCall } = useSocketChatEvents();
   const localStream = useCallStore((state) => state.localStream);
   const setLocalStream = useCallStore((state) => state.setLocalStream);
   const setPeerConnection = useCallStore((state) => state.setPeerConnection);
   const setCallingConversation = useCallStore(
     (state) => state.setCallingConversation
   );
+  const clear = useCallStore((state) => state.clear);
+  const callingConversation = useCallStore(
+    (state) => state.callingConversation
+  );
+  const peerConnection = useCallStore((state) => state.peerConnection);
+
+  const endPeerConnection = () => {
+    if (!peerConnection || !callingConversation) return;
+
+    const callingConversationId = callingConversation.id;
+
+    // Stop local stream
+    peerConnection.getSenders().forEach((sender) => sender?.track?.stop());
+
+    // Close peer connection
+    peerConnection.close();
+
+    // Clear call store
+    clear();
+
+    // Notify server that the call is ended
+    sendUserLeftCall(callingConversationId);
+  };
 
   const createPeerConnection = async (conversation: ConversationDetails) => {
     const peerConnection = new RTCPeerConnection(servers);
@@ -70,6 +93,7 @@ export const useWebRTC = () => {
   };
 
   return {
-    createPeerConnection
+    createPeerConnection,
+    endPeerConnection
   };
 };
