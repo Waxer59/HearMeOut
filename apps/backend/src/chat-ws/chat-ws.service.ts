@@ -497,12 +497,18 @@ export class ChatWsService {
     userId: string,
     conversationId: string,
     client: Socket,
+    server: Server,
   ): Promise<void> {
     // A peer can only have one conversation
     // so if the peer is already in a conversation
     // then remove the peer from the conversation
     // and add the peer to the new conversation
-    await this.webRtcService.removePeer(userId);
+    const callConversation =
+      await this.webRtcService.findPeerConversation(userId);
+
+    if (callConversation) {
+      await this.leftCall(conversationId, userId, server);
+    }
 
     const answer = await this.webRtcService.addPeerToConversation(
       conversationId,

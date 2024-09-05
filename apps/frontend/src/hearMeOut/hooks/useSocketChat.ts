@@ -195,14 +195,6 @@ export const useSocketChat = () => {
       addConversationNotification(id);
     });
 
-    return () => {
-      socket.removeAllListeners();
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    if (!socket) return;
-
     socket.on(CHAT_EVENTS.answer, (answer: string) => {
       const parsedAnswer = JSON.parse(answer);
       peerConnection?.setRemoteDescription(
@@ -250,6 +242,17 @@ export const useSocketChat = () => {
     });
 
     socket.on(CHAT_EVENTS.endCall, (conversationId: string) => {
+      // Remove all local tracks
+      peerConnection?.getSenders().forEach((sender) => sender?.track?.stop());
+
+      // Remove all remote tracks
+      peerConnection
+        ?.getReceivers()
+        .forEach((receiver) => receiver?.track?.stop());
+
+      // Close peer connection
+      peerConnection?.close();
+
       if (callingConversation?.id === conversationId) {
         clearCallStore();
       } else {

@@ -51,10 +51,6 @@ export const useWebRTC = () => {
       }
     };
 
-    peerConnection.oniceconnectionstatechange = () => {
-      console.log(peerConnection.iceConnectionState);
-    };
-
     peerConnection.ontrack = (event) => {
       const [streams] = event.streams;
       // Play user microphone

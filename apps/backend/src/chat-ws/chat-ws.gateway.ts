@@ -233,6 +233,7 @@ export class ChatWsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId,
       conversationId,
       client,
+      this.server,
     );
   }
 
