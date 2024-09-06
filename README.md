@@ -2,7 +2,7 @@
 
 <img src="./docs/hearmeout.webp"/>
 
-Hearmeout is a real-time messaging platform that enables users to communicate with others within the same platform. Users can engage in private conversations or create group chats, inviting others to join their discussions. Additionally, the platform supports voice and video calls through the WebRTC API.
+Hearmeout is a real-time messaging platform that enables users to communicate with others within the same platform. Users can engage in private conversations or create group chats, inviting others to join their discussions. Additionally, the platform supports voice calls through the WebRTC API.
 
 ## How to run the project
 
