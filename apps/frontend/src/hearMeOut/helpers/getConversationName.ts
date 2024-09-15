@@ -8,4 +8,4 @@ export const getConversationName = (
 ): string =>
   searchConversation.type === ConversationTypes.group
     ? searchConversation.name
-    : searchConversation.users[0]!.username;
+    : searchConversation.users[0].username;

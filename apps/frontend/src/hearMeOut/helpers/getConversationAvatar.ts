@@ -8,4 +8,4 @@ export const getConversationAvatar = (
 ): string | undefined =>
   searchConversation.type === ConversationTypes.group
     ? searchConversation.icon
-    : searchConversation.users[0]!.avatar;
+    : searchConversation.users[0].avatar;

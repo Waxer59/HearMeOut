@@ -12,5 +12,5 @@ export const getConversationIsOnline = (
 
   return searchConversation.type === ConversationTypes.group
     ? false
-    : searchConversation.users[0]!.isOnline;
+    : searchConversation.users[0].isOnline;
 };
