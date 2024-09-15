@@ -4,11 +4,16 @@ import { Profile } from '@hearmeout/pages/Profile';
 import { useEffect } from 'react';
 import { useSocketChat } from '@hearmeout/hooks/useSocketChat';
 
+let didInit = false;
+
 export const ChatRoutes = () => {
   const { connectSocketChat } = useSocketChat();
 
   useEffect(() => {
-    connectSocketChat();
+    if (!didInit) {
+      didInit = true;
+      connectSocketChat();
+    }
   }, [connectSocketChat]);
 
   return (

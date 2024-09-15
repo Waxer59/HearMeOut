@@ -18,6 +18,7 @@ export const Input: React.FC = () => {
   const { sendMessage, sendTyping, sendTypingOff } = useSocketChatEvents();
   const messageInputRef = useRef<HTMLInputElement>(null);
   const selectionStartRef = useRef<number | null>(null);
+  const draggableEmojisRef = useRef<HTMLDivElement>(null);
   const settings = useAccountStore((state) => state.settings);
   const replyMessage = useChatStore((state) => state.replyMessage);
   const usersTyping = useChatStore((state) => state.usersTyping);
@@ -125,8 +126,9 @@ export const Input: React.FC = () => {
         </div>
       )}
       <div className="pb-12 relative flex flex-col">
-        <Draggable axis="x" bounds="parent">
+        <Draggable axis="x" bounds="parent" nodeRef={draggableEmojisRef}>
           <div
+            ref={draggableEmojisRef}
             className={`absolute bottom-28 right-20 cursor-move select-none ${
               isEmojiMenuOpen ? 'block' : 'hidden'
             }`}>
