@@ -26,8 +26,17 @@ export const Calling = () => {
   const callIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!isSignaling || incommingCallsIds.length === 0) {
+    const isNoOneCalling = incommingCallsIds.length === 0;
+    const isSomeoneCalling = incommingCallsIds.length > 0;
+
+    if (!isSignaling || isNoOneCalling) {
       clearCallingSound();
+    } else if (isSignaling || isSomeoneCalling) {
+      if (isAudioPlaying) {
+        clearCallingSound();
+      }
+
+      emitCallingSound();
     }
   }, [isSignaling, incommingCallsIds]);
 
@@ -36,16 +45,6 @@ export const Calling = () => {
       clearCallingSound();
     }
   }, [isCallinProgress]);
-
-  useEffect(() => {
-    if (isSignaling || incommingCallsIds.length > 0) {
-      if (isAudioPlaying) {
-        clearCallingSound();
-      }
-
-      emitCallingSound();
-    }
-  }, [isSignaling, incommingCallsIds]);
 
   const clearCallingSound = () => {
     stopAudio();

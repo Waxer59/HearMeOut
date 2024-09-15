@@ -8,7 +8,11 @@ import {
   Tooltip
 } from '@radix-ui/themes';
 import { IconSend } from '@tabler/icons-react';
-import { ConversationTypes, type AccountDetails } from '@store/types/types';
+import {
+  ConversationTypes,
+  type AccountDetails,
+  type ConversationDetails
+} from '@store/types/types';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
@@ -72,6 +76,16 @@ export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
     addUser(user);
   };
 
+  const getFilteredAddUsers = (chatConversations: ConversationDetails[]) => {
+    return chatConversations.filter((el) => {
+      const userInChat = el.users.find((user) => user.id !== ownUserId)!;
+      const isUserSelected = selectedUsers.find(
+        (user) => user.id === userInChat?.id
+      );
+      return !isUserSelected;
+    });
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <TextField.Root size="3" variant="soft" color="gray">
@@ -88,29 +102,11 @@ export const CreateGroupOption: React.FC<Props> = ({ closeDialog }) => {
         <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger placeholder="Contacts" />
           <Select.Content color="blue">
-            {chatConversations
-              .filter((el) => {
-                const userInChat = el.users.find(
-                  (user) => user.id !== ownUserId
-                )!;
-                const isUserSelected = selectedUsers.find(
-                  (user) => user.id === userInChat?.id
-                );
-                return !isUserSelected;
-              })
-              .map((el) => {
-                const userInChat = el.users.find(
-                  (user) => user.id !== ownUserId
-                )!;
-                return (
-                  <Select.Item
-                    key={el.id}
-                    value={userInChat?.id}
-                    className="capitalize">
-                    {userInChat?.username}
-                  </Select.Item>
-                );
-              })}
+            {getFilteredAddUsers(chatConversations).map(({ users, id }) => (
+              <Select.Item key={id} value={users[0].id} className="capitalize">
+                {users[0].username}
+              </Select.Item>
+            ))}
           </Select.Content>
         </Select.Root>
       </div>
