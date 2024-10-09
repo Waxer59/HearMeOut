@@ -80,7 +80,18 @@ const HearMeOutRoutes = () => {
     return () => {
       window.removeEventListener('storage', handleStorage);
     };
-  }, []);
+  }, [
+    getLocalStorageItem,
+    isAuthenticated,
+    setAccount,
+    setActiveConversations,
+    setConversations,
+    setCurrentConversationId,
+    setFriendRequests,
+    setFriendRequestsOutgoing,
+    setLocalStorageItem,
+    setSettings
+  ]);
 
   if (isLoading) {
     return (

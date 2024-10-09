@@ -57,7 +57,7 @@ export const useSocketChat = () => {
       forceNew: true
     });
     setSocket(socketTmp);
-  }, []);
+  }, [setSocket]);
 
   const conversations = useChatStore((state) => state.conversations);
 
@@ -82,7 +82,7 @@ export const useSocketChat = () => {
   const disconnectSocketChat = useCallback(() => {
     socket?.disconnect();
     clearSocket();
-  }, [socket]);
+  }, [clearSocket, socket]);
 
   useEffect(() => {
     if (!socket) {
@@ -263,7 +263,37 @@ export const useSocketChat = () => {
     return () => {
       socket.removeAllListeners();
     };
-  }, [socket, peerConnection, callingConversation]);
+  }, [
+    socket,
+    peerConnection,
+    callingConversation,
+    setConversationIsOnline,
+    getActiveConversations,
+    addConversationMessage,
+    addActiveConversation,
+    ownUserId,
+    addUserTyping,
+    removeUserTyping,
+    addConversation,
+    addFriendRequest,
+    removeConversation,
+    updateConversation,
+    addFriendRequestOutgoing,
+    removeFriendRequestOutgoing,
+    removeFriendRequest,
+    deleteConversationMessage,
+    setLocalStorageItem,
+    updateConversationMessage,
+    addConversationNotification,
+    removeMuteUser,
+    addMuteUser,
+    conversations,
+    addIncomingCallId,
+    setCallConsumersIds,
+    setIsCallInProgress,
+    clearCallStore,
+    removeIncommingCallId
+  ]);
 
   return {
     connectSocketChat,

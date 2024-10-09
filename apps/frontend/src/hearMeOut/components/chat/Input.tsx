@@ -1,6 +1,6 @@
 import { IconButton, TextField, Tooltip, Button } from '@radix-ui/themes';
 import { IconMoodSmile, IconSend, IconX } from '@tabler/icons-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { EmojiProps, InputEvent } from '@/types/types';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -22,35 +22,6 @@ export const Input: React.FC = () => {
   const replyMessage = useChatStore((state) => state.replyMessage);
   const usersTyping = useChatStore((state) => state.usersTyping);
   const clearReplyMessage = useChatStore((state) => state.clearReplyMessage);
-
-  useEffect(() => {
-    const handleKeyDownEvent = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleSendMessage();
-      }
-      if (e.key === 'Escape') {
-        setIsEmojiMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDownEvent);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDownEvent);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!message) {
-      sendTypingOff();
-      return;
-    }
-
-    if (isTyping) {
-      sendTyping();
-    } else {
-      sendTypingOff();
-    }
-  }, [isTyping]);
 
   useEffect(() => {
     if (selectionStartRef.current !== null && messageInputRef.current) {
@@ -100,13 +71,42 @@ export const Input: React.FC = () => {
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
     sendMessage(message, replyMessage?.id);
     setIsTyping(false);
     setMessage('');
     clearReplyMessage();
     messageInputRef.current?.focus();
-  };
+  }, [clearReplyMessage, message, replyMessage?.id, sendMessage]);
+
+  useEffect(() => {
+    const handleKeyDownEvent = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSendMessage();
+      }
+      if (e.key === 'Escape') {
+        setIsEmojiMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDownEvent);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDownEvent);
+    };
+  }, [handleSendMessage]);
+
+  useEffect(() => {
+    if (!message) {
+      sendTypingOff();
+      return;
+    }
+
+    if (isTyping) {
+      sendTyping();
+    } else {
+      sendTypingOff();
+    }
+  }, [isTyping, message, sendTyping, sendTypingOff]);
 
   return (
     <div className="flex flex-col px-10 md:px-20 pt-10">

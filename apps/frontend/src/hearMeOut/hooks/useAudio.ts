@@ -10,7 +10,7 @@ export const useAudio = ({ data }: Props) => {
 
   useEffect(() => {
     audioRef.current = new Audio(data);
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     if (!isAudioPlaying && audioRef.current) {

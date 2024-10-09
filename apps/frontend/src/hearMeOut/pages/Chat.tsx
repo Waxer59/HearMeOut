@@ -44,7 +44,7 @@ export const Chat: React.FC = () => {
     }
 
     sendOpenChat(currentConversationId);
-  }, [currentConversationId, socket]);
+  }, [currentConversationId, sendOpenChat, socket]);
 
   useEffect(() => {
     if (!conversation) {
@@ -105,7 +105,16 @@ export const Chat: React.FC = () => {
     return () => {
       bc.close();
     };
-  }, [currentConversationId]);
+  }, [
+    clearReplyMessage,
+    conversation?.messages,
+    currentConversationId,
+    removeConversationNotification,
+    replyMessage,
+    setConversationMessages,
+    setCurrentConversationId,
+    setShowGroupSettings
+  ]);
 
   return (
     <>

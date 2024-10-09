@@ -49,10 +49,6 @@ export const Conversation: React.FC<Props> = ({
   );
   const { sendRemoveConversation, sendExitGroup } = useSocketChatEvents();
 
-  useEffect(() => {
-    setHasNewMessages(account.conversationNotificationIds.includes(id));
-  }, [account.conversationNotificationIds]);
-
   const handleOpenChat = async () => {
     setCurrentConversationId(id);
     setHasNewMessages(false);
@@ -73,6 +69,10 @@ export const Conversation: React.FC<Props> = ({
         break;
     }
   };
+
+  useEffect(() => {
+    setHasNewMessages(account.conversationNotificationIds.includes(id));
+  }, [account.conversationNotificationIds, id]);
 
   return (
     <ContextMenu.Root>

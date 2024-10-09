@@ -4,7 +4,7 @@ import {
 } from '@/constants/constants';
 import { useAudio } from '@/hearMeOut/hooks/useAudio';
 import { useCallStore } from '@/store/call';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { CallInProgress } from './CallInProgress';
 import { RecieveCall } from './RecieveCall';
 import { MakeCall } from './MakeCall';
@@ -25,34 +25,12 @@ export const Calling = () => {
   const isCallinProgress = useCallStore((state) => state.isCallinProgress);
   const callIntervalRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (!isSignaling || incommingCallsIds.length === 0) {
-      clearCallingSound();
-    }
-  }, [isSignaling, incommingCallsIds]);
-
-  useEffect(() => {
-    if (isCallinProgress) {
-      clearCallingSound();
-    }
-  }, [isCallinProgress]);
-
-  useEffect(() => {
-    if (isSignaling || incommingCallsIds.length > 0) {
-      if (isAudioPlaying) {
-        clearCallingSound();
-      }
-
-      emitCallingSound();
-    }
-  }, [isSignaling, incommingCallsIds]);
-
-  const clearCallingSound = () => {
+  const clearCallingSound = useCallback(() => {
     stopAudio();
     clearInterval(callIntervalRef.current!);
-  };
+  }, [stopAudio]);
 
-  const emitCallingSound = () => {
+  const emitCallingSound = useCallback(() => {
     let currentCallingTones = 0;
 
     playAudio();
@@ -72,7 +50,35 @@ export const Calling = () => {
       currentCallingTones++;
       playAudio();
     }, CALLING_TONES_TIME_INTERVAL);
-  };
+  }, [callingConversation, isCallinProgress, playAudio, sendUserLeftCall]);
+
+  useEffect(() => {
+    if (!isSignaling || incommingCallsIds.length === 0) {
+      clearCallingSound();
+    }
+  }, [isSignaling, incommingCallsIds, clearCallingSound]);
+
+  useEffect(() => {
+    if (isCallinProgress) {
+      clearCallingSound();
+    }
+  }, [clearCallingSound, isCallinProgress]);
+
+  useEffect(() => {
+    if (isSignaling || incommingCallsIds.length > 0) {
+      if (isAudioPlaying) {
+        clearCallingSound();
+      }
+
+      emitCallingSound();
+    }
+  }, [
+    isSignaling,
+    incommingCallsIds,
+    isAudioPlaying,
+    emitCallingSound,
+    clearCallingSound
+  ]);
 
   return (
     <>

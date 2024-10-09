@@ -6,7 +6,7 @@ import {
   TextFieldInput
 } from '@radix-ui/themes';
 import { IconChevronDown } from '@tabler/icons-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSocketChatEvents } from '@hearmeout/hooks/useSocketChatEvents';
 import { toast } from 'sonner';
 import type { MessageDetails } from '@store/types/types';
@@ -37,6 +37,28 @@ export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
     .messages.find((e) => e.id === message.replyId);
   const isReplying = Boolean(replyMsg);
 
+  const handleEditMessage = () => {
+    editInput.current?.focus();
+    setIsEditing(true);
+  };
+
+  const handleSaveEditMessage = useCallback(() => {
+    const newMessage = editInput.current?.value;
+
+    if (!newMessage) {
+      toast.error('You have to provide a text to edit the message');
+      return;
+    }
+
+    sendUpdateMessage(id, newMessage);
+    setIsEditing(false);
+    setIsMenuOpen(false);
+  }, [id, sendUpdateMessage]);
+
+  const handleCancelEditMessage = () => {
+    setIsEditing(false);
+  };
+
   useEffect(() => {
     if (!isEditing) {
       return;
@@ -56,29 +78,7 @@ export const Message: React.FC<Props> = ({ message, name, avatar, date }) => {
     return () => {
       document.removeEventListener('keydown', handleOnKeyDownEvent);
     };
-  }, [isEditing]);
-
-  const handleEditMessage = () => {
-    editInput.current?.focus();
-    setIsEditing(true);
-  };
-
-  const handleSaveEditMessage = () => {
-    const newMessage = editInput.current?.value;
-
-    if (!newMessage) {
-      toast.error('You have to provide a text to edit the message');
-      return;
-    }
-
-    sendUpdateMessage(id, newMessage);
-    setIsEditing(false);
-    setIsMenuOpen(false);
-  };
-
-  const handleCancelEditMessage = () => {
-    setIsEditing(false);
-  };
+  }, [handleSaveEditMessage, isEditing]);
 
   return (
     <DropdownMenu.Root onOpenChange={setIsMenuOpen}>
