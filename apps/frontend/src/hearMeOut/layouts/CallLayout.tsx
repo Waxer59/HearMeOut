@@ -1,6 +1,7 @@
 import { Avatar, Heading } from '@radix-ui/themes';
 import Draggable from 'react-draggable';
 import { getFallbackAvatarName } from '@hearmeout/helpers/getFallbackAvatarName';
+import { useRef } from 'react';
 
 interface Props {
   children: React.ReactNode;
@@ -15,9 +16,13 @@ export const CallLayout: React.FC<Props> = ({
   avatar,
   isMuted
 }) => {
+  const draggableCallRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Draggable bounds="parent">
-      <div className="absolute bg-secondary p-4 rounded-lg flex items-center flex-col gap-4 cursor-move right-10 top-10 z-10">
+    <Draggable bounds="parent" nodeRef={draggableCallRef}>
+      <div
+        ref={draggableCallRef}
+        className="absolute bg-secondary p-4 rounded-lg flex items-center flex-col gap-4 cursor-move right-10 top-10 z-10">
         <Avatar
           fallback={getFallbackAvatarName(name)}
           src={avatar}
